@@ -1,0 +1,248 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("TEST_DATABASE_URL")
+}
+
+enum ResourceType {
+  USER
+  ROLE
+  PERMISSION
+  PRODUCT_CATEGORY
+  BLOG_POST
+  BLOG_POST_CATEGORY
+}
+
+enum ActionType {
+  READ
+  WRITE
+  DELETE
+  UPDATE
+  ALL
+}
+
+enum ScopeType {
+  SELF
+  GLOBAL
+}
+
+enum UserActiveStatus {
+  INACTIVE
+  ACTIVE
+  BANNED
+  FRAUD
+  NOT_VERIFIED
+}
+
+model User {
+  id                String  @id @default(uuid())
+  role_id           String
+  oauth_provider_id String?
+
+  email                    String  @unique
+  password_hash            String
+  email_verification_token String?
+  reset_password_token     String?
+  oauth_provider           String?
+  two_factor_secret        String?
+
+  permissions String[]
+
+  two_factor_enabled Boolean @default(false)
+  email_verified     Boolean @default(false)
+
+  is_active UserActiveStatus @default(INACTIVE)
+
+  role Role @relation(fields: [role_id], references: [id])
+
+  reset_password_expires DateTime?
+  last_login             DateTime?
+  created_at             DateTime? @default(now())
+  updated_at             DateTime? @updatedAt
+  updated_by             String?
+  created_by             String?
+  deleted_at             DateTime?
+  deleted_by             String?
+
+  @@index([email])
+  @@index([role_id])
+}
+
+model Role {
+  id String @id @default(uuid())
+
+  name String @unique
+
+  users            User[]
+  role_permissions RolePermission[]
+
+  created_at DateTime? @default(now())
+  created_by String?
+  updated_at DateTime? @updatedAt
+  updated_by String?
+  deleted_at DateTime?
+  deleted_by String?
+}
+
+model Permission {
+  id                String  @id @default(uuid())
+  specific_scope_id String?
+
+  resource ResourceType
+  action   ActionType
+  scope    ScopeType
+
+  role_permissions RolePermission[]
+
+  created_at DateTime? @default(now())
+  updated_at DateTime? @updatedAt
+  created_by String?
+  updated_by String?
+  deleted_at DateTime?
+  deleted_by String?
+
+  @@unique([action, resource, scope])
+}
+
+model RolePermission {
+  id            String @id @default(uuid())
+  role_id       String
+  permission_id String
+
+  is_active Boolean @default(true)
+
+  role       Role       @relation(fields: [role_id], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permission_id], references: [id], onDelete: Cascade)
+
+  created_at DateTime? @default(now())
+  updated_at DateTime? @updatedAt
+  created_by String?
+  updated_by String?
+  deleted_at DateTime?
+  deleted_by String?
+
+  @@unique([role_id, permission_id])
+}
+
+model ProductCategory {
+  id                 String  @id @default(uuid())
+  parent_category_id String?
+  meta_field_id      String?
+
+  name    String @unique
+  content String
+
+  parent_category ProductCategory?  @relation(fields: [parent_category_id], references: [id], name: "tree")
+  sub_categories  ProductCategory[] @relation(name: "tree")
+  meta_fields     MetaField?        @relation(fields: [meta_field_id], references: [id])
+
+  created_at DateTime? @default(now())
+  updated_at DateTime? @updatedAt
+  deleted_at DateTime?
+
+  @@index([meta_field_id])
+}
+
+model BlogPost {
+  id            String  @id @default(uuid())
+  meta_field_id String?
+
+  title   String
+  content String
+
+  meta_fields MetaField? @relation(fields: [meta_field_id], references: [id])
+
+  created_at DateTime? @default(now())
+  updated_at DateTime? @updatedAt
+
+  @@index([meta_field_id])
+}
+
+model MetaField {
+  id String @id @default(uuid())
+
+  meta_title       String
+  meta_description String
+  keywords         String[]
+  version          Int      @default(1)
+
+  canonical_url       String?
+  og_title            String?
+  og_description      String?
+  og_image            String?
+  twitter_title       String?
+  twitter_description String?
+  twitter_image       String?
+  meta_robots         String?
+  schema_markup       String? // For JSON-LD
+  hreflang            String[] // Multi-language SEO support
+  page_type           String?
+
+  product_categories ProductCategory[]
+  blog_posts         BlogPost[]
+
+  created_at DateTime? @default(now())
+  updated_at DateTime? @updatedAt
+}
+
+model BlogPostCategory {
+  id String @id @default(uuid())
+
+  name String @unique
+
+  created_at DateTime? @default(now())
+  updated_at DateTime? @updatedAt
+}
+
+model Lang {
+  id String @id @default(uuid())
+
+  name      String @unique
+  code      String @unique
+  direction String @default("ltr")
+
+  created_at DateTime? @default(now())
+  updated_at DateTime? @updatedAt
+  deleted_at DateTime?
+}
+
+model SystemSettings {
+  id String @id @default(uuid())
+
+  site_on          Boolean @default(false)
+  default_language String  @default("en")
+  timezone         String  @default("UTC")
+  site_name        String  @default("yag_ve_yag")
+  contact_email    String?
+
+  allow_registration Boolean @default(true)
+  maintenance_mode   Boolean @default(false)
+
+  default_meta_title       String?
+  default_meta_description String?
+  default_meta_keywords    String[]
+
+  smtp_host     String?
+  smtp_port     Int?
+  smtp_username String?
+  smtp_password String?
+
+  max_file_upload_size Int      @default(10485760) // 10 MB
+  allowed_file_types   String[] @default(["jpg", "png", "pdf"])
+
+  max_login_attempts  Int @default(5)
+  password_min_length Int @default(8)
+
+  google_analytics_key String?
+  stripe_api_key       String?
+
+  facebook_url String?
+  twitter_url  String?
+  linkedin_url String?
+
+  created_at DateTime? @default(now())
+  updated_at DateTime? @updatedAt
+}
