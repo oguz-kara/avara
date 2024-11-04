@@ -6,14 +6,6 @@ import { UserType } from './user.graphql'
 export class AuthenticateUserSuccess {
   @Field()
   @IsString()
-  userId: string
-
-  @Field()
-  @IsString()
-  userEmail: string
-
-  @Field()
-  @IsString()
   token: string
 }
 

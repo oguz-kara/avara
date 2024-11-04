@@ -9,6 +9,7 @@ import { BcryptHasherService } from './infrastructure/services/bcryp-hasher.serv
 import { PasswordService } from './infrastructure/services/password.service'
 import { JwtModule } from '@nestjs/jwt'
 import { ConfigModule, ConfigService } from '@nestjs/config'
+import { JwtStrategy } from './infrastructure/auth-strategies/jwt.strategy'
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config'
     DbService,
     BcryptHasherService,
     PasswordService,
+    JwtStrategy,
   ],
   exports: [...Repositories, ...Services],
 })

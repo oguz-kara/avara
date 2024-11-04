@@ -13,6 +13,9 @@ export const appConfig: ConfigFactory<ConfigObject> = (): ConfigObject => ({
     defaultPosition: 0,
   },
   authOptions: {
-    strategy: 'bearer',
+    strategy: process.env.AUTH_STRATEGY,
+    jwtExpiresIn: '30s',
+    isAuthorizationActive:
+      process.env.AUTHORIZATION_ACTIVE === 'true' ? true : false,
   },
 })

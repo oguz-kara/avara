@@ -15,13 +15,16 @@ import {
   AuthenticateUserSuccess,
   CreateUserAccountSuccess,
 } from '../../infrastructure/graphql/auth.graphql'
+import { Permission } from '@avara/shared/enums/permission'
+import { PermissionRepository } from '../../infrastructure/orm/repository/permission.repository'
 
 @Injectable()
-export class UserAuthService {
+export class AuthService {
   constructor(
     private readonly userRepo: UserRepository,
     private readonly roleRepo: RoleRepository,
     private readonly pwService: PasswordService,
+    private readonly permissionRepo: PermissionRepository,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
   ) {}
@@ -73,6 +76,7 @@ export class UserAuthService {
     email,
     password,
   }: LoginUserDto): Promise<AuthenticateUserSuccess> {
+    const jwtExpiresIn = this.configService.get('authOptions.jwtExpiresIn')
     const user = await this.validateUser(email, password)
 
     if (!user) throw new ConflictException('Invalid credentials!')
@@ -81,13 +85,45 @@ export class UserAuthService {
 
     const token = this.jwtService.sign(payload, {
       secret: this.configService.get('JWT_SECRET'),
-      expiresIn: '24h',
+      expiresIn: jwtExpiresIn,
     })
 
     return {
-      userId: user.id,
-      userEmail: user.email,
       token,
     }
+  }
+
+  async isAuthorizedToPerformAction(
+    userId: string,
+    requiredPermissions: Permission[],
+    operator: 'OR' | 'AND',
+  ) {
+    const user = await this.userRepo.findById(userId)
+
+    if (!user) throw new ConflictException('User not found!')
+
+    const permissions = await this.permissionRepo.getPermissionsByRoleId(
+      user.role_id,
+    )
+
+    const permissionNames = permissions.map(
+      (permission) => permission.name,
+    ) as Permission[]
+
+    if (operator === 'OR') {
+      const hasPermission = requiredPermissions.some((permission) =>
+        permissionNames.includes(permission),
+      )
+
+      if (!hasPermission) throw new ConflictException('Access denied!')
+      return true
+    }
+
+    const hasPermission = requiredPermissions.every((permission) =>
+      permissionNames.includes(permission),
+    )
+
+    if (!hasPermission) throw new ConflictException('Access denied!')
+    return true
   }
 }

@@ -9,9 +9,13 @@ import {
 
 export class BaseRepository<D extends CoreEntity, P> {
   constructor(
-    private readonly db: DbService,
-    private readonly entity: 'user' | 'role' | 'permission',
-    private readonly mapper: Mapper<D, P>,
+    protected readonly db: DbService,
+    protected readonly entity:
+      | 'user'
+      | 'role'
+      | 'permission'
+      | 'productCategory',
+    protected readonly mapper: Mapper<D, P>,
   ) {
     this.entity = entity
   }

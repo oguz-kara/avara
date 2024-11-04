@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common'
 import { DbService } from './database/db-service'
 import { APP_GUARD } from '@nestjs/core'
-import { PermissionsGuard } from './guards/permission'
+import { PermissionsGuard } from './guards/permission.guard'
 import { JwtModule } from '@nestjs/jwt'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { UserModule } from '@avara/core/modules/user/user.module'

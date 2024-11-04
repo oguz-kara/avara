@@ -2,31 +2,36 @@ import {
   Injectable,
   CanActivate,
   ExecutionContext,
-  ForbiddenException,
   UnauthorizedException,
 } from '@nestjs/common'
 import { GqlExecutionContext } from '@nestjs/graphql'
 import { Reflector } from '@nestjs/core'
 import { JwtService } from '@nestjs/jwt'
-import { UserService } from '@avara/core/modules/user/application/services/user.service'
 import { Permission } from '../enums/permission'
 import { ConfigService } from '@nestjs/config'
+import { AuthService } from '@avara/core/modules/user/application/services/auth.service'
+import { AuthStorageService } from '@avara/core/modules/user/application/services/auth-storage.service'
 
 @Injectable()
 export class PermissionsGuard implements CanActivate {
   constructor(
     private readonly reflector: Reflector,
     private readonly jwtService: JwtService,
-    private readonly userService: UserService,
+    private readonly authService: AuthService,
     private readonly configService: ConfigService,
+    private readonly authStorageService: AuthStorageService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     let token: string | undefined = undefined
     let payload: { user_id: string } | undefined = undefined
-    const authType = this.configService.get('authOptions.strategy')
+    const authType = this.authStorageService.getStrategy('default')
+    const isAuthActive = this.configService.get(
+      'authOptions.isAuthorizationActive',
+    )
 
-    // Retrieve permission metadata
+    if (!isAuthActive) return true
+
     const permissionData = this.reflector.get<{
       items: Permission[]
       operator: 'OR' | 'AND'
@@ -43,8 +48,6 @@ export class PermissionsGuard implements CanActivate {
     } else if (authType === 'bearer') {
       token = this.extractJwtFromAuthorizationHeader(context)
     }
-
-    console.log({ token })
 
     if (!token) {
       throw new UnauthorizedException(
@@ -63,25 +66,13 @@ export class PermissionsGuard implements CanActivate {
     const req = this.getRequest(context)
     req.user = payload
 
-    const userPermissions = await this.userService.retrieveUserPermissions(
+    const isAuthorized = this.authService.isAuthorizedToPerformAction(
       payload.user_id,
+      requiredPermissions,
+      operator,
     )
 
-    if (operator === 'OR') {
-      const hasPermission = requiredPermissions.some((permission) =>
-        userPermissions.includes(permission),
-      )
-
-      if (!hasPermission) throw new ForbiddenException('Access denied')
-      return true
-    } else {
-      const hasPermission = requiredPermissions.every((permission) =>
-        userPermissions.includes(permission),
-      )
-
-      if (!hasPermission) throw new ForbiddenException('Access denied')
-      return true
-    }
+    return isAuthorized
   }
 
   private extractJwtFromCookie(context: ExecutionContext): string | undefined {

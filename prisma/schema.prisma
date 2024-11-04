@@ -132,26 +132,29 @@ model ProductCategory {
   parent_category_id String?
   meta_field_id      String?
 
-  name    String @unique
-  content String
+  name        String @unique
+  mdx_content String
 
-  parent_category ProductCategory?  @relation(fields: [parent_category_id], references: [id], name: "tree")
-  sub_categories  ProductCategory[] @relation(name: "tree")
+  parent_category ProductCategory?  @relation(fields: [parent_category_id], references: [id], name: "category_tree")
+  sub_categories  ProductCategory[] @relation(name: "category_tree")
   meta_fields     MetaField?        @relation(fields: [meta_field_id], references: [id])
 
   created_at DateTime? @default(now())
+  created_by String?
   updated_at DateTime? @updatedAt
+  updated_by String?
   deleted_at DateTime?
+  deleted_by String?
 
   @@index([meta_field_id])
 }
 
-model BlogPost {
+model Article {
   id            String  @id @default(uuid())
   meta_field_id String?
 
-  title   String
-  content String
+  title       String
+  mdx_content String
 
   meta_fields MetaField? @relation(fields: [meta_field_id], references: [id])
 
@@ -159,6 +162,15 @@ model BlogPost {
   updated_at DateTime? @updatedAt
 
   @@index([meta_field_id])
+}
+
+model ArticleCategory {
+  id String @id @default(uuid())
+
+  name String @unique
+
+  created_at DateTime? @default(now())
+  updated_at DateTime? @updatedAt
 }
 
 model MetaField {
@@ -177,21 +189,12 @@ model MetaField {
   twitter_description String?
   twitter_image       String?
   meta_robots         String?
-  schema_markup       String? // For JSON-LD
-  hreflang            String[] // Multi-language SEO support
+  schema_markup       Json?
+  hreflang            String[]
   page_type           String?
 
   product_categories ProductCategory[]
-  blog_posts         BlogPost[]
-
-  created_at DateTime? @default(now())
-  updated_at DateTime? @updatedAt
-}
-
-model BlogPostCategory {
-  id String @id @default(uuid())
-
-  name String @unique
+  blog_posts         Article[]
 
   created_at DateTime? @default(now())
   updated_at DateTime? @updatedAt

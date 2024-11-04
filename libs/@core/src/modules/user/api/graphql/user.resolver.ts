@@ -18,6 +18,7 @@ import { Permission } from '@avara/shared/enums/permission'
 export class UserResolver {
   constructor(private readonly userService: UserService) {}
 
+  @Allow(Permission.CREATE_USER_GLOBAL, Permission.WRITE_USER_GLOBAL)
   @Mutation(() => UserType)
   async createUser(
     @Args({ type: () => CreateUserArgs }) { input }: CreateUserArgs,
@@ -37,6 +38,7 @@ export class UserResolver {
     return userData
   }
 
+  @Allow(Permission.READ_USER_GLOBAL)
   @Query(() => UserType, { nullable: true })
   async findUserById(@Args('input') findUserInput: IDInput) {
     const { id } = findUserInput
@@ -45,6 +47,7 @@ export class UserResolver {
     return user
   }
 
+  @Allow(Permission.READ_USER_GLOBAL)
   @Query(() => UserType, { nullable: true })
   async findUserByEmail(@Args('input') findUserInput: EmailInput) {
     const { email } = findUserInput
@@ -53,6 +56,7 @@ export class UserResolver {
     return user
   }
 
+  @Allow(Permission.UPDATE_ROLE_GLOBAL, Permission.WRITE_ROLE_GLOBAL)
   @Mutation(() => UserType)
   async assignRoleToUser(@Args('input') assignRoleInput: AssignRoleInput) {
     const { roleId, userId } = assignRoleInput

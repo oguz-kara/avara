@@ -14,11 +14,14 @@ import { RoleService } from '@avara/core/modules/user/application/services/role.
 import { IDInput } from '@avara/core/modules/user/application/graphql/input/id.input'
 import { PaginationParamsInput } from '@avara/core/modules/user/application/graphql/input/pagination-params.input'
 import { NameInput } from '@avara/core/modules/user/application/graphql/input/name.input'
+import { Allow } from '@avara/shared/decorators/allow'
+import { Permission } from '@avara/shared/enums/permission'
 
 @Resolver(() => Role)
 export class RoleResolver {
   constructor(private readonly roleService: RoleService) {}
 
+  @Allow(Permission.CREATE_ROLE_GLOBAL, Permission.WRITE_ROLE_GLOBAL)
   @Mutation(() => CreateRoleResponse)
   async createRole(@Args('input') createUserInput: CreateRoleDto) {
     const role = await this.roleService.createRole(createUserInput)
@@ -26,6 +29,7 @@ export class RoleResolver {
     return role
   }
 
+  @Allow(Permission.UPDATE_ROLE_GLOBAL, Permission.WRITE_ROLE_GLOBAL)
   @Mutation(() => Role)
   async renameRoleById(@Args('input') renameRoleInput: RenameRoleDto) {
     const role = await this.roleService.renameRoleById(
@@ -36,6 +40,7 @@ export class RoleResolver {
     return role
   }
 
+  @Allow(Permission.DELETE_ROLE_GLOBAL, Permission.WRITE_ROLE_GLOBAL)
   @Mutation(() => Role)
   async removeRoleById(@Args('input') removeRoleInput: IDInput) {
     const role = await this.roleService.removeRoleById(removeRoleInput.id)
@@ -43,6 +48,7 @@ export class RoleResolver {
     return role
   }
 
+  @Allow(Permission.READ_ROLE_GLOBAL)
   @Query(() => FindRolesResponseType)
   async findRoles(
     @Args('input', { nullable: true }) pagination?: PaginationParamsInput,
@@ -52,6 +58,7 @@ export class RoleResolver {
     return rolesData
   }
 
+  @Allow(Permission.READ_ROLE_GLOBAL)
   @Query(() => Role, { nullable: true })
   async findRoleById(@Args('input') findRoleInput: IDInput) {
     const { id } = findRoleInput
@@ -60,6 +67,7 @@ export class RoleResolver {
     return role
   }
 
+  @Allow(Permission.READ_ROLE_GLOBAL)
   @Query(() => Role, { nullable: true })
   async findRoleByName(@Args('input') findRoleInput: NameInput) {
     const { name } = findRoleInput
@@ -68,6 +76,7 @@ export class RoleResolver {
     return role
   }
 
+  @Allow(Permission.UPDATE_ROLE_GLOBAL, Permission.WRITE_ROLE_GLOBAL)
   @Mutation(() => Role)
   async setRolePermissions(
     @Args('input') setRolePermissionsInput: SetRolePermissionsDto,
