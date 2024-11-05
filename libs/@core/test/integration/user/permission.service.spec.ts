@@ -5,7 +5,7 @@ import { PermissionService } from '@avara/core/modules/user/application/services
 import { DbService } from '@avara/shared/database/db-service'
 import { PermissionRepository } from '@avara/core/modules/user/infrastructure/orm/repository/permission.repository'
 import { PermissionMapper } from '@avara/core/modules/user/infrastructure/mappers/permission.mapper'
-import { PaginationUtils } from '@avara/core/modules/user/application/utils/pagination.util'
+import { PaginationUtils } from '@avara/shared/utils/pagination.util'
 import { appConfig } from '@avara/core/modules/user/config/app.config'
 import { CreatePermissionDto } from '@avara/core/modules/user/application/graphql/dto/permission.dto'
 import {
@@ -24,7 +24,7 @@ describe('PermissionService (Integration)', () => {
       imports: [
         ConfigModule.forRoot({
           isGlobal: true,
-          load: [() => ({ app: appConfig })],
+          load: [appConfig],
         }),
       ],
       providers: [
@@ -45,6 +45,7 @@ describe('PermissionService (Integration)', () => {
     await dbService.$transaction([
       dbService.rolePermission.deleteMany(),
       dbService.permission.deleteMany(),
+      dbService.user.deleteMany(),
       dbService.role.deleteMany(),
     ])
   })
@@ -53,6 +54,7 @@ describe('PermissionService (Integration)', () => {
     await dbService.$transaction([
       dbService.rolePermission.deleteMany(),
       dbService.permission.deleteMany(),
+      dbService.user.deleteMany(),
       dbService.role.deleteMany(),
     ])
   })

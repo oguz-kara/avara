@@ -7,7 +7,7 @@ import { DbService } from '@avara/shared/database/db-service'
 import { appConfig } from '@avara/core/modules/user/config/app.config'
 import { RoleRepository } from '@avara/core/modules/user/infrastructure/orm/repository/role.repository'
 import { RoleMapper } from '@avara/core/modules/user/infrastructure/mappers/role.mapper'
-import { PaginationUtils } from '@avara/core/modules/user/application/utils/pagination.util'
+import { PaginationUtils } from '@avara/shared/utils/pagination.util'
 import { PermissionService } from '@avara/core/modules/user/application/services/permission.service'
 import { PermissionRepository } from '@avara/core/modules/user/infrastructure/orm/repository/permission.repository'
 import { PermissionMapper } from '@avara/core/modules/user/infrastructure/mappers/permission.mapper'
@@ -29,7 +29,7 @@ describe('RoleService (Integration)', () => {
       imports: [
         ConfigModule.forRoot({
           isGlobal: true,
-          load: [() => ({ app: appConfig })],
+          load: [appConfig],
         }),
       ],
       providers: [

@@ -14,7 +14,9 @@ import {
   CreateUserDto,
 } from '@avara/core/modules/user/application/graphql/dto/user.dto'
 import { UserActiveStatus } from '@avara/core/modules/user/domain/enums/user-active-status.enum'
-import { User } from '@avara/core/modules/user/domain/entities/user.entity'
+import { PermissionRepository } from '@avara/core/modules/user/infrastructure/orm/repository/permission.repository'
+import { PaginationUtils } from '@avara/shared/utils/pagination.util'
+import { ConfigService } from '@nestjs/config'
 
 describe('UserService (Integration)', () => {
   let userService: UserService
@@ -30,8 +32,11 @@ describe('UserService (Integration)', () => {
         UserMapper,
         RoleMapper,
         RolePermissionRepository,
+        PermissionRepository,
         PermissionMapper,
         RolePermissionMapper,
+        PaginationUtils,
+        ConfigService,
       ],
     }).compile()
 
@@ -66,7 +71,7 @@ describe('UserService (Integration)', () => {
         is_active: UserActiveStatus.ACTIVE,
       }
 
-      const result = await userService.addNewUser(input)
+      const result = await userService.saveNewUser(input)
 
       expect(result).toBeTruthy()
       expect(result.email).toBe(input.email)
@@ -96,9 +101,9 @@ describe('UserService (Integration)', () => {
         is_active: UserActiveStatus.ACTIVE,
       }
 
-      await userService.addNewUser(input)
+      await userService.saveNewUser(input)
 
-      await expect(userService.addNewUser(input)).rejects.toThrow(
+      await expect(userService.saveNewUser(input)).rejects.toThrow(
         ConflictException,
       )
     })
@@ -131,10 +136,7 @@ describe('UserService (Integration)', () => {
         roleId: newRole.id,
       }
 
-      const result = await userService.assignUserRole(
-        input.userId,
-        input.roleId,
-      )
+      const result = await userService.setUserRole(input.userId, input.roleId)
 
       expect(result).toBeTruthy()
       expect(result.role_id).toBe(input.roleId)
@@ -157,7 +159,7 @@ describe('UserService (Integration)', () => {
       }
 
       await expect(
-        userService.assignUserRole(input.userId, input.roleId),
+        userService.setUserRole(input.userId, input.roleId),
       ).rejects.toThrow(NotFoundException)
     })
 
@@ -182,7 +184,7 @@ describe('UserService (Integration)', () => {
       }
 
       await expect(
-        userService.assignUserRole(input.userId, input.roleId),
+        userService.setUserRole(input.userId, input.roleId),
       ).rejects.toThrow(NotFoundException)
     })
   })
@@ -203,7 +205,7 @@ describe('UserService (Integration)', () => {
         },
       })
 
-      const result = await userService.retrieveUserById(user.id)
+      const result = await userService.getUserById(user.id)
 
       expect(result).toBeTruthy()
       expect(result.id).toBe(user.id)
@@ -214,7 +216,7 @@ describe('UserService (Integration)', () => {
     })
 
     it('should return null if user not found', async () => {
-      const result = await userService.retrieveUserById('non-existent-id')
+      const result = await userService.getUserById('non-existent-id')
 
       expect(result).toBeNull()
     })
@@ -238,7 +240,7 @@ describe('UserService (Integration)', () => {
         },
       })
 
-      const result = await userService.retrieveUserByEmail(user.email)
+      const result = await userService.getUserByEmail(user.email)
 
       expect(result).toBeTruthy()
       expect(result.id).toBe(user.id)
@@ -249,7 +251,7 @@ describe('UserService (Integration)', () => {
     })
 
     it('should return null if user not found', async () => {
-      const result = await userService.retrieveUserByEmail(
+      const result = await userService.getUserByEmail(
         'non-existent-email@example.com',
       )
 
@@ -284,38 +286,16 @@ describe('UserService (Integration)', () => {
       })
 
       const paginationParams = { limit: 10, position: 0 }
-      const paginatedResponse = {
-        items: [
-          new User({
-            id: '1',
-            email: 'user1@example.com',
-            password_hash: 'password123',
-            role_id: 'role-id',
-            email_verified: false,
-            is_active: UserActiveStatus.ACTIVE,
-          }),
-          new User({
-            id: '2',
-            email: 'user2@example.com',
-            password_hash: 'password123',
-            role_id: 'role-id',
-            email_verified: false,
-            is_active: UserActiveStatus.ACTIVE,
-          }),
-        ],
-        pagination: { total: 2, limit: 10, position: 0 },
-      }
+      const paginatedResponse =
+        await userService.getUsersWithPagination(paginationParams)
 
-      jest
-        .spyOn(UserRepository.prototype, 'findAll')
-        .mockResolvedValue(paginatedResponse)
-
-      const result = await userService.retrievePaginatedUsers(paginationParams)
-
-      expect(result).toBe(paginatedResponse)
-      expect(UserRepository.prototype.findAll).toHaveBeenCalledWith(
-        paginationParams,
-      )
+      expect(paginatedResponse).toBeTruthy()
+      expect(paginatedResponse.items).toHaveLength(2)
+      expect(paginatedResponse.pagination).toEqual({
+        total: 2,
+        limit: 10,
+        position: 0,
+      })
     })
   })
 })

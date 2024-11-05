@@ -11,9 +11,19 @@ enum ResourceType {
   USER
   ROLE
   PERMISSION
-  PRODUCT_CATEGORY
-  BLOG_POST
-  BLOG_POST_CATEGORY
+  CATEGORY
+  ARTICLE
+}
+
+enum CategoryType {
+  ARTICLE
+  PRODUCT
+  INDUSTRY
+}
+
+enum PartnerType {
+  MANUFACTURER
+  SUPPLIER
 }
 
 enum ActionType {
@@ -35,6 +45,12 @@ enum UserActiveStatus {
   BANNED
   FRAUD
   NOT_VERIFIED
+}
+
+enum PermissionType {
+  GLOBAL
+  PARTNER
+  CUSTOMER
 }
 
 model User {
@@ -91,9 +107,10 @@ model Permission {
   id                String  @id @default(uuid())
   specific_scope_id String?
 
-  resource ResourceType
-  action   ActionType
-  scope    ScopeType
+  resource        ResourceType
+  action          ActionType
+  scope           ScopeType
+  permission_type PermissionType @default(value: GLOBAL)
 
   role_permissions RolePermission[]
 
@@ -127,17 +144,38 @@ model RolePermission {
   @@unique([role_id, permission_id])
 }
 
-model ProductCategory {
+model Partner {
+  id String @id @default(uuid())
+
+  name         String
+  email        String?
+  phone_number String?
+  address      String?
+  partner_type PartnerType
+  website      String?
+
+  created_at DateTime? @default(now())
+  updated_at DateTime? @updatedAt
+  created_by String?
+  updated_by String?
+  deleted_at DateTime?
+  deleted_by String?
+
+  @@index([partner_type])
+}
+
+model Category {
   id                 String  @id @default(uuid())
   parent_category_id String?
   meta_field_id      String?
 
-  name        String @unique
-  mdx_content String
+  name          String
+  mdx_content   String
+  category_type CategoryType
 
-  parent_category ProductCategory?  @relation(fields: [parent_category_id], references: [id], name: "category_tree")
-  sub_categories  ProductCategory[] @relation(name: "category_tree")
-  meta_fields     MetaField?        @relation(fields: [meta_field_id], references: [id])
+  parent_category Category?  @relation(fields: [parent_category_id], references: [id], name: "category_tree")
+  sub_categories  Category[] @relation(name: "category_tree")
+  meta_fields     MetaField? @relation(fields: [meta_field_id], references: [id])
 
   created_at DateTime? @default(now())
   created_by String?
@@ -146,6 +184,7 @@ model ProductCategory {
   deleted_at DateTime?
   deleted_by String?
 
+  @@unique([name, category_type])
   @@index([meta_field_id])
 }
 
@@ -193,8 +232,8 @@ model MetaField {
   hreflang            String[]
   page_type           String?
 
-  product_categories ProductCategory[]
-  blog_posts         Article[]
+  categories Category[]
+  blog_posts Article[]
 
   created_at DateTime? @default(now())
   updated_at DateTime? @updatedAt
@@ -248,4 +287,18 @@ model SystemSettings {
 
   created_at DateTime? @default(now())
   updated_at DateTime? @updatedAt
+}
+
+model Facet {
+  id String @id @default(uuid())
+
+  name        String
+  dataType    String
+  constraints Json?
+}
+
+model FacetValue {
+  id String @id @default(uuid())
+
+  value String
 }

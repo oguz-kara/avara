@@ -1,6 +1,6 @@
 import { Field, InputType, ObjectType } from '@nestjs/graphql'
 import { IsString } from 'class-validator'
-import { PaginatedResponseMeta } from '@avara/shared/graphql/pagination-response.graphql'
+import { PaginatedResponseMeta } from '@avara/shared/graphql/types/pagination-response.graphql'
 import { PermissionString } from '../../api/types/permission.types'
 
 @ObjectType()

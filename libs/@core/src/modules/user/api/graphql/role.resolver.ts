@@ -12,7 +12,7 @@ import {
 } from '@avara/core/modules/user/application/graphql/dto/role.dto'
 import { RoleService } from '@avara/core/modules/user/application/services/role.service'
 import { IDInput } from '@avara/core/modules/user/application/graphql/input/id.input'
-import { PaginationParamsInput } from '@avara/core/modules/user/application/graphql/input/pagination-params.input'
+import { PaginationParamsInput } from '@avara/shared/graphql/inputs/pagination-params.input'
 import { NameInput } from '@avara/core/modules/user/application/graphql/input/name.input'
 import { Allow } from '@avara/shared/decorators/allow'
 import { Permission } from '@avara/shared/enums/permission'

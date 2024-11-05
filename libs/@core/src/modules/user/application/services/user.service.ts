@@ -9,7 +9,7 @@ import {
 import { CreateUserDto } from '../graphql/dto/user.dto'
 import { UserRepository } from '../../infrastructure/orm/repository/user.repository'
 import { RoleRepository } from '../../infrastructure/orm/repository/role.repository'
-import { PaginationUtils } from '../utils/pagination.util'
+import { PaginationUtils } from '../../../../../../@shared/src/utils/pagination.util'
 import { PermissionRepository } from '../../infrastructure/orm/repository/permission.repository'
 import { Permission } from '@avara/shared/enums/permission'
 
@@ -22,19 +22,19 @@ export class UserService {
     private readonly paginationUtils: PaginationUtils,
   ) {}
 
-  async retrieveUserById(id: string): Promise<User | null> {
+  async getUserById(id: string): Promise<User | null> {
     const user = await this.repo.findById(id)
 
     return user
   }
 
-  async retrieveUserByEmail(email: string): Promise<User | null> {
+  async getUserByEmail(email: string): Promise<User | null> {
     const user = await this.repo.findByEmail(email)
 
     return user
   }
 
-  async retrievePaginatedUsers(
+  async getUsersWithPagination(
     params: PaginationParams,
   ): Promise<PaginatedItemsResponse<User>> {
     const { limit, position } =
@@ -48,7 +48,7 @@ export class UserService {
     return user
   }
 
-  async replaceUserEmail(id: string, email: string) {
+  async setUserEmail(id: string, email: string) {
     const user = await this.repo.findById(id)
 
     if (!user) throw new NotFoundException('User not found!')
@@ -60,7 +60,7 @@ export class UserService {
     return user
   }
 
-  async retrieveUserPermissions(userId: string) {
+  async getUserPermissionsByUserId(userId: string) {
     const user = await this.repo.findById(userId)
 
     if (!user) throw new ConflictException('User not found!')
@@ -72,7 +72,7 @@ export class UserService {
     return permissions.map((permission) => permission.name) as Permission[]
   }
 
-  async addNewUser(user: CreateUserDto) {
+  async saveNewUser(user: CreateUserDto) {
     const existedUser = await this.repo.findByEmail(user.email)
 
     if (existedUser) throw new ConflictException('User already exists!')
@@ -95,7 +95,7 @@ export class UserService {
     return createdUser
   }
 
-  async assignUserRole(userId: string, roleId: string) {
+  async setUserRole(userId: string, roleId: string) {
     const user = await this.repo.findById(userId)
 
     if (!user) throw new NotFoundException('User not found to assign role!')

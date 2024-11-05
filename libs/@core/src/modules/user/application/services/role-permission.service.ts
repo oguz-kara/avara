@@ -6,7 +6,7 @@ import {
 
 import { CreateRolePermissionDto } from '../graphql/dto/role-permission.dto'
 import { RolePermission } from '../../domain/entities/role-permission.entity'
-import { PaginationUtils } from '../utils/pagination.util'
+import { PaginationUtils } from '../../../../../../@shared/src/utils/pagination.util'
 import { RolePermissionRepository } from '../../infrastructure/orm/repository/role-permission.repository'
 import { PaginationParams } from '../../api/types/pagination.type'
 import { PaginatedItemsResponse } from '../../api/types/items-response.type'

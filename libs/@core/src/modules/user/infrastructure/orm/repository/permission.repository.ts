@@ -68,7 +68,7 @@ export class PermissionRepository
       where: {
         action,
         scope: scope as ScopeType,
-        resource,
+        resource: resource as ResourceType,
       },
     })
 

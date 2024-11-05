@@ -1,5 +1,5 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql'
-import { PaginatedResponseMeta } from '../../../../../../@shared/src/graphql/pagination-response.graphql'
+import { PaginatedResponseMeta } from '../../../../../../@shared/src/graphql/types/pagination-response.graphql'
 
 @ObjectType()
 export class Role {

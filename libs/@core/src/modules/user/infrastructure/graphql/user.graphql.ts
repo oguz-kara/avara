@@ -1,6 +1,6 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql'
 import { UserActiveStatus } from '@prisma/client'
-import { PaginatedResponseMeta } from '../../../../../../@shared/src/graphql/pagination-response.graphql'
+import { PaginatedResponseMeta } from '../../../../../../@shared/src/graphql/types/pagination-response.graphql'
 import { IsOptional } from 'class-validator'
 
 @ObjectType()

@@ -95,7 +95,6 @@ export class PermissionsGuard implements CanActivate {
     if (isGraphQL) {
       const gqlContext = GqlExecutionContext.create(context).getContext()
       const authHeader = gqlContext.req?.headers?.authorization
-      console.log({ authHeader })
       return this.extractTokenFromAuthHeader(authHeader)
     } else {
       const req = context.switchToHttp().getRequest()

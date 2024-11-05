@@ -6,7 +6,7 @@ import {
 
 import { Permission } from '@avara/core/modules/user/domain/entities/permission.entity'
 import { CreatePermissionDto } from '@avara/core/modules/user/application/graphql/dto/permission.dto'
-import { PaginationUtils } from '@avara/core/modules/user/application/utils/pagination.util'
+import { PaginationUtils } from '@avara/shared/utils/pagination.util'
 import { PermissionString } from '../../api/types/permission.types'
 import { PermissionRepository } from '../../infrastructure/orm/repository/permission.repository'
 import { PaginationParams } from '../../api/types/pagination.type'

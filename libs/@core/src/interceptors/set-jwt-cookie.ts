@@ -50,7 +50,6 @@ export class SetJwtCookieInterceptor implements NestInterceptor {
               path: '/',
             }
             res.cookie('jwt', allData.accessToken, cookieOptions)
-            console.log('Cookie set in HTTP response')
           }
         }),
       )

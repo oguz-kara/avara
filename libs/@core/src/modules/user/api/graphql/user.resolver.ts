@@ -8,7 +8,7 @@ import {
   CreateUserArgs,
 } from '@avara/core/modules/user/application/graphql/dto/user.dto'
 import { UserService } from '@avara/core/modules/user/application/services/user.service'
-import { PaginationParamsInput } from '@avara/core/modules/user/application/graphql/input/pagination-params.input'
+import { PaginationParamsInput } from '@avara/shared/graphql/inputs/pagination-params.input'
 import { IDInput } from '@avara/core/modules/user/application/graphql/input/id.input'
 import { EmailInput } from '@avara/core/modules/user/application/graphql/input/email.input'
 import { Allow } from '@avara/shared/decorators/allow'
@@ -23,7 +23,7 @@ export class UserResolver {
   async createUser(
     @Args({ type: () => CreateUserArgs }) { input }: CreateUserArgs,
   ) {
-    const user = await this.userService.addNewUser(input)
+    const user = await this.userService.saveNewUser(input)
 
     return user
   }
@@ -33,7 +33,7 @@ export class UserResolver {
   async users(
     @Args('input', { nullable: true }) pagination?: PaginationParamsInput,
   ) {
-    const userData = await this.userService.retrievePaginatedUsers(pagination)
+    const userData = await this.userService.getUsersWithPagination(pagination)
 
     return userData
   }
@@ -42,7 +42,7 @@ export class UserResolver {
   @Query(() => UserType, { nullable: true })
   async findUserById(@Args('input') findUserInput: IDInput) {
     const { id } = findUserInput
-    const user = await this.userService.retrieveUserById(id)
+    const user = await this.userService.getUserById(id)
 
     return user
   }
@@ -51,7 +51,7 @@ export class UserResolver {
   @Query(() => UserType, { nullable: true })
   async findUserByEmail(@Args('input') findUserInput: EmailInput) {
     const { email } = findUserInput
-    const user = await this.userService.retrieveUserByEmail(email)
+    const user = await this.userService.getUserByEmail(email)
 
     return user
   }
@@ -61,7 +61,7 @@ export class UserResolver {
   async assignRoleToUser(@Args('input') assignRoleInput: AssignRoleInput) {
     const { roleId, userId } = assignRoleInput
 
-    const user = await this.userService.assignUserRole(userId, roleId)
+    const user = await this.userService.setUserRole(userId, roleId)
 
     return user
   }

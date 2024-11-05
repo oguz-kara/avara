@@ -1,4 +1,4 @@
-import { ConflictException } from '@nestjs/common'
+import { ConflictException, Injectable } from '@nestjs/common'
 import { CoreEntity } from '../domain/core-entity.abstract'
 import { DbService } from './db-service'
 import { Mapper } from './mapper.interface'
@@ -7,6 +7,7 @@ import {
   PaginationParams,
 } from '@avara/core/modules/user/api/types/pagination.type'
 
+Injectable()
 export class BaseRepository<D extends CoreEntity, P> {
   constructor(
     protected readonly db: DbService,

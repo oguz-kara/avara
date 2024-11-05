@@ -13,7 +13,6 @@ export class CustomValidationPipe extends ValidationPipe {
   constructor() {
     super({
       exceptionFactory: (validationErrors: ValidationError[]) => {
-        console.log('validationErrors', validationErrors)
         const errors = this.flattenValidationErrors(validationErrors)
         return new InputValidationError(errors)
       },

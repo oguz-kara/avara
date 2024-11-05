@@ -1,6 +1,6 @@
 import { CreateRolePermissionDto } from '@avara/core/modules/user/application/graphql/dto/role-permission.dto'
 import { RolePermissionService } from '@avara/core/modules/user/application/services/role-permission.service'
-import { PaginationUtils } from '@avara/core/modules/user/application/utils/pagination.util'
+import { PaginationUtils } from '@avara/shared/utils/pagination.util'
 import { appConfig } from '@avara/core/modules/user/config/app.config'
 import { PermissionMapper } from '@avara/core/modules/user/infrastructure/mappers/permission.mapper'
 import { RolePermissionMapper } from '@avara/core/modules/user/infrastructure/mappers/role-permission.mapper'
@@ -21,7 +21,7 @@ describe('RolePermissionService (Integration)', () => {
       imports: [
         ConfigModule.forRoot({
           isGlobal: true,
-          load: [() => ({ app: appConfig })],
+          load: [appConfig],
         }),
       ],
       providers: [
@@ -121,7 +121,7 @@ describe('RolePermissionService (Integration)', () => {
       const permission = await dbService.permission.create({
         data: {
           action: 'ALL',
-          resource: 'BLOG_POST',
+          resource: 'ARTICLE',
           scope: 'GLOBAL',
         },
       })
@@ -167,14 +167,14 @@ describe('RolePermissionService (Integration)', () => {
         dbService.permission.create({
           data: {
             action: 'ALL',
-            resource: 'BLOG_POST',
+            resource: 'ARTICLE',
             scope: 'GLOBAL',
           },
         }),
         dbService.permission.create({
           data: {
             action: 'ALL',
-            resource: 'BLOG_POST',
+            resource: 'ARTICLE',
             scope: 'SELF',
           },
         }),

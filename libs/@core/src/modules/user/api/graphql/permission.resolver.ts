@@ -11,7 +11,7 @@ import {
   RenamePermissionDto,
 } from '../../application/graphql/dto/permission.dto'
 import { IDInput } from '../../application/graphql/input/id.input'
-import { PaginationParamsInput } from '../../application/graphql/input/pagination-params.input'
+import { PaginationParamsInput } from '../../../../../../@shared/src/graphql/inputs/pagination-params.input'
 
 @Resolver(() => Permission)
 export class PermissionResolver {

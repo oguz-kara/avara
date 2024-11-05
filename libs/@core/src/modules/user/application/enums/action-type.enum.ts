@@ -10,12 +10,5 @@ export enum ActionType {
 
 registerEnumType(ActionType, {
   name: 'ActionType',
-  description: 'The type of action',
+  description: 'The type of permission action',
 })
-// export enum ActionType {
-//   READ = 'READ',
-//   WRITE = 'WRITE',
-//   DELETE = 'DELETE',
-//   UPDATE = 'UPDATE',
-//   ALL = 'ALL',
-// }
