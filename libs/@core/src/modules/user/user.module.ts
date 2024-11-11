@@ -10,9 +10,13 @@ import { PasswordService } from './infrastructure/services/password.service'
 import { JwtModule } from '@nestjs/jwt'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { JwtStrategy } from './infrastructure/auth-strategies/jwt.strategy'
+import { ChannelModule } from '@avara/shared/modules/channel/channel.module'
+import { CoreRepositories } from '@avara/core/core-repositories'
 
 @Module({
   imports: [
+    ConfigModule,
+    ChannelModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
@@ -33,6 +37,7 @@ import { JwtStrategy } from './infrastructure/auth-strategies/jwt.strategy'
     BcryptHasherService,
     PasswordService,
     JwtStrategy,
+    CoreRepositories,
   ],
   exports: [...Repositories, ...Services],
 })

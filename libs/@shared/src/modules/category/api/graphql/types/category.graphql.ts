@@ -3,6 +3,7 @@ import { SimpleAuditingFields } from '@avara/shared/graphql/types/simple-auditin
 import { Field, ObjectType } from '@nestjs/graphql'
 import { IsOptional, IsString } from 'class-validator'
 import { CategoryType } from '../../../application/enums/category.enum'
+import { ContentType } from '@prisma/client'
 
 @ObjectType()
 export class Category extends SimpleAuditingFields {
@@ -27,7 +28,11 @@ export class Category extends SimpleAuditingFields {
 
   @Field(() => String)
   @IsString()
-  mdx_content: string
+  content: string
+
+  @Field(() => String)
+  @IsString()
+  content_type: ContentType
 
   @Field(() => CategoryType)
   @IsString()

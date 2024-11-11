@@ -33,16 +33,17 @@ export class CategoryService {
       category_type: input.category_type,
       meta_field_id: input.meta_field_id,
       name: input.name,
-      mdx_content: input.mdx_content,
+      content: input.content,
+      content_type: input.content_type,
     })
 
-    await this.repo.save(category)
+    await this.repo.saveResourceToChannel(category)
 
     return category
   }
 
   async findById(id: string): Promise<Category | null> {
-    const category = await this.repo.findById(id)
+    const category = await this.repo.findOneInChannel(id)
 
     return category
   }
@@ -74,12 +75,12 @@ export class CategoryService {
   }
 
   async removeProductCategoryById(id: string) {
-    const category = await this.repo.findById(id)
+    const category = await this.repo.findOneInChannel(id)
 
     if (!category)
       throw new NotFoundException('ProductCategory not found to remove!')
 
-    const removedCategory = await this.repo.remove(id)
+    const removedCategory = await this.repo.removeResourceInChannel(category)
 
     return removedCategory
   }

@@ -3,10 +3,12 @@ import { INestApplication } from '@nestjs/common'
 import * as request from 'supertest'
 import { AppModule } from '../../../../../src/app.module'
 import { DbService } from '@avara/shared/database/db-service'
+import { RoleRepository } from '@avara/core/modules/user/infrastructure/orm/repository/role.repository'
 
 describe('RoleResolver (e2e)', () => {
   let app: INestApplication
   let dbService: DbService
+  let repo: RoleRepository
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -17,6 +19,7 @@ describe('RoleResolver (e2e)', () => {
     await app.init()
 
     dbService = moduleFixture.get<DbService>(DbService)
+    repo = moduleFixture.get<RoleRepository>(RoleRepository)
   })
 
   afterAll(async () => {
@@ -25,7 +28,11 @@ describe('RoleResolver (e2e)', () => {
   })
 
   beforeEach(async () => {
+    await dbService.user.deleteMany()
+    await dbService.rolePermission.deleteMany()
     await dbService.role.deleteMany()
+    await dbService.permission.deleteMany()
+    await dbService.channel.deleteMany()
   })
 
   describe('createRole', () => {
@@ -40,7 +47,7 @@ describe('RoleResolver (e2e)', () => {
       `
 
       const response = await request(app.getHttpServer())
-        .post('/graphql')
+        .post('/protected')
         .send({ query: createRoleMutation })
 
       expect(response.status).toBe(200)
@@ -69,13 +76,67 @@ describe('RoleResolver (e2e)', () => {
       `
 
       const response = await request(app.getHttpServer())
-        .post('/graphql')
+        .post('/protected')
         .send({ query: createRoleMutation })
 
       expect(response.status).toBe(200)
       expect(response.body.errors).toBeTruthy()
       expect(response.body.errors[0].message).toContain('Role already exists!')
     })
+
+    it('should create a role for a specific channel', async () => {
+      const newChannel = await dbService.channel.create({
+        data: {
+          name: 'test-channel',
+          code: 'test-channel-code',
+          default_language_code: 'en',
+          currency_code: 'USD',
+          is_default: false,
+        },
+      })
+
+      const createRoleMutation = `
+        mutation {
+          createRole(input: { name: "Admin" }) {
+            id
+            name
+          }
+        }
+      `
+
+      const response = await request(app.getHttpServer())
+        .post('/protected')
+        .set('x-channel-id', newChannel.id)
+        .set('x-channel-code', newChannel.code)
+        .set('x-language-code', 'en')
+        .set('x-curreny-code', 'USD')
+        .send({ query: createRoleMutation })
+
+      const role = await repo.findOneByNameInChannel('Admin')
+
+      const channels = role.channels
+      const channel = channels[0]
+
+      expect(response.status).toBe(200)
+      expect(response.body.data.createRole).toBeTruthy()
+      expect(response.body.data.createRole.name).toBe('Admin')
+      expect(channels).toHaveLength(1)
+      expect(channel.name).toBe('test-channel')
+      expect(channel.code).toBe('test-channel-code')
+
+      const savedRole = await dbService.role.findUnique({
+        where: { id: response.body.data.createRole.id },
+        include: { channels: true },
+      })
+
+      expect(savedRole).toBeTruthy()
+      expect(savedRole?.name).toBe('Admin')
+      expect(savedRole?.channels[0].id).toBe(channel.id)
+      expect(savedRole?.channels[0].name).toBe('test-channel')
+      expect(savedRole?.channels[0].code).toBe('test-channel-code')
+    })
+
+    it('should create a role with permissions', async () => {})
   })
 
   describe('renameRoleById', () => {
@@ -94,7 +155,7 @@ describe('RoleResolver (e2e)', () => {
       `
 
       const response = await request(app.getHttpServer())
-        .post('/graphql')
+        .post('/protected')
         .send({ query: renameRoleMutation })
 
       expect(response.status).toBe(200)
@@ -126,7 +187,7 @@ describe('RoleResolver (e2e)', () => {
       `
 
       const response = await request(app.getHttpServer())
-        .post('/graphql')
+        .post('/protected')
         .send({ query: renameRoleMutation })
 
       expect(response.status).toBe(200)
@@ -151,7 +212,7 @@ describe('RoleResolver (e2e)', () => {
       `
 
       const response = await request(app.getHttpServer())
-        .post('/graphql')
+        .post('/protected')
         .send({ query: findRoleByIdQuery })
 
       expect(response.status).toBe(200)
@@ -171,7 +232,7 @@ describe('RoleResolver (e2e)', () => {
       `
 
       const response = await request(app.getHttpServer())
-        .post('/graphql')
+        .post('/protected')
         .send({ query: findRoleByIdQuery })
 
       expect(response.status).toBe(200)
@@ -195,7 +256,7 @@ describe('RoleResolver (e2e)', () => {
       `
 
       const response = await request(app.getHttpServer())
-        .post('/graphql')
+        .post('/protected')
         .send({ query: findRoleByNameQuery })
 
       expect(response.status).toBe(200)
@@ -215,7 +276,7 @@ describe('RoleResolver (e2e)', () => {
       `
 
       const response = await request(app.getHttpServer())
-        .post('/graphql')
+        .post('/protected')
         .send({ query: findRoleByNameQuery })
 
       expect(response.status).toBe(200)
@@ -237,7 +298,7 @@ describe('RoleResolver (e2e)', () => {
 
       const findRolesQuery = `
         query {
-          findRoles(input: { limit: 10, position: 0 }) {
+          roles(input: { limit: 10, position: 0 }) {
             items {
               id
               name
@@ -252,15 +313,17 @@ describe('RoleResolver (e2e)', () => {
       `
 
       const response = await request(app.getHttpServer())
-        .post('/graphql')
+        .post('/protected')
         .send({ query: findRolesQuery })
 
+      console.log({ errors: response.body.errors })
+
       expect(response.status).toBe(200)
-      expect(response.body.data.findRoles.items).toHaveLength(3)
-      expect(response.body.data.findRoles.items.map((r) => r.name)).toEqual(
+      expect(response.body.data.roles.items).toHaveLength(3)
+      expect(response.body.data.roles.items.map((r) => r.name)).toEqual(
         expect.arrayContaining(['Role1', 'Role2', 'Role3']),
       )
-      expect(response.body.data.findRoles.pagination).toEqual({
+      expect(response.body.data.roles.pagination).toEqual({
         total: 3,
         limit: 10,
         position: 0,
@@ -270,7 +333,7 @@ describe('RoleResolver (e2e)', () => {
     it('should return an empty array when no roles exist', async () => {
       const findRolesQuery = `
         query {
-          findRoles(input: { limit: 10, position: 0 }) {
+          roles(input: { limit: 10, position: 0 }) {
             items {
               id
               name
@@ -285,11 +348,11 @@ describe('RoleResolver (e2e)', () => {
       `
 
       const response = await request(app.getHttpServer())
-        .post('/graphql')
+        .post('/protected')
         .send({ query: findRolesQuery })
 
       expect(response.status).toBe(200)
-      expect(response.body.data.findRoles.items).toEqual([])
+      expect(response.body.data.roles.items).toEqual([])
     })
   })
 
@@ -309,7 +372,7 @@ describe('RoleResolver (e2e)', () => {
       `
 
       const response = await request(app.getHttpServer())
-        .post('/graphql')
+        .post('/protected')
         .send({ query: removeRoleByIdMutation })
 
       expect(response.status).toBe(200)
@@ -333,7 +396,7 @@ describe('RoleResolver (e2e)', () => {
       `
 
       const response = await request(app.getHttpServer())
-        .post('/graphql')
+        .post('/protected')
         .send({ query: removeRoleByIdMutation })
 
       expect(response.status).toBe(200)

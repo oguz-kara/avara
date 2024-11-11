@@ -18,11 +18,26 @@ import {
   CreateRoleDto,
   RenameRoleDto,
 } from '@avara/core/modules/user/application/graphql/dto/role.dto'
+import { ChannelRepository } from '@avara/shared/modules/channel/infrastructure/repositories/channel.repository'
+import { Channel } from '@avara/shared/modules/channel/domain/entities/channel.entity'
+import { RequestContext } from '@avara/core/context/request-context'
+import { CoreRepositories } from '@avara/core/core-repositories'
+import { ChannelMapper } from '@avara/shared/modules/channel/infrastructure/mappers/channel.mapper'
+import { UserRepository } from '@avara/core/modules/user/infrastructure/orm/repository/user.repository'
+import { UserMapper } from '@avara/core/modules/user/infrastructure/mappers/user.mapper'
+import {
+  ActionType,
+  ResourceType,
+  ScopeType,
+} from '@avara/core/modules/user/application/enums'
 
 describe('RoleService (Integration)', () => {
   let roleService: RoleService
-  let rolePermissionService: RolePermissionService
+  let permissionService: PermissionService
   let dbService: DbService
+  let rolePermissionService: RolePermissionService
+  let channelRepository: ChannelRepository
+  let ctx: RequestContext
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -46,14 +61,49 @@ describe('RoleService (Integration)', () => {
         RolePermissionRepository,
         RolePermissionService,
         DBTransactionService,
+        ChannelRepository,
+        CoreRepositories,
+        ChannelMapper,
+        UserRepository,
+        PermissionRepository,
+        RolePermissionRepository,
+        UserMapper,
       ],
     }).compile()
 
     roleService = module.get<RoleService>(RoleService)
+    dbService = module.get<DbService>(DbService)
     rolePermissionService = module.get<RolePermissionService>(
       RolePermissionService,
     )
-    dbService = module.get<DbService>(DbService)
+    channelRepository = module.get<ChannelRepository>(ChannelRepository)
+    permissionService = module.get<PermissionService>(PermissionService)
+
+    await dbService.$transaction([
+      dbService.rolePermission.deleteMany(),
+      dbService.permission.deleteMany(),
+      dbService.role.deleteMany(),
+      dbService.channel.deleteMany(),
+    ])
+
+    const channel = new Channel({
+      id: undefined,
+      name: 'Default',
+      code: 'default',
+      currency_code: 'USD',
+      default_language_code: 'en',
+      is_default: true,
+    })
+
+    await channelRepository.save(channel)
+
+    ctx = new RequestContext({
+      channel,
+      channel_code: channel.code,
+      channel_id: channel.id,
+      currency_code: channel.currency_code,
+      language_code: channel.default_language_code,
+    })
   })
 
   beforeEach(async () => {
@@ -69,28 +119,27 @@ describe('RoleService (Integration)', () => {
       dbService.rolePermission.deleteMany(),
       dbService.permission.deleteMany(),
       dbService.role.deleteMany(),
+      dbService.channel.deleteMany(),
     ])
   })
 
   describe('createRole', () => {
     it('should create a new role successfully', async () => {
       const input: CreateRoleDto = { name: 'Admin' }
-      const result = await roleService.createRole(input)
+      const result = await roleService.createRole(ctx, input)
 
       expect(result.name).toBe('Admin')
 
-      const savedRole = await dbService.role.findUnique({
-        where: { id: result.id },
-      })
+      const savedRole = await roleService.findById(ctx, result.id)
       expect(savedRole).toBeTruthy()
       expect(savedRole?.name).toBe('Admin')
     })
 
     it('should throw ConflictException if role name already exists', async () => {
       const input: CreateRoleDto = { name: 'Admin' }
-      await roleService.createRole(input)
+      await roleService.createRole(ctx, input)
 
-      await expect(roleService.createRole(input)).rejects.toThrow(
+      await expect(roleService.createRole(ctx, input)).rejects.toThrow(
         ConflictException,
       )
     })
@@ -99,7 +148,7 @@ describe('RoleService (Integration)', () => {
   describe('renameRoleById', () => {
     it('should rename role by id', async () => {
       const createRoleInput: CreateRoleDto = { name: 'Old_Admin' }
-      const role = await roleService.createRole(createRoleInput)
+      const role = await roleService.createRole(ctx, createRoleInput)
 
       const renameRoleInput: RenameRoleDto = {
         id: role.id,
@@ -107,15 +156,14 @@ describe('RoleService (Integration)', () => {
       }
 
       const renamedRole = await roleService.renameRoleById(
+        ctx,
         renameRoleInput.id,
         renameRoleInput.name,
       )
 
       expect(renamedRole.name).toBe('Renamed_Admin')
 
-      const savedRole = await dbService.role.findUnique({
-        where: { id: role.id },
-      })
+      const savedRole = await roleService.findById(ctx, role.id)
 
       expect(savedRole).toBeTruthy()
       expect(savedRole?.name).toBe('Renamed_Admin')
@@ -123,9 +171,9 @@ describe('RoleService (Integration)', () => {
 
     it('should throw ConflictException if role by provided name already exists', async () => {
       const input: CreateRoleDto = { name: 'ALREADY_EXISTS_ROLE' }
-      await roleService.createRole(input)
+      await roleService.createRole(ctx, input)
 
-      await expect(roleService.createRole(input)).rejects.toThrow(
+      await expect(roleService.createRole(ctx, input)).rejects.toThrow(
         ConflictException,
       )
     })
@@ -134,9 +182,9 @@ describe('RoleService (Integration)', () => {
   describe('findById', () => {
     it('should find a role successfully by role id', async () => {
       const createRoleInput: CreateRoleDto = { name: 'Admin' }
-      const role = await roleService.createRole(createRoleInput)
+      const role = await roleService.createRole(ctx, createRoleInput)
 
-      const retrievedRole = await roleService.findById(role.id)
+      const retrievedRole = await roleService.findById(ctx, role.id)
 
       expect(retrievedRole).toBeTruthy()
       expect(retrievedRole.id).toBe(role.id)
@@ -144,7 +192,10 @@ describe('RoleService (Integration)', () => {
     })
 
     it('should return null if role by provided name not exists', async () => {
-      const findRoleByIdResult = await roleService.findById('NOT_EXISTS_ID')
+      const findRoleByIdResult = await roleService.findById(
+        ctx,
+        'NOT_EXISTS_ID',
+      )
 
       expect(findRoleByIdResult).toBeNull()
     })
@@ -153,9 +204,9 @@ describe('RoleService (Integration)', () => {
   describe('findByName', () => {
     it('should find a role successfully by role name', async () => {
       const createRoleInput: CreateRoleDto = { name: 'Admin' }
-      const role = await roleService.createRole(createRoleInput)
+      const role = await roleService.createRole(ctx, createRoleInput)
 
-      const retrievedRole = await roleService.findById(role.id)
+      const retrievedRole = await roleService.findById(ctx, role.id)
 
       expect(retrievedRole).toBeTruthy()
       expect(retrievedRole.id).toBe(role.id)
@@ -163,7 +214,10 @@ describe('RoleService (Integration)', () => {
     })
 
     it('should return null if role by provided name not exists', async () => {
-      const findRoleByIdResult = await roleService.findById('NOT_EXISTS_ID')
+      const findRoleByIdResult = await roleService.findById(
+        ctx,
+        'NOT_EXISTS_ID',
+      )
 
       expect(findRoleByIdResult).toBeNull()
     })
@@ -171,21 +225,25 @@ describe('RoleService (Integration)', () => {
 
   describe('findMany', () => {
     it('should retrieve all roles when roles exist', async () => {
-      await roleService.createRole({ name: 'Role1' })
-      await roleService.createRole({ name: 'Role2' })
-      await roleService.createRole({ name: 'Role3' })
+      await roleService.createRole(ctx, { name: 'Role1' })
+      await roleService.createRole(ctx, { name: 'Role2' })
+      await roleService.createRole(ctx, { name: 'Role3' })
 
-      const rolesData = await roleService.findMany()
+      const rolesData = await roleService.findMany(ctx)
 
       expect(rolesData.items).toHaveLength(3)
       expect(rolesData.items.map((r) => r.name)).toEqual(
         expect.arrayContaining(['Role1', 'Role2', 'Role3']),
       )
-      expect(rolesData.pagination).toEqual({ total: 3, limit: 25, position: 0 })
+      expect(rolesData.pagination).toEqual({
+        total: 3,
+        limit: 25,
+        position: 0,
+      })
     })
 
     it('should return an empty array when no roles exist', async () => {
-      const roles = await roleService.findMany()
+      const roles = await roleService.findMany(ctx)
 
       expect(roles.items).toEqual([])
     })
@@ -193,42 +251,47 @@ describe('RoleService (Integration)', () => {
 
   describe('removeRoleById', () => {
     it('should remove a role successfully by role ID', async () => {
-      const role = await roleService.createRole({ name: 'Role1' })
+      const role = await roleService.createRole(ctx, { name: 'Role1' })
 
-      const roleDataBeforeDeletion = await roleService.findMany()
+      const roleDataBeforeDeletion = await roleService.findMany(ctx)
       expect(roleDataBeforeDeletion.items).toHaveLength(1)
       expect(roleDataBeforeDeletion.items[0].id).toEqual(role.id)
 
-      const removedRole = await roleService.removeRoleById(role.id)
+      await roleService.removeRoleById(ctx, role.id)
 
-      const roleDataAfterDeletion = await roleService.findMany()
+      const roleDataAfterDeletion = await roleService.findMany(ctx)
       expect(roleDataAfterDeletion.items).toHaveLength(0)
-
-      expect(removedRole.id).toEqual(role.id)
     })
 
     it('should throw a ConflictException if no role exists to remove', async () => {
       // Attempt to remove a non-existent role and check for the correct error
       await expect(
-        roleService.removeRoleById('non-existent-id'),
+        roleService.removeRoleById(ctx, 'non-existent-id'),
       ).rejects.toThrow(NotFoundException)
     })
   })
 
   describe('setPermissionsOfRole', () => {
     it('should assign permissions to a role successfully', async () => {
-      const role = await dbService.role.create({ data: { name: 'Role1' } })
+      const role = await roleService.createRole(ctx, {
+        name: 'Role1',
+      })
 
       const permissions = await Promise.all([
-        dbService.permission.create({
-          data: { action: 'UPDATE', resource: 'USER', scope: 'SELF' },
+        permissionService.createPermission(ctx, {
+          action: ActionType.UPDATE,
+          resource: ResourceType.USER,
+          scope: ScopeType.SELF,
         }),
-        dbService.permission.create({
-          data: { action: 'UPDATE', resource: 'USER', scope: 'GLOBAL' },
+        permissionService.createPermission(ctx, {
+          action: ActionType.UPDATE,
+          resource: ResourceType.USER,
+          scope: ScopeType.GLOBAL,
         }),
       ])
 
       const roleWithPermissions = await roleService.setPermissions(
+        ctx,
         role.id,
         permissions.map((p) => p.id),
       )
@@ -242,18 +305,25 @@ describe('RoleService (Integration)', () => {
       )
 
       const newPermissions = await Promise.all([
-        dbService.permission.create({
-          data: { action: 'DELETE', resource: 'USER', scope: 'SELF' },
+        permissionService.createPermission(ctx, {
+          action: ActionType.DELETE,
+          resource: ResourceType.USER,
+          scope: ScopeType.SELF,
         }),
-        dbService.permission.create({
-          data: { action: 'DELETE', resource: 'USER', scope: 'GLOBAL' },
+        permissionService.createPermission(ctx, {
+          action: ActionType.DELETE,
+          resource: ResourceType.USER,
+          scope: ScopeType.GLOBAL,
         }),
-        dbService.permission.create({
-          data: { action: 'WRITE', resource: 'USER', scope: 'GLOBAL' },
+        permissionService.createPermission(ctx, {
+          action: ActionType.WRITE,
+          resource: ResourceType.USER,
+          scope: ScopeType.GLOBAL,
         }),
       ])
 
       const roleWithUpdatedPermissions = await roleService.setPermissions(
+        ctx,
         role.id,
         newPermissions.map((p) => p.id),
       )

@@ -8,15 +8,29 @@ import {
   PaginatedList,
   PaginationParams,
 } from '@avara/core/modules/user/api/types/pagination.type'
+import {
+  ChannelResourceFinder,
+  ChannelResourceRemover,
+  ChannelResourceSaver,
+  ContextSaver,
+} from '@avara/shared/database/channel-aware-repository.interface'
 
 @Injectable()
-export class CategoryRepository {
+export class CategoryRepository
+  extends ContextSaver
+  implements
+    ChannelResourceSaver<Category>,
+    ChannelResourceRemover<Category>,
+    ChannelResourceFinder<Category>
+{
   constructor(
     private readonly db: DbService,
     private readonly mapper: CategoryMapper,
-  ) {}
+  ) {
+    super()
+  }
 
-  async save(entity: Category): Promise<void> {
+  async saveResourceToChannel(entity: Category): Promise<void> {
     if (entity.id) {
       const persistence = this.mapper.toPersistence(entity)
 
@@ -47,17 +61,15 @@ export class CategoryRepository {
     }
   }
 
-  async remove(id: string): Promise<Category> {
-    const result = await this.db.category.delete({
+  async removeResourceInChannel(category: Category): Promise<void> {
+    await this.db.category.delete({
       where: {
-        id,
+        id: category.id,
       },
     })
-
-    return this.mapper.toDomain(result)
   }
 
-  async findById(id: string): Promise<Category | null> {
+  async findOneInChannel(id: string): Promise<Category | null> {
     const result = await this.db.category.findUnique({
       where: {
         id,
@@ -69,7 +81,9 @@ export class CategoryRepository {
     return this.mapper.toDomain(result)
   }
 
-  async findAll(args: PaginationParams): Promise<PaginatedList<Category>> {
+  async findManyInChannel(
+    args: PaginationParams,
+  ): Promise<PaginatedList<Category>> {
     const result = await this.db.category.findMany()
 
     return {
@@ -86,7 +100,7 @@ export class CategoryRepository {
     name: string,
     type: CategoryType | AppCategoryType,
   ): Promise<Category | null> {
-    const productCategory = await this.db.category.findFirst({
+    const category = await this.db.category.findFirst({
       where: {
         AND: [
           {
@@ -99,9 +113,9 @@ export class CategoryRepository {
       },
     })
 
-    if (!productCategory) return null
+    if (!category) return null
 
-    return this.mapper.toDomain(productCategory)
+    return this.mapper.toDomain(category)
   }
 
   async findManyByType(
@@ -111,6 +125,8 @@ export class CategoryRepository {
       where: {
         category_type: params.type,
       },
+      take: params?.limit,
+      skip: params?.position,
     })
 
     return {

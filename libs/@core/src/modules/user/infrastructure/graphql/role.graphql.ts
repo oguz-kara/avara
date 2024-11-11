@@ -1,5 +1,7 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql'
 import { PaginatedResponseMeta } from '../../../../../../@shared/src/graphql/types/pagination-response.graphql'
+import { IsOptional } from 'class-validator'
+import { ChannelType } from '@avara/shared/modules/channel/api/graphql/types/channel.graphql'
 
 @ObjectType()
 export class Role {
@@ -8,6 +10,10 @@ export class Role {
 
   @Field(() => String)
   name: string
+
+  @Field(() => [ChannelType])
+  @IsOptional()
+  channels?: ChannelType[]
 }
 
 @ObjectType()
@@ -19,7 +25,6 @@ export class CreateRoleResponse {
   name: string
 }
 
-// Define the paginated response for roles
 @ObjectType()
 export class FindRolesResponseType {
   @Field(() => [Role])

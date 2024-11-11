@@ -53,202 +53,10 @@ enum PermissionType {
   CUSTOMER
 }
 
-model User {
-  id                String  @id @default(uuid())
-  role_id           String
-  oauth_provider_id String?
-
-  email                    String  @unique
-  password_hash            String
-  email_verification_token String?
-  reset_password_token     String?
-  oauth_provider           String?
-  two_factor_secret        String?
-
-  permissions String[]
-
-  two_factor_enabled Boolean @default(false)
-  email_verified     Boolean @default(false)
-
-  is_active UserActiveStatus @default(INACTIVE)
-
-  role Role @relation(fields: [role_id], references: [id])
-
-  reset_password_expires DateTime?
-  last_login             DateTime?
-  created_at             DateTime? @default(now())
-  updated_at             DateTime? @updatedAt
-  updated_by             String?
-  created_by             String?
-  deleted_at             DateTime?
-  deleted_by             String?
-
-  @@index([email])
-  @@index([role_id])
-}
-
-model Role {
-  id String @id @default(uuid())
-
-  name String @unique
-
-  users            User[]
-  role_permissions RolePermission[]
-
-  created_at DateTime? @default(now())
-  created_by String?
-  updated_at DateTime? @updatedAt
-  updated_by String?
-  deleted_at DateTime?
-  deleted_by String?
-}
-
-model Permission {
-  id                String  @id @default(uuid())
-  specific_scope_id String?
-
-  resource        ResourceType
-  action          ActionType
-  scope           ScopeType
-  permission_type PermissionType @default(value: GLOBAL)
-
-  role_permissions RolePermission[]
-
-  created_at DateTime? @default(now())
-  updated_at DateTime? @updatedAt
-  created_by String?
-  updated_by String?
-  deleted_at DateTime?
-  deleted_by String?
-
-  @@unique([action, resource, scope])
-}
-
-model RolePermission {
-  id            String @id @default(uuid())
-  role_id       String
-  permission_id String
-
-  is_active Boolean @default(true)
-
-  role       Role       @relation(fields: [role_id], references: [id], onDelete: Cascade)
-  permission Permission @relation(fields: [permission_id], references: [id], onDelete: Cascade)
-
-  created_at DateTime? @default(now())
-  updated_at DateTime? @updatedAt
-  created_by String?
-  updated_by String?
-  deleted_at DateTime?
-  deleted_by String?
-
-  @@unique([role_id, permission_id])
-}
-
-model Partner {
-  id String @id @default(uuid())
-
-  name         String
-  email        String?
-  phone_number String?
-  address      String?
-  partner_type PartnerType
-  website      String?
-
-  created_at DateTime? @default(now())
-  updated_at DateTime? @updatedAt
-  created_by String?
-  updated_by String?
-  deleted_at DateTime?
-  deleted_by String?
-
-  @@index([partner_type])
-}
-
-model Category {
-  id                 String  @id @default(uuid())
-  parent_category_id String?
-  meta_field_id      String?
-
-  name          String
-  mdx_content   String
-  category_type CategoryType
-
-  parent_category Category?  @relation(fields: [parent_category_id], references: [id], name: "category_tree")
-  sub_categories  Category[] @relation(name: "category_tree")
-  meta_fields     MetaField? @relation(fields: [meta_field_id], references: [id])
-
-  created_at DateTime? @default(now())
-  created_by String?
-  updated_at DateTime? @updatedAt
-  updated_by String?
-  deleted_at DateTime?
-  deleted_by String?
-
-  @@unique([name, category_type])
-  @@index([meta_field_id])
-}
-
-model Article {
-  id            String  @id @default(uuid())
-  meta_field_id String?
-
-  title       String
-  mdx_content String
-
-  meta_fields MetaField? @relation(fields: [meta_field_id], references: [id])
-
-  created_at DateTime? @default(now())
-  updated_at DateTime? @updatedAt
-
-  @@index([meta_field_id])
-}
-
-model ArticleCategory {
-  id String @id @default(uuid())
-
-  name String @unique
-
-  created_at DateTime? @default(now())
-  updated_at DateTime? @updatedAt
-}
-
-model MetaField {
-  id String @id @default(uuid())
-
-  meta_title       String
-  meta_description String
-  keywords         String[]
-  version          Int      @default(1)
-
-  canonical_url       String?
-  og_title            String?
-  og_description      String?
-  og_image            String?
-  twitter_title       String?
-  twitter_description String?
-  twitter_image       String?
-  meta_robots         String?
-  schema_markup       Json?
-  hreflang            String[]
-  page_type           String?
-
-  categories Category[]
-  blog_posts Article[]
-
-  created_at DateTime? @default(now())
-  updated_at DateTime? @updatedAt
-}
-
-model Lang {
-  id String @id @default(uuid())
-
-  name      String @unique
-  code      String @unique
-  direction String @default("ltr")
-
-  created_at DateTime? @default(now())
-  updated_at DateTime? @updatedAt
-  deleted_at DateTime?
+enum ContentType {
+  MD
+  MDX
+  HTML
 }
 
 model SystemSettings {
@@ -289,16 +97,282 @@ model SystemSettings {
   updated_at DateTime? @updatedAt
 }
 
+model User {
+  id                String  @id @default(uuid())
+  role_id           String
+  oauth_provider_id String?
+
+  email                    String  @unique
+  password_hash            String
+  email_verification_token String?
+  reset_password_token     String?
+  oauth_provider           String?
+  two_factor_secret        String?
+
+  permissions String[]
+
+  two_factor_enabled Boolean @default(false)
+  email_verified     Boolean @default(false)
+
+  is_active UserActiveStatus @default(INACTIVE)
+
+  role          Role           @relation(fields: [role_id], references: [id])
+  administrator Administrator?
+
+  reset_password_expires DateTime?
+  last_login             DateTime?
+  created_at             DateTime? @default(now())
+  updated_at             DateTime? @updatedAt
+  updated_by             String?
+  created_by             String?
+  deleted_at             DateTime?
+  deleted_by             String?
+
+  @@index([email])
+  @@index([role_id])
+}
+
+model Administrator {
+  id      String @id @default(uuid())
+  user_id String @unique
+
+  email String @unique
+
+  user User @relation(fields: [user_id], references: [id])
+
+  created_at DateTime? @default(now())
+  updated_at DateTime? @updatedAt
+  created_by String?
+  updated_by String?
+  deleted_at DateTime?
+  deleted_by String?
+}
+
+model Role {
+  id String @id @default(uuid())
+
+  name String @unique
+
+  users            User[]
+  role_permissions RolePermission[]
+  channels         Channel[]        @relation("ChannelRoles")
+
+  created_at DateTime? @default(now())
+  created_by String?
+  updated_at DateTime? @updatedAt
+  updated_by String?
+  deleted_at DateTime?
+  deleted_by String?
+}
+
+model Permission {
+  id                String  @id @default(uuid())
+  specific_scope_id String?
+
+  resource        ResourceType
+  action          ActionType
+  scope           ScopeType
+  permission_type PermissionType @default(value: GLOBAL)
+
+  role_permissions RolePermission[]
+  channels         Channel[]        @relation("ChannelPermissions")
+
+  created_at DateTime? @default(now())
+  updated_at DateTime? @updatedAt
+  created_by String?
+  updated_by String?
+  deleted_at DateTime?
+  deleted_by String?
+
+  @@unique([action, resource, scope])
+}
+
+model RolePermission {
+  id            String @id @default(uuid())
+  role_id       String
+  permission_id String
+
+  is_active Boolean @default(true)
+
+  role       Role       @relation(fields: [role_id], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permission_id], references: [id], onDelete: Cascade)
+  channels   Channel[]  @relation("ChannelRolePermission")
+
+  created_at DateTime? @default(now())
+  updated_at DateTime? @updatedAt
+  created_by String?
+  updated_by String?
+  deleted_at DateTime?
+  deleted_by String?
+
+  @@unique([role_id, permission_id])
+}
+
+model Partner {
+  id         String @id @default(uuid())
+  channel_id String
+
+  name         String
+  email        String?
+  phone_number String?
+  address      String?
+  partner_type PartnerType
+  website      String?
+
+  channel Channel @relation(fields: [channel_id], references: [id])
+
+  created_at DateTime? @default(now())
+  updated_at DateTime? @updatedAt
+  created_by String?
+  updated_by String?
+  deleted_at DateTime?
+  deleted_by String?
+
+  @@index([partner_type])
+}
+
+model Category {
+  id                 String  @id @default(uuid())
+  parent_category_id String?
+  seo_metadata_id    String?
+
+  name          String
+  content       String
+  content_type  ContentType
+  category_type CategoryType
+
+  parent_category Category?    @relation(fields: [parent_category_id], references: [id], name: "category_tree")
+  sub_categories  Category[]   @relation(name: "category_tree")
+  seo_metadata    SeoMetadata? @relation(fields: [seo_metadata_id], references: [id])
+  channels        Channel[]    @relation("ChannelCategories")
+
+  created_at DateTime? @default(now())
+  created_by String?
+  updated_at DateTime? @updatedAt
+  updated_by String?
+  deleted_at DateTime?
+  deleted_by String?
+
+  @@unique([name, category_type])
+  @@index([seo_metadata_id])
+}
+
+model Article {
+  id              String  @id @default(uuid())
+  seo_metadata_id String?
+
+  title        String
+  content      String
+  content_type ContentType
+
+  seo_metadata SeoMetadata? @relation(fields: [seo_metadata_id], references: [id])
+  channels     Channel[]    @relation("ChannelArticles")
+
+  created_at DateTime? @default(now())
+  updated_at DateTime? @updatedAt
+
+  @@index([seo_metadata_id])
+}
+
+model SeoMetadata {
+  id String @id @default(uuid())
+
+  title       String
+  description String
+  keywords    String
+  version     Int    @default(1)
+
+  canonical_url  String?
+  og_title       String?
+  og_description String?
+  og_image       String?
+  robots         String?
+  schema_markup  Json?
+  hreflang       String?
+  page_type      String?
+
+  categories Category[]
+  blog_posts Article[]
+  channels   Channel[]  @relation("ChannelMetaFields")
+
+  created_at DateTime? @default(now())
+  updated_at DateTime? @updatedAt
+
+  @@map("MetaField")
+}
+
+model Lang {
+  id String @id @default(uuid())
+
+  name      String @unique
+  code      String @unique
+  direction String @default("ltr")
+
+  created_at DateTime? @default(now())
+  updated_at DateTime? @updatedAt
+  deleted_at DateTime?
+}
+
 model Facet {
   id String @id @default(uuid())
 
   name        String
-  dataType    String
+  data_type   String
   constraints Json?
+
+  values   FacetValue[]
+  channels Channel[]    @relation("ChannelFacets")
+
+  created_at DateTime? @default(now())
+  created_by String?
+  updated_at DateTime? @updatedAt
+  updated_by String?
+  deleted_at DateTime?
+  deleted_by String?
 }
 
 model FacetValue {
-  id String @id @default(uuid())
+  id       String @id @default(uuid())
+  facet_id String
 
   value String
+
+  facet    Facet     @relation(fields: [facet_id], references: [id])
+  channels Channel[] @relation("ChannelFacets")
+
+  created_at DateTime? @default(now())
+  created_by String?
+  updated_at DateTime? @updatedAt
+  updated_by String?
+  deleted_at DateTime?
+  deleted_by String?
+
+  @@unique([facet_id, value])
+}
+
+model Channel {
+  id String @id @default(uuid())
+
+  code                  String  @unique
+  name                  String
+  default_language_code String
+  currency_code         String
+  is_default            Boolean @default(false)
+
+  partners         Partner[]
+  roles            Role[]           @relation("ChannelRoles")
+  permissions      Permission[]     @relation("ChannelPermissions")
+  role_permissions RolePermission[] @relation("ChannelRolePermission")
+  categories       Category[]       @relation("ChannelCategories")
+  articles         Article[]        @relation("ChannelArticles")
+  meta_fields      SeoMetadata[]    @relation("ChannelMetaFields")
+  facets           Facet[]          @relation("ChannelFacets")
+  facet_values     FacetValue[]     @relation("ChannelFacets")
+
+  created_at DateTime? @default(now())
+  updated_at DateTime? @updatedAt
+  deleted_at DateTime?
+  created_by String?
+  updated_by String?
+  deleted_by String?
 }

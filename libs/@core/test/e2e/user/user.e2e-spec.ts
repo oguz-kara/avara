@@ -4,6 +4,7 @@ import * as request from 'supertest'
 import { AppModule } from '../../../../../src/app.module'
 import { DbService } from '@avara/shared/database/db-service'
 import { UserActiveStatus } from '@avara/core/modules/user/domain/enums/user-active-status.enum'
+import { createRoleByRequest } from '../helpers/create-role-by-request'
 
 describe('UserResolver (e2e)', () => {
   let app: INestApplication
@@ -31,12 +32,10 @@ describe('UserResolver (e2e)', () => {
   })
 
   describe('createUser', () => {
-    it('should create new user successfully', async () => {
-      const role = await dbService.role.create({
-        data: {
-          name: 'new-role',
-        },
-      })
+    it.only('should create new user successfully', async () => {
+      const role = await createRoleByRequest(request, app)
+
+      expect(role).toBeTruthy()
 
       const createUserMutation = `
       mutation {
@@ -49,7 +48,7 @@ describe('UserResolver (e2e)', () => {
   `
 
       const response = await request(app.getHttpServer())
-        .post('/graphql')
+        .post('/protected')
         .send({ query: createUserMutation })
 
       expect(response.status).toBe(200)
@@ -68,11 +67,9 @@ describe('UserResolver (e2e)', () => {
     })
 
     it('should throw Conflict error if user already exists', async () => {
-      const role = await dbService.role.create({
-        data: {
-          name: 'new-role',
-        },
-      })
+      const role = await createRoleByRequest(request, app)
+
+      expect(role).toBeTruthy()
 
       const createUserMutation = `
       mutation {
@@ -95,7 +92,7 @@ describe('UserResolver (e2e)', () => {
       })
 
       const response = await request(app.getHttpServer())
-        .post('/graphql')
+        .post('/protected')
         .send({ query: createUserMutation })
 
       const errors = response.body.errors
@@ -117,7 +114,7 @@ describe('UserResolver (e2e)', () => {
     `
 
       const response = await request(app.getHttpServer())
-        .post('/graphql')
+        .post('/protected')
         .send({ query: createUserMutation })
 
       const errors = response.body.errors

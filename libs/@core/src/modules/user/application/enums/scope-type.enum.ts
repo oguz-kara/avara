@@ -2,7 +2,7 @@ import { registerEnumType } from '@nestjs/graphql'
 
 export enum ScopeType {
   GLOBAL = 'GLOBAL',
-  LOCAL = 'LOCAL',
+  SELF = 'SELF',
 }
 
 registerEnumType(ScopeType, {

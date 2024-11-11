@@ -20,7 +20,11 @@ export class CreateCategoryDto {
 
   @Field()
   @IsString()
-  mdx_content: string
+  content: string
+
+  @Field()
+  @IsString()
+  content_type: string
 
   @Field(() => CategoryType)
   @IsString()

@@ -1,3 +1,4 @@
+import { AdministratorRepository } from './administrator.repository'
 import { PermissionRepository } from './permission.repository'
 import { RolePermissionRepository } from './role-permission.repository'
 import { RoleRepository } from './role.repository'
@@ -8,4 +9,5 @@ export const Repositories = [
   UserRepository,
   PermissionRepository,
   RolePermissionRepository,
+  AdministratorRepository,
 ]

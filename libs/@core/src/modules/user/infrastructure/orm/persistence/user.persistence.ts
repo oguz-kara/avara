@@ -1,4 +1,5 @@
 import { UserActiveStatus } from '@prisma/client'
+import { UserActiveStatus as AppUserActiveStatus } from '../../../domain/enums/user-active-status.enum'
 
 export interface UserPersistence {
   id: string | null
@@ -6,7 +7,7 @@ export interface UserPersistence {
   password_hash: string
   email_verified: boolean
   role_id: string
-  is_active: UserActiveStatus
+  is_active: UserActiveStatus | AppUserActiveStatus
   created_at: Date
   created_by: string
   updated_at: Date

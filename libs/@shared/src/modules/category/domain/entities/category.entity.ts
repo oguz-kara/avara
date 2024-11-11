@@ -9,7 +9,8 @@ interface CategoryProps {
   meta_field_id?: string
   category_type: CategoryType
   name: string
-  mdx_content: string
+  content: string
+  content_type: string
   created_at?: Date
   created_by?: string
   updated_at?: Date
@@ -27,7 +28,8 @@ export class Category
   private _meta_field_id: string
   private _category_type: CategoryType
   private _name: string
-  private _mdx_content: string
+  private _content: string
+  private _content_type: string
   protected _created_at: Date
   private _created_by: string
   protected _updated_at: Date
@@ -41,7 +43,8 @@ export class Category
     meta_field_id,
     category_type,
     name,
-    mdx_content,
+    content,
+    content_type,
     created_at = new Date(),
     created_by = 'system',
     updated_at = new Date(),
@@ -55,7 +58,8 @@ export class Category
     this._parent_category_id = parent_category_id
     this._meta_field_id = meta_field_id
     this._name = name
-    this._mdx_content = mdx_content
+    this._content_type = content_type
+    this._content = content
     this._created_at = created_at
     this._updated_at = updated_at
     this._deleted_at = deleted_at
@@ -80,8 +84,12 @@ export class Category
     return this._name
   }
 
-  get mdx_content(): string {
-    return this._mdx_content
+  get content(): string {
+    return this._content
+  }
+
+  get content_type(): string {
+    return this._content_type
   }
 
   get category_type(): CategoryType {

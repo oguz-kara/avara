@@ -1,12 +1,14 @@
-import { CoreEntity } from '@avara/shared/domain/core-entity.abstract'
 import { Permission } from './permission.entity'
 import { SoftDeletableEntity } from '@avara/shared/domain/soft-deletable-entity.interface'
 import { TrackableEntity } from '@avara/shared/domain/trackable-entity.interface'
+import { Channel } from '@avara/shared/modules/channel/domain/entities/channel.entity'
+import { ChannelListAwareEntity } from '@avara/shared/modules/channel/domain/entities/channel-list-aware.entity'
 
 export interface RoleProps {
   id: string
   name: string
   permissions?: Permission[]
+  channels?: Channel[]
   updated_by?: string
   created_by?: string
   deleted_by?: string
@@ -16,9 +18,10 @@ export interface RoleProps {
 }
 
 export class Role
-  extends CoreEntity
+  extends ChannelListAwareEntity
   implements TrackableEntity, SoftDeletableEntity
 {
+  protected _channels?: Channel[]
   private _name: string
   private _permissions?: Permission[] = []
   protected readonly _created_at: Date
@@ -32,6 +35,7 @@ export class Role
     id,
     name,
     permissions = [],
+    channels = [],
     updated_by = 'system',
     created_by = 'system',
     deleted_by = undefined,
@@ -42,6 +46,7 @@ export class Role
     super()
     this._id = id
     this._name = name
+    this._channels = channels
     this._permissions = permissions
     this._updated_by = updated_by
     this._created_by = created_by
@@ -53,6 +58,10 @@ export class Role
 
   get name(): string {
     return this._name
+  }
+
+  get channels(): Channel[] {
+    return this._channels
   }
 
   get permissions(): Permission[] {

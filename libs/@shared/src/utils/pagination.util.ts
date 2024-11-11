@@ -26,17 +26,15 @@ export class PaginationUtils {
     return {
       limit: !isNaN(Number(args?.limit))
         ? Math.abs(args.limit)
-        : this.configService.get<number>('paginationOptions.defaultLimit'),
+        : this.configService.get<number>('pagination.limits.default'),
       position: !isNaN(Number(args?.position))
         ? Math.abs(args.position)
-        : this.configService.get<number>('paginationOptions.defaultPosition'),
+        : this.configService.get<number>('pagination.defaultPosition'),
     }
   }
 
   private isExceedingMaxLimit(limit: number) {
-    const maxLimit = this.configService.get<number>(
-      'paginationOptions.maxLimit',
-    )
+    const maxLimit = this.configService.get<number>('pagination.limits.max')
 
     return limit > maxLimit
   }

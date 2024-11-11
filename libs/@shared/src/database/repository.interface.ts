@@ -4,8 +4,8 @@ import {
 } from '@avara/core/modules/user/api/types/pagination.type'
 
 export interface Repository<T> {
-  findById(resourceId: string): Promise<T | null>
-  findAll(args: PaginationParams): Promise<PaginatedList<T>>
-  remove(resourceId: string): Promise<T | null>
+  findOneById(resourceId: string): Promise<T | null>
+  findMany(args: PaginationParams): Promise<PaginatedList<T>>
+  remove(resource: T): Promise<void>
   save(record: T): Promise<void>
 }

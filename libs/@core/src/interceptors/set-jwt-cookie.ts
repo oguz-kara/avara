@@ -17,7 +17,9 @@ export class SetJwtCookieInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const isGraphQL = (context.getType() as string) === 'graphql'
     const isSecure = this.configService.get<string>('NODE_ENV') === 'production'
-    const authStrategy = this.configService.get<string>('authOptions.strategy')
+    const authStrategy = this.configService.get<string>(
+      'authentication.strategy',
+    )
 
     if (isGraphQL) {
       const gqlContext = GqlExecutionContext.create(context).getContext()

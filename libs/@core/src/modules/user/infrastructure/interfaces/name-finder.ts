@@ -1,3 +1,3 @@
-export interface NameFinderRepository<T> {
-  findByName(name: string): Promise<T | null>
+export interface NameFinder<T> {
+  findOneByNameInChannel(name: string): Promise<T | null>
 }

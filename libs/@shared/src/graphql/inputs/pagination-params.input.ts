@@ -3,12 +3,12 @@ import { IsNumber, IsOptional } from 'class-validator'
 
 @InputType()
 export class PaginationParamsInput {
-  @Field()
+  @Field(() => Number)
   @IsOptional()
-  @IsNumber({}, { message: 'Limit must be a number' })
+  @IsNumber()
   limit?: number
 
-  @Field()
+  @Field(() => Number)
   @IsOptional()
   @IsNumber()
   position?: number

@@ -3,13 +3,13 @@ import {
   ResourceType,
   ScopeType,
 } from '@avara/core/modules/user/application/enums'
-import { CoreEntity } from '@avara/shared/domain/core-entity.abstract'
 import { TrackableEntity } from '@avara/shared/domain/trackable-entity.interface'
 import { SoftDeletableEntity } from '@avara/shared/domain/soft-deletable-entity.interface'
 import {
   PermissionArray,
   PermissionString,
 } from '@avara/core/modules/user/api/types/permission.types'
+import { ChannelListAwareEntity } from '@avara/shared/modules/channel/domain/entities/channel-list-aware.entity'
 
 export interface PermissionProps {
   id?: string
@@ -26,7 +26,7 @@ export interface PermissionProps {
 }
 
 export class Permission
-  extends CoreEntity
+  extends ChannelListAwareEntity
   implements TrackableEntity, SoftDeletableEntity
 {
   private _resource: ResourceType

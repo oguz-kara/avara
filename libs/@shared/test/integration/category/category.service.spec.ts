@@ -48,7 +48,8 @@ describe('CategoryService (Integration)', () => {
         name: 'Electronics',
         category_type: CategoryType.PRODUCT,
         parent_category_id: null,
-        mdx_content: '<p>Content</p>',
+        content: '<p>Content</p>',
+        content_type: 'MD',
       }
 
       const result = await service.createCategory(input)
@@ -68,7 +69,8 @@ describe('CategoryService (Integration)', () => {
         name: 'Electronics',
         category_type: CategoryType.PRODUCT,
         parent_category_id: null,
-        mdx_content: '<p>Content</p>',
+        content: '<p>Content</p>',
+        content_type: 'MD',
       }
 
       await db.category.create({
@@ -76,7 +78,8 @@ describe('CategoryService (Integration)', () => {
           name: input.name,
           category_type: input.category_type,
           parent_category_id: input.parent_category_id,
-          mdx_content: input.mdx_content,
+          content: input.content,
+          content_type: 'MD',
         },
       })
 
@@ -93,7 +96,8 @@ describe('CategoryService (Integration)', () => {
           name: 'Electronics',
           category_type: CategoryType.PRODUCT,
           parent_category_id: null,
-          mdx_content: '<p>Content</p>',
+          content: '<p>Content</p>',
+          content_type: 'MD',
         },
       })
 
@@ -115,13 +119,12 @@ describe('CategoryService (Integration)', () => {
           name: 'Electronics',
           category_type: CategoryType.PRODUCT,
           parent_category_id: null,
-          mdx_content: '<p>Content</p>',
+          content: '<p>Content</p>',
+          content_type: 'MD',
         },
       })
 
-      const result = await service.removeProductCategoryById(category.id)
-      expect(result).toBeDefined()
-      expect(result.id).toBe(category.id)
+      await service.removeProductCategoryById(category.id)
 
       const categoryFromDb = await db.category.findUnique({
         where: { id: category.id },

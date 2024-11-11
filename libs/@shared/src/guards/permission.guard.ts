@@ -11,6 +11,7 @@ import { Permission } from '../enums/permission'
 import { ConfigService } from '@nestjs/config'
 import { AuthService } from '@avara/core/modules/user/application/services/auth.service'
 import { AuthStorageService } from '@avara/core/modules/user/application/services/auth-storage.service'
+import { getRequestContextFrom } from '@avara/core/context/get-request-context'
 
 @Injectable()
 export class PermissionsGuard implements CanActivate {
@@ -27,7 +28,7 @@ export class PermissionsGuard implements CanActivate {
     let payload: { user_id: string } | undefined = undefined
     const authType = this.authStorageService.getStrategy('default')
     const isAuthActive = this.configService.get(
-      'authOptions.isAuthorizationActive',
+      'authentication.authorizationEnabled',
     )
 
     if (!isAuthActive) return true
@@ -66,7 +67,10 @@ export class PermissionsGuard implements CanActivate {
     const req = this.getRequest(context)
     req.user = payload
 
+    const ctx = getRequestContextFrom(context)
+
     const isAuthorized = this.authService.isAuthorizedToPerformAction(
+      ctx,
       payload.user_id,
       requiredPermissions,
       operator,

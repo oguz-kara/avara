@@ -42,7 +42,7 @@ describe('PermissionResolver (e2e)', () => {
       `
 
       const response = await request(app.getHttpServer())
-        .post('/graphql')
+        .post('/protected')
         .send({ query: createPermissionMutation })
 
       expect(response.status).toBe(200)
@@ -74,7 +74,7 @@ describe('PermissionResolver (e2e)', () => {
       `
 
       const response = await request(app.getHttpServer())
-        .post('/graphql')
+        .post('/protected')
         .send({ query: createPermissionMutation })
 
       expect(response.status).toBe(200)
@@ -101,7 +101,7 @@ describe('PermissionResolver (e2e)', () => {
       `
 
       const response = await request(app.getHttpServer())
-        .post('/graphql')
+        .post('/protected')
         .send({ query: findPermissionByIdQuery })
 
       expect(response.status).toBe(200)
@@ -123,7 +123,7 @@ describe('PermissionResolver (e2e)', () => {
       `
 
       const response = await request(app.getHttpServer())
-        .post('/graphql')
+        .post('/protected')
         .send({ query: findPermissionByIdQuery })
 
       expect(response.status).toBe(200)
@@ -150,7 +150,7 @@ describe('PermissionResolver (e2e)', () => {
       `
 
       const response = await request(app.getHttpServer())
-        .post('/graphql')
+        .post('/protected')
         .send({ query: findPermissionByNameQuery })
 
       expect(response.status).toBe(200)
@@ -180,7 +180,7 @@ describe('PermissionResolver (e2e)', () => {
       `
 
       const response = await request(app.getHttpServer())
-        .post('/graphql')
+        .post('/protected')
         .send({ query: findPermissionByNameQuery })
 
       expect(response.status).toBe(200)
@@ -216,7 +216,7 @@ describe('PermissionResolver (e2e)', () => {
       `
 
       const response = await request(app.getHttpServer())
-        .post('/graphql')
+        .post('/protected')
         .send({ query: findPermissionsQuery })
 
       expect(response.status).toBe(200)
@@ -251,7 +251,7 @@ describe('PermissionResolver (e2e)', () => {
       `
 
       const response = await request(app.getHttpServer())
-        .post('/graphql')
+        .post('/protected')
         .send({ query: findPermissionsQuery })
 
       expect(response.status).toBe(200)
@@ -277,7 +277,7 @@ describe('PermissionResolver (e2e)', () => {
       `
 
       const response = await request(app.getHttpServer())
-        .post('/graphql')
+        .post('/protected')
         .send({ query: removePermissionByIdMutation })
 
       expect(response.status).toBe(200)
@@ -303,7 +303,7 @@ describe('PermissionResolver (e2e)', () => {
       `
 
       const response = await request(app.getHttpServer())
-        .post('/graphql')
+        .post('/protected')
         .send({ query: removePermissionByIdMutation })
 
       expect(response.status).toBe(200)

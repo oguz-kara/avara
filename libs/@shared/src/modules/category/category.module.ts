@@ -7,6 +7,6 @@ import { Mappers } from './infrastructure/mappers'
 @Module({
   imports: [],
   providers: [...Resolvers, ...Services, ...Mappers, ...Repositories],
-  exports: [],
+  exports: [...Repositories],
 })
 export class CategoryModule {}

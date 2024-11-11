@@ -13,6 +13,8 @@ import { IDInput } from '@avara/core/modules/user/application/graphql/input/id.i
 import { EmailInput } from '@avara/core/modules/user/application/graphql/input/email.input'
 import { Allow } from '@avara/shared/decorators/allow'
 import { Permission } from '@avara/shared/enums/permission'
+import { Ctx } from '@avara/core/context/request-context.decorator'
+import { RequestContext } from '@avara/core/context/request-context'
 
 @Resolver(() => UserType)
 export class UserResolver {
@@ -21,9 +23,10 @@ export class UserResolver {
   @Allow(Permission.CREATE_USER_GLOBAL, Permission.WRITE_USER_GLOBAL)
   @Mutation(() => UserType)
   async createUser(
+    @Ctx() ctx: RequestContext,
     @Args({ type: () => CreateUserArgs }) { input }: CreateUserArgs,
   ) {
-    const user = await this.userService.saveNewUser(input)
+    const user = await this.userService.saveNewUser(ctx, input)
 
     return user
   }
@@ -31,37 +34,51 @@ export class UserResolver {
   @Allow(Permission.READ_USER_GLOBAL)
   @Query(() => FindUsersResponseType)
   async users(
+    @Ctx() ctx: RequestContext,
+
     @Args('input', { nullable: true }) pagination?: PaginationParamsInput,
   ) {
-    const userData = await this.userService.getUsersWithPagination(pagination)
+    const userData = await this.userService.getUsersWithPagination(
+      ctx,
+      pagination,
+    )
 
     return userData
   }
 
   @Allow(Permission.READ_USER_GLOBAL)
   @Query(() => UserType, { nullable: true })
-  async findUserById(@Args('input') findUserInput: IDInput) {
+  async findUserById(
+    @Ctx() ctx: RequestContext,
+    @Args('input') findUserInput: IDInput,
+  ) {
     const { id } = findUserInput
-    const user = await this.userService.getUserById(id)
+    const user = await this.userService.getUserById(ctx, id)
 
     return user
   }
 
   @Allow(Permission.READ_USER_GLOBAL)
   @Query(() => UserType, { nullable: true })
-  async findUserByEmail(@Args('input') findUserInput: EmailInput) {
+  async findUserByEmail(
+    @Ctx() ctx: RequestContext,
+    @Args('input') findUserInput: EmailInput,
+  ) {
     const { email } = findUserInput
-    const user = await this.userService.getUserByEmail(email)
+    const user = await this.userService.getUserByEmail(ctx, email)
 
     return user
   }
 
   @Allow(Permission.UPDATE_ROLE_GLOBAL, Permission.WRITE_ROLE_GLOBAL)
   @Mutation(() => UserType)
-  async assignRoleToUser(@Args('input') assignRoleInput: AssignRoleInput) {
+  async assignRoleToUser(
+    @Ctx() ctx: RequestContext,
+    @Args('input') assignRoleInput: AssignRoleInput,
+  ) {
     const { roleId, userId } = assignRoleInput
 
-    const user = await this.userService.setUserRole(userId, roleId)
+    const user = await this.userService.setUserRole(ctx, userId, roleId)
 
     return user
   }

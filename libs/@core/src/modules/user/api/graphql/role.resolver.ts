@@ -16,6 +16,8 @@ import { PaginationParamsInput } from '@avara/shared/graphql/inputs/pagination-p
 import { NameInput } from '@avara/core/modules/user/application/graphql/input/name.input'
 import { Allow } from '@avara/shared/decorators/allow'
 import { Permission } from '@avara/shared/enums/permission'
+import { Ctx } from '@avara/core/context/request-context.decorator'
+import { RequestContext } from '@avara/core/context/request-context'
 
 @Resolver(() => Role)
 export class RoleResolver {
@@ -23,16 +25,23 @@ export class RoleResolver {
 
   @Allow(Permission.CREATE_ROLE_GLOBAL, Permission.WRITE_ROLE_GLOBAL)
   @Mutation(() => CreateRoleResponse)
-  async createRole(@Args('input') createUserInput: CreateRoleDto) {
-    const role = await this.roleService.createRole(createUserInput)
+  async createRole(
+    @Ctx() ctx: RequestContext,
+    @Args('input') createUserInput: CreateRoleDto,
+  ) {
+    const role = await this.roleService.createRole(ctx, createUserInput)
 
     return role
   }
 
   @Allow(Permission.UPDATE_ROLE_GLOBAL, Permission.WRITE_ROLE_GLOBAL)
   @Mutation(() => Role)
-  async renameRoleById(@Args('input') renameRoleInput: RenameRoleDto) {
+  async renameRoleById(
+    @Ctx() ctx: RequestContext,
+    @Args('input') renameRoleInput: RenameRoleDto,
+  ) {
     const role = await this.roleService.renameRoleById(
+      ctx,
       renameRoleInput.id,
       renameRoleInput.name,
     )
@@ -42,36 +51,47 @@ export class RoleResolver {
 
   @Allow(Permission.DELETE_ROLE_GLOBAL, Permission.WRITE_ROLE_GLOBAL)
   @Mutation(() => Role)
-  async removeRoleById(@Args('input') removeRoleInput: IDInput) {
-    const role = await this.roleService.removeRoleById(removeRoleInput.id)
+  async removeRoleById(
+    @Ctx() ctx: RequestContext,
+    @Args('input') removeRoleInput: IDInput,
+  ) {
+    const role = await this.roleService.removeRoleById(ctx, removeRoleInput.id)
 
     return role
   }
 
   @Allow(Permission.READ_ROLE_GLOBAL)
   @Query(() => FindRolesResponseType)
-  async findRoles(
+  async roles(
+    @Ctx() ctx: RequestContext,
     @Args('input', { nullable: true }) pagination?: PaginationParamsInput,
   ) {
-    const rolesData = await this.roleService.findMany(pagination)
+    console.log(JSON.stringify(ctx, null, 2))
+    const rolesData = await this.roleService.findMany(ctx, pagination)
 
     return rolesData
   }
 
   @Allow(Permission.READ_ROLE_GLOBAL)
   @Query(() => Role, { nullable: true })
-  async findRoleById(@Args('input') findRoleInput: IDInput) {
+  async findRoleById(
+    @Ctx() ctx: RequestContext,
+    @Args('input') findRoleInput: IDInput,
+  ) {
     const { id } = findRoleInput
-    const role = await this.roleService.findById(id)
+    const role = await this.roleService.findById(ctx, id)
 
     return role
   }
 
   @Allow(Permission.READ_ROLE_GLOBAL)
   @Query(() => Role, { nullable: true })
-  async findRoleByName(@Args('input') findRoleInput: NameInput) {
+  async findRoleByName(
+    @Ctx() ctx: RequestContext,
+    @Args('input') findRoleInput: NameInput,
+  ) {
     const { name } = findRoleInput
-    const role = await this.roleService.findByName(name)
+    const role = await this.roleService.findByName(ctx, name)
 
     return role
   }
@@ -79,9 +99,11 @@ export class RoleResolver {
   @Allow(Permission.UPDATE_ROLE_GLOBAL, Permission.WRITE_ROLE_GLOBAL)
   @Mutation(() => Role)
   async setRolePermissions(
+    @Ctx() ctx: RequestContext,
     @Args('input') setRolePermissionsInput: SetRolePermissionsDto,
   ) {
     const role = await this.roleService.setPermissions(
+      ctx,
       setRolePermissionsInput.roleId,
       setRolePermissionsInput.permissionIds,
     )

@@ -10,11 +10,30 @@ import { DbService } from '@avara/shared/database/db-service'
 import { ConflictException } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
+import { PermissionService } from '@avara/core/modules/user/application/services/permission.service'
+import { PermissionRepository } from '@avara/core/modules/user/infrastructure/orm/repository/permission.repository'
+import { ChannelRepository } from '@avara/shared/modules/channel/infrastructure/repositories/channel.repository'
+import { CoreRepositories } from '@avara/core/core-repositories'
+import { ChannelMapper } from '@avara/shared/modules/channel/infrastructure/mappers/channel.mapper'
+import { UserRepository } from '@avara/core/modules/user/infrastructure/orm/repository/user.repository'
+import { UserMapper } from '@avara/core/modules/user/infrastructure/mappers/user.mapper'
+import { RoleRepository } from '@avara/core/modules/user/infrastructure/orm/repository/role.repository'
+import { RequestContext } from '@avara/core/context/request-context'
+import { Channel } from '@avara/shared/modules/channel/domain/entities/channel.entity'
+import { RoleService } from '@avara/core/modules/user/application/services/role.service'
+import {
+  ActionType,
+  ResourceType,
+  ScopeType,
+} from '@avara/core/modules/user/application/enums'
 
 describe('RolePermissionService (Integration)', () => {
   let rolePermissionService: RolePermissionService
   let dbService: DbService
-  // let rolePermissionMapper: RolePermissionMapper
+  let permissionService: PermissionService
+  let roleService: RoleService
+  let channelRepository: ChannelRepository
+  let ctx: RequestContext
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -25,14 +44,24 @@ describe('RolePermissionService (Integration)', () => {
         }),
       ],
       providers: [
-        RolePermissionService,
-        RolePermissionRepository,
-        RolePermissionMapper,
-        PaginationUtils,
-        PermissionMapper,
-        ConfigService,
-        RoleMapper,
+        PermissionService,
+        PermissionRepository,
         DbService,
+        PermissionMapper,
+        PaginationUtils,
+        ConfigService,
+        ChannelRepository,
+        CoreRepositories,
+        ChannelMapper,
+        UserRepository,
+        PermissionRepository,
+        RolePermissionRepository,
+        UserMapper,
+        RoleRepository,
+        RolePermissionMapper,
+        RoleMapper,
+        RolePermissionService,
+        RoleService,
       ],
     }).compile()
 
@@ -40,8 +69,35 @@ describe('RolePermissionService (Integration)', () => {
     rolePermissionService = module.get<RolePermissionService>(
       RolePermissionService,
     )
-    // rolePermissionMapper =
-    //   module.get<RolePermissionMapper>(RolePermissionMapper)
+    permissionService = module.get<PermissionService>(PermissionService)
+    roleService = module.get<RoleService>(RoleService)
+    channelRepository = module.get<ChannelRepository>(ChannelRepository)
+    await dbService.$transaction([
+      dbService.rolePermission.deleteMany(),
+      dbService.permission.deleteMany(),
+      dbService.user.deleteMany(),
+      dbService.role.deleteMany(),
+      dbService.channel.deleteMany(),
+    ])
+
+    const channel = new Channel({
+      id: undefined,
+      name: 'Default',
+      code: 'default',
+      currency_code: 'USD',
+      default_language_code: 'en',
+      is_default: true,
+    })
+
+    await channelRepository.save(channel)
+
+    ctx = new RequestContext({
+      channel,
+      channel_code: channel.code,
+      channel_id: channel.id,
+      currency_code: channel.currency_code,
+      language_code: channel.default_language_code,
+    })
   })
 
   beforeEach(async () => {
@@ -56,17 +112,20 @@ describe('RolePermissionService (Integration)', () => {
     await dbService.$transaction([
       dbService.rolePermission.deleteMany(),
       dbService.permission.deleteMany(),
+      dbService.channel.deleteMany(),
       dbService.role.deleteMany(),
     ])
   })
 
   describe('createRolePermission', () => {
     it('should create a new role permission successfully', async () => {
-      const role = await dbService.role.create({
-        data: { name: 'Admin' },
+      const role = await roleService.createRole(ctx, {
+        name: 'Admin',
       })
-      const permission = await dbService.permission.create({
-        data: { action: 'READ', resource: 'USER', scope: 'GLOBAL' },
+      const permission = await permissionService.createPermission(ctx, {
+        action: ActionType.READ,
+        resource: ResourceType.USER,
+        scope: ScopeType.GLOBAL,
       })
 
       const input: CreateRolePermissionDto = {
@@ -75,18 +134,27 @@ describe('RolePermissionService (Integration)', () => {
         is_active: true,
       }
 
-      const result = await rolePermissionService.createRolePermission(input)
+      const result = await rolePermissionService.createRolePermission(
+        ctx,
+        input,
+      )
 
+      const rolePermission = await dbService.rolePermission.findUnique({
+        where: { id: result.id },
+        include: {
+          channels: true,
+        },
+      })
+
+      expect(rolePermission.channels).toHaveLength(1)
+      expect(rolePermission.channels[0].name).toBe(ctx.channel.name)
       expect(result).toBeTruthy()
       expect(result.role_id).toBe(input.role_id)
       expect(result.permission_id).toBe(input.permission_id)
 
-      const savedRolePermission = await dbService.rolePermission.findUnique({
-        where: { id: result.id },
-      })
-      expect(savedRolePermission).toBeTruthy()
-      expect(savedRolePermission?.role_id).toBe(input.role_id)
-      expect(savedRolePermission?.permission_id).toBe(input.permission_id)
+      expect(rolePermission).toBeTruthy()
+      expect(rolePermission?.role_id).toBe(input.role_id)
+      expect(rolePermission?.permission_id).toBe(input.permission_id)
     })
 
     it('should throw ConflictException if role permission already exists', async () => {
@@ -102,16 +170,51 @@ describe('RolePermissionService (Integration)', () => {
         is_active: true,
       }
 
-      await rolePermissionService.createRolePermission(input)
+      await rolePermissionService.createRolePermission(ctx, input)
 
       await expect(
-        rolePermissionService.createRolePermission(input),
+        rolePermissionService.createRolePermission(ctx, input),
       ).rejects.toThrow(ConflictException)
     })
   })
 
   describe('findById', () => {
     it('should find a role permission by id successfully', async () => {
+      const role = await dbService.role.create({
+        data: {
+          name: 'Admin',
+        },
+      })
+
+      const permission = await dbService.permission.create({
+        data: {
+          action: 'ALL',
+          resource: 'ARTICLE',
+          scope: 'GLOBAL',
+        },
+      })
+
+      const rolePermission = await rolePermissionService.createRolePermission(
+        ctx,
+        {
+          role_id: role.id,
+          permission_id: permission.id,
+          is_active: true,
+        },
+      )
+
+      const result = await rolePermissionService.findById(
+        ctx,
+        rolePermission.id,
+      )
+
+      expect(result).toBeTruthy()
+      expect(result.id).toBe(rolePermission.id)
+      expect(result.role_id).toBe(rolePermission.role_id)
+      expect(result.permission_id).toBe(rolePermission.permission_id)
+    })
+
+    it('should return null if role permission not found for a channel', async () => {
       const role = await dbService.role.create({
         data: {
           name: 'Admin',
@@ -133,16 +236,28 @@ describe('RolePermissionService (Integration)', () => {
         },
       })
 
-      const result = await rolePermissionService.findById(rolePermission.id)
+      const noChannelCtx = new RequestContext({
+        channel: null,
+        channel_code: 'fake-channel',
+        channel_id: 'fake-channel-id',
+        currency_code: 'USD',
+        language_code: 'en',
+      })
 
-      expect(result).toBeTruthy()
-      expect(result.id).toBe(rolePermission.id)
-      expect(result.role_id).toBe(rolePermission.role_id)
-      expect(result.permission_id).toBe(rolePermission.permission_id)
+      const result = await rolePermissionService.findById(
+        noChannelCtx,
+        rolePermission.id,
+      )
+
+      expect(result).toBeFalsy()
+      expect(result).toBe(null)
     })
 
     it('should return null if role permission not found', async () => {
-      const result = await rolePermissionService.findById('non-existent-id')
+      const result = await rolePermissionService.findById(
+        ctx,
+        'non-existent-id',
+      )
 
       expect(result).toBeNull()
     })
@@ -181,17 +296,15 @@ describe('RolePermissionService (Integration)', () => {
       ])
 
       await Promise.all([
-        dbService.rolePermission.create({
-          data: {
-            role_id: roles[0].id,
-            permission_id: permissions[0].id,
-          },
+        rolePermissionService.createRolePermission(ctx, {
+          role_id: roles[0].id,
+          permission_id: permissions[0].id,
+          is_active: true,
         }),
-        dbService.rolePermission.create({
-          data: {
-            role_id: roles[1].id,
-            permission_id: permissions[1].id,
-          },
+        rolePermissionService.createRolePermission(ctx, {
+          role_id: roles[1].id,
+          permission_id: permissions[1].id,
+          is_active: true,
         }),
       ])
 
@@ -200,7 +313,7 @@ describe('RolePermissionService (Integration)', () => {
         limit: 12,
       }
 
-      const findedRp = await rolePermissionService.findMany(paginationData)
+      const findedRp = await rolePermissionService.findMany(ctx, paginationData)
 
       expect(findedRp.items).toHaveLength(2)
       expect(findedRp.pagination.total).toEqual(2)

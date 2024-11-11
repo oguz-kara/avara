@@ -1,3 +1,4 @@
+import { AdministratorMapper } from './administrator.mapper'
 import { PermissionMapper } from './permission.mapper'
 import { RolePermissionMapper } from './role-permission.mapper'
 import { RoleMapper } from './role.mapper'
@@ -9,4 +10,5 @@ export const Mappers = [
   RoleMapper,
   UserMapper,
   RolePermissionMapper,
+  AdministratorMapper,
 ]

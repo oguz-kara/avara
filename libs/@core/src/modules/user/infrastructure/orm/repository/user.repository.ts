@@ -1,6 +1,5 @@
 import { User } from '@avara/core/modules/user/domain/entities/user.entity'
 import { UserMapper } from '../../mappers/user.mapper'
-import { Repository } from '../../../../../../../@shared/src/database/repository.interface'
 import { UserEmailFinderRepository } from './user-email-finder.repository'
 import { Injectable } from '@nestjs/common'
 import { DbService } from '../../../../../../../@shared/src/database/db-service'
@@ -8,15 +7,19 @@ import {
   PaginatedList,
   PaginationParams,
 } from '@avara/core/modules/user/api/types/pagination.type'
+import { ContextSaver } from '@avara/shared/database/channel-aware-repository.interface'
 
 @Injectable()
 export class UserRepository
-  implements Repository<User>, UserEmailFinderRepository
+  extends ContextSaver
+  implements UserEmailFinderRepository
 {
   constructor(
     private readonly db: DbService,
     private readonly userMapper: UserMapper,
-  ) {}
+  ) {
+    super()
+  }
 
   async findById(id: string): Promise<User | null> {
     const user = await this.db.user.findUnique({ where: { id } })

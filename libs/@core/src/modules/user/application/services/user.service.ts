@@ -7,40 +7,46 @@ import {
   NotFoundException,
 } from '@nestjs/common'
 import { CreateUserDto } from '../graphql/dto/user.dto'
-import { UserRepository } from '../../infrastructure/orm/repository/user.repository'
-import { RoleRepository } from '../../infrastructure/orm/repository/role.repository'
 import { PaginationUtils } from '../../../../../../@shared/src/utils/pagination.util'
-import { PermissionRepository } from '../../infrastructure/orm/repository/permission.repository'
 import { Permission } from '@avara/shared/enums/permission'
+import { CoreRepositories } from '@avara/core/core-repositories'
+import { RequestContext } from '@avara/core/context/request-context'
 
 @Injectable()
 export class UserService {
   constructor(
-    private readonly repo: UserRepository,
-    private readonly roleRepo: RoleRepository,
-    private readonly permissionRepo: PermissionRepository,
+    private readonly repositories: CoreRepositories,
     private readonly paginationUtils: PaginationUtils,
   ) {}
 
-  async getUserById(id: string): Promise<User | null> {
-    const user = await this.repo.findById(id)
+  async getUserById(ctx: RequestContext, id: string): Promise<User | null> {
+    const userRepo = this.repositories.get(ctx, 'User')
+    const user = await userRepo.findById(id)
 
     return user
   }
 
-  async getUserByEmail(email: string): Promise<User | null> {
-    const user = await this.repo.findByEmail(email)
+  async getUserByEmail(
+    ctx: RequestContext,
+    email: string,
+  ): Promise<User | null> {
+    const userRepo = this.repositories.get(ctx, 'User')
+
+    const user = await userRepo.findByEmail(email)
 
     return user
   }
 
   async getUsersWithPagination(
+    ctx: RequestContext,
     params: PaginationParams,
   ): Promise<PaginatedItemsResponse<User>> {
+    const userRepo = this.repositories.get(ctx, 'User')
+
     const { limit, position } =
       this.paginationUtils.validateAndGetPaginationLimit(params)
 
-    const user = await this.repo.findAll({
+    const user = await userRepo.findAll({
       limit,
       position,
     })
@@ -48,36 +54,44 @@ export class UserService {
     return user
   }
 
-  async setUserEmail(id: string, email: string) {
-    const user = await this.repo.findById(id)
+  async setUserEmail(ctx: RequestContext, id: string, email: string) {
+    const userRepo = this.repositories.get(ctx, 'User')
+
+    const user = await userRepo.findById(id)
 
     if (!user) throw new NotFoundException('User not found!')
 
     user.changeEmail(email)
 
-    await this.repo.save(user)
+    await userRepo.save(user)
 
     return user
   }
 
-  async getUserPermissionsByUserId(userId: string) {
-    const user = await this.repo.findById(userId)
+  async getUserPermissionsByUserId(ctx: RequestContext, userId: string) {
+    const userRepo = this.repositories.get(ctx, 'User')
+    const permissionRepo = this.repositories.get(ctx, 'Permission')
+
+    const user = await userRepo.findById(userId)
 
     if (!user) throw new ConflictException('User not found!')
 
-    const permissions = await this.permissionRepo.getPermissionsByRoleId(
+    const permissions = await permissionRepo.getPermissionsByRoleId(
       user.role_id,
     )
 
     return permissions.map((permission) => permission.name) as Permission[]
   }
 
-  async saveNewUser(user: CreateUserDto) {
-    const existedUser = await this.repo.findByEmail(user.email)
+  async saveNewUser(ctx: RequestContext, user: CreateUserDto) {
+    const userRepo = this.repositories.get(ctx, 'User')
+    const roleRepo = this.repositories.get(ctx, 'Role')
+
+    const existedUser = await userRepo.findByEmail(user.email)
 
     if (existedUser) throw new ConflictException('User already exists!')
 
-    const role = await this.roleRepo.findById(user.role_id)
+    const role = await roleRepo.findOneInChannel(user.role_id)
 
     if (!role) throw new NotFoundException('User role not found to assign!')
 
@@ -90,23 +104,26 @@ export class UserService {
       is_active: user.is_active,
     })
 
-    await this.repo.save(createdUser)
+    await userRepo.save(createdUser)
 
     return createdUser
   }
 
-  async setUserRole(userId: string, roleId: string) {
-    const user = await this.repo.findById(userId)
+  async setUserRole(ctx: RequestContext, userId: string, roleId: string) {
+    const userRepo = this.repositories.get(ctx, 'User')
+    const roleRepo = this.repositories.get(ctx, 'Role')
+
+    const user = await userRepo.findById(userId)
 
     if (!user) throw new NotFoundException('User not found to assign role!')
 
-    const role = await this.roleRepo.findById(roleId)
+    const role = await roleRepo.findOneInChannel(roleId)
 
     if (!role) throw new NotFoundException('Role not found to assign to user!')
 
     user.setRole(role.id)
 
-    await this.repo.save(user)
+    await userRepo.save(user)
 
     return user
   }

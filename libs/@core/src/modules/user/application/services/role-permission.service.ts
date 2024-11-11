@@ -7,21 +7,29 @@ import {
 import { CreateRolePermissionDto } from '../graphql/dto/role-permission.dto'
 import { RolePermission } from '../../domain/entities/role-permission.entity'
 import { PaginationUtils } from '../../../../../../@shared/src/utils/pagination.util'
-import { RolePermissionRepository } from '../../infrastructure/orm/repository/role-permission.repository'
 import { PaginationParams } from '../../api/types/pagination.type'
 import { PaginatedItemsResponse } from '../../api/types/items-response.type'
+import { RequestContext } from '@avara/core/context/request-context'
+import { CoreRepositories } from '@avara/core/core-repositories'
 
 @Injectable()
 export class RolePermissionService {
   constructor(
-    private readonly repo: RolePermissionRepository,
+    private readonly repositories: CoreRepositories,
     private readonly paginationUtils: PaginationUtils,
   ) {}
 
-  async createRolePermission(input: CreateRolePermissionDto) {
+  async createRolePermission(
+    ctx: RequestContext,
+    input: CreateRolePermissionDto,
+  ) {
+    const rolePermissionRepo = this.repositories.get(
+      ctx,
+      'RolePermission',
+    )
     const { is_active, permission_id, role_id } = input
 
-    const rolePermission = await this.repo.findRolePermission(
+    const rolePermission = await rolePermissionRepo.findRolePermission(
       role_id,
       permission_id,
     )
@@ -36,24 +44,36 @@ export class RolePermissionService {
       role_id,
     })
 
-    await this.repo.save(newRolePermission)
+    await rolePermissionRepo.saveResourceToChannel(newRolePermission)
 
     return newRolePermission
   }
 
-  async findById(id: string): Promise<RolePermission | null> {
-    const rolePermission = await this.repo.findById(id)
+  async findById(
+    ctx: RequestContext,
+    id: string,
+  ): Promise<RolePermission | null> {
+    const rolePermissionRepo = this.repositories.get(
+      ctx,
+      'RolePermission',
+    )
+    const rolePermission = await rolePermissionRepo.findOneInChannel(id)
 
     return rolePermission
   }
 
   async findMany(
+    ctx: RequestContext,
     params?: PaginationParams,
   ): Promise<PaginatedItemsResponse<RolePermission>> {
+    const rolePermissionRepo = this.repositories.get(
+      ctx,
+      'RolePermission',
+    )
     const { limit, position } =
       this.paginationUtils.validateAndGetPaginationLimit(params)
 
-    const rolePermissionsData = await this.repo.findAll({
+    const rolePermissionsData = await rolePermissionRepo.findManyInChannel({
       limit,
       position,
     })
@@ -61,39 +81,51 @@ export class RolePermissionService {
     return rolePermissionsData
   }
 
-  async removeRolePermissionById(id: string) {
-    const rolePermission = await this.repo.findById(id)
+  async removeRolePermissionById(ctx: RequestContext, id: string) {
+    const rolePermissionRepo = this.repositories.get(
+      ctx,
+      'RolePermission',
+    )
+    const rolePermission = await rolePermissionRepo.findOneInChannel(id)
 
     if (!rolePermission)
       throw new NotFoundException('Role permission not found!')
 
-    const removedRolePermission = await this.repo.remove(id)
+    await rolePermissionRepo.removeResourceInChannel(rolePermission)
 
-    return removedRolePermission
+    return rolePermission
   }
 
-  async softRemoveRolePermissionById(id: string) {
-    const rolePermission = await this.repo.findById(id)
+  async softRemoveRolePermissionById(ctx: RequestContext, id: string) {
+    const rolePermissionRepo = this.repositories.get(
+      ctx,
+      'RolePermission',
+    )
+    const rolePermission = await rolePermissionRepo.findOneInChannel(id)
 
     if (!rolePermission)
       throw new NotFoundException('Role permission not found!')
 
     rolePermission.softDelete()
 
-    await this.repo.save(rolePermission)
+    await rolePermissionRepo.saveResourceToChannel(rolePermission)
 
     return rolePermission
   }
 
-  async recoverRolePermissionById(id: string) {
-    const rolePermission = await this.repo.findById(id)
+  async recoverRolePermissionById(ctx: RequestContext, id: string) {
+    const rolePermissionRepo = this.repositories.get(
+      ctx,
+      'RolePermission',
+    )
+    const rolePermission = await rolePermissionRepo.findOneInChannel(id)
 
     if (!rolePermission)
       throw new NotFoundException('Role permission not found!')
 
     rolePermission.softRecover()
 
-    await this.repo.save(rolePermission)
+    await rolePermissionRepo.saveResourceToChannel(rolePermission)
 
     return rolePermission
   }

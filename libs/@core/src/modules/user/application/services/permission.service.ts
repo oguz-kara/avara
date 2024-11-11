@@ -8,21 +8,23 @@ import { Permission } from '@avara/core/modules/user/domain/entities/permission.
 import { CreatePermissionDto } from '@avara/core/modules/user/application/graphql/dto/permission.dto'
 import { PaginationUtils } from '@avara/shared/utils/pagination.util'
 import { PermissionString } from '../../api/types/permission.types'
-import { PermissionRepository } from '../../infrastructure/orm/repository/permission.repository'
 import { PaginationParams } from '../../api/types/pagination.type'
 import { PaginatedItemsResponse } from '../../api/types/items-response.type'
+import { CoreRepositories } from '@avara/core/core-repositories'
+import { RequestContext } from '@avara/core/context/request-context'
 
 @Injectable()
 export class PermissionService {
   constructor(
-    private readonly repo: PermissionRepository,
+    private readonly repositories: CoreRepositories,
     private readonly paginationUtils: PaginationUtils,
   ) {}
 
-  async createPermission(input: CreatePermissionDto) {
+  async createPermission(ctx: RequestContext, input: CreatePermissionDto) {
+    const permissionRepo = this.repositories.get(ctx, 'Permission')
     const name =
       `${input.action}:${input.resource}:${input.scope}` as PermissionString
-    const existedPermission = await this.repo.findByName(name)
+    const existedPermission = await permissionRepo.findOneByNameInChannel(name)
 
     if (existedPermission)
       throw new ConflictException('Permission already exists!')
@@ -34,30 +36,40 @@ export class PermissionService {
       scope: input.scope,
     })
 
-    await this.repo.save(permission)
+    await permissionRepo.saveResourceToChannel(permission)
 
     return permission
   }
 
-  async findById(id: string): Promise<Permission | null> {
-    const permission = await this.repo.findById(id)
+  async findById(ctx: RequestContext, id: string): Promise<Permission | null> {
+    const permissionRepo = this.repositories.get(ctx, 'Permission')
+
+    const permission = await permissionRepo.findOneInChannel(id)
 
     return permission
   }
 
-  async findByName(name: PermissionString): Promise<Permission | null> {
-    const permission = await this.repo.findByName(name)
+  async findByName(
+    ctx: RequestContext,
+    name: PermissionString,
+  ): Promise<Permission | null> {
+    const permissionRepo = this.repositories.get(ctx, 'Permission')
+
+    const permission = await permissionRepo.findOneByNameInChannel(name)
 
     return permission
   }
 
   async findMany(
+    ctx: RequestContext,
     params?: PaginationParams,
   ): Promise<PaginatedItemsResponse<Permission>> {
+    const permissionRepo = this.repositories.get(ctx, 'Permission')
+
     const { limit, position } =
       this.paginationUtils.validateAndGetPaginationLimit(params)
 
-    const permissionsData = await this.repo.findAll({
+    const permissionsData = await permissionRepo.findManyInChannel({
       limit,
       position,
     })
@@ -65,12 +77,18 @@ export class PermissionService {
     return permissionsData
   }
 
-  async renamePermissionById(id: string, name: PermissionString) {
-    const permission = await this.repo.findById(id)
+  async renamePermissionById(
+    ctx: RequestContext,
+    id: string,
+    name: PermissionString,
+  ) {
+    const permissionRepo = this.repositories.get(ctx, 'Permission')
+
+    const permission = await permissionRepo.findOneInChannel(id)
 
     if (!permission) throw new NotFoundException('Permission not found!')
 
-    const permissionName = await this.repo.findByName(name)
+    const permissionName = await permissionRepo.findOneByNameInChannel(name)
 
     if (permissionName)
       throw new ConflictException(
@@ -79,53 +97,66 @@ export class PermissionService {
 
     permission.renamePermission(name)
 
-    await this.repo.save(permission)
+    await permissionRepo.saveResourceToChannel(permission)
 
     return permission
   }
 
-  async removePermissionById(id: string) {
-    const permission = await this.repo.findById(id)
+  async removePermissionById(ctx: RequestContext, id: string) {
+    const permissionRepo = this.repositories.get(ctx, 'Permission')
+
+    const permission = await permissionRepo.findOneInChannel(id)
 
     if (!permission) throw new NotFoundException('Permission not found!')
 
-    const removedPermission = await this.repo.remove(id)
+    const removedPermission =
+      await permissionRepo.removeResourceInChannel(permission)
 
     return removedPermission
   }
 
-  async softRemovePermissionById(id: string) {
-    const permission = await this.repo.findById(id)
+  async softRemovePermissionById(ctx: RequestContext, id: string) {
+    const permissionRepo = this.repositories.get(ctx, 'Permission')
+
+    const permission = await permissionRepo.findOneInChannel(id)
 
     if (!permission) throw new NotFoundException('Permission not found!')
 
     permission.softDelete()
 
-    await this.repo.save(permission)
+    await permissionRepo.saveResourceToChannel(permission)
 
     return permission
   }
 
-  async recoverPermissionById(id: string) {
-    const permission = await this.repo.findById(id)
+  async recoverPermissionById(ctx: RequestContext, id: string) {
+    const permissionRepo = this.repositories.get(ctx, 'Permission')
+
+    const permission = await permissionRepo.findOneInChannel(id)
 
     if (!permission) throw new NotFoundException('Permission not found!')
 
     permission.softRecover()
 
-    await this.repo.save(permission)
+    await permissionRepo.saveResourceToChannel(permission)
 
     return permission
   }
 
-  async assignSpecificScopeId(permissionId: string, specificScopeId: string) {
-    const permission = await this.repo.findById(permissionId)
+  async assignSpecificScopeId(
+    ctx: RequestContext,
+    permissionId: string,
+    specificScopeId: string,
+  ) {
+    const permissionRepo = this.repositories.get(ctx, 'Permission')
+
+    const permission = await permissionRepo.findOneInChannel(permissionId)
 
     if (!permission) throw new NotFoundException('Permission not found!')
 
     permission.assignSpecificScopeId(specificScopeId)
 
-    await this.repo.save(permission)
+    await permissionRepo.saveResourceToChannel(permission)
 
     return permission
   }

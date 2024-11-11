@@ -137,10 +137,6 @@ export class User
     this._updated_at = new Date()
   }
 
-  public deleteUser() {
-    this._deleted_at = new Date()
-  }
-
   public changePassword(newPasswordHash: string) {
     this._password_hash = newPasswordHash
   }

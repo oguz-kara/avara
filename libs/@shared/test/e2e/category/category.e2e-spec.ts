@@ -37,19 +37,21 @@ describe('CategoryResolver (e2e)', () => {
             name: "Electronics",
             category_type: PRODUCT,
             parent_category_id: null,
-            mdx_content: "<p>Some content</p>"
+            content: "<p>Some content</p>"
+            content_type: "MD"
           }) {
             id
             name
             parent_category_id
             category_type
-            mdx_content
+            content 
+            content_type
           }
         }
       `
 
       const response = await request(app.getHttpServer())
-        .post('/graphql')
+        .post('/protected')
         .send({ query: createCategoryMutation })
 
       expect(response.status).toBe(200)
@@ -63,7 +65,7 @@ describe('CategoryResolver (e2e)', () => {
       expect(savedCategory).toBeTruthy()
       expect(savedCategory.name).toBe('Electronics')
       expect(savedCategory.parent_category_id).toBe(null)
-      expect(savedCategory.mdx_content).toBe('<p>Some content</p>')
+      expect(savedCategory.content).toBe('<p>Some content</p>')
     })
 
     it('should throw ConflictException if category already exists', async () => {
@@ -73,7 +75,8 @@ describe('CategoryResolver (e2e)', () => {
           name: 'Electronics',
           category_type: CategoryType.PRODUCT,
           parent_category_id: null,
-          mdx_content: '<p>Some content</p>',
+          content: '<p>Some content</p>',
+          content_type: 'MD',
         },
       })
 
@@ -83,7 +86,8 @@ describe('CategoryResolver (e2e)', () => {
             name: "Electronics",
             category_type: PRODUCT,
             parent_category_id: null,
-            mdx_content: "<p>Some content</p>"
+            content: "<p>Some content</p>"
+            content_type: "MD"
           }) {
             id
             name
@@ -93,7 +97,7 @@ describe('CategoryResolver (e2e)', () => {
       `
 
       const response = await request(app.getHttpServer())
-        .post('/graphql')
+        .post('/protected')
         .send({ query: createCategoryMutation })
 
       const errors = response.body.errors
@@ -111,7 +115,8 @@ describe('CategoryResolver (e2e)', () => {
           name: 'Electronics',
           category_type: CategoryType.PRODUCT,
           parent_category_id: null,
-          mdx_content: '<p>Some content</p>',
+          content: '<p>Some content</p>',
+          content_type: 'MD',
         },
       })
 
@@ -125,7 +130,7 @@ describe('CategoryResolver (e2e)', () => {
       `
 
       const response = await request(app.getHttpServer())
-        .post('/graphql')
+        .post('/protected')
         .send({ query: removeCategoryMutation })
 
       expect(response.status).toBe(200)
@@ -151,7 +156,7 @@ describe('CategoryResolver (e2e)', () => {
       `
 
       const response = await request(app.getHttpServer())
-        .post('/graphql')
+        .post('/protected')
         .send({ query: removeCategoryMutation })
 
       const errors = response.body.errors
@@ -171,7 +176,8 @@ describe('CategoryResolver (e2e)', () => {
           name: 'Electronics',
           category_type: CategoryType.PRODUCT,
           parent_category_id: null,
-          mdx_content: '<p>Some content</p>',
+          content: '<p>Some content</p>',
+          content_type: 'MD',
         },
       })
       await dbService.category.create({
@@ -179,7 +185,8 @@ describe('CategoryResolver (e2e)', () => {
           name: 'Appliances',
           category_type: CategoryType.PRODUCT,
           parent_category_id: null,
-          mdx_content: '<p>Another content</p>',
+          content: '<p>Another content</p>',
+          content_type: 'MD',
         },
       })
 
@@ -201,7 +208,7 @@ describe('CategoryResolver (e2e)', () => {
       `
 
       const response = await request(app.getHttpServer())
-        .post('/graphql')
+        .post('/protected')
         .send({ query: categoriesQuery })
 
       expect(response.status).toBe(200)
@@ -217,7 +224,8 @@ describe('CategoryResolver (e2e)', () => {
           name: 'Electronics',
           category_type: CategoryType.PRODUCT,
           parent_category_id: null,
-          mdx_content: '<p>Some content</p>',
+          content: '<p>Some content</p>',
+          content_type: 'MD',
         },
       })
 
@@ -232,7 +240,7 @@ describe('CategoryResolver (e2e)', () => {
       `
 
       const response = await request(app.getHttpServer())
-        .post('/graphql')
+        .post('/protected')
         .send({ query: findCategoryQuery })
 
       expect(response.status).toBe(200)
@@ -252,7 +260,7 @@ describe('CategoryResolver (e2e)', () => {
       `
 
       const response = await request(app.getHttpServer())
-        .post('/graphql')
+        .post('/protected')
         .send({ query: findCategoryQuery })
 
       expect(response.status).toBe(200)

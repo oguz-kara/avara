@@ -1,21 +1,36 @@
 import { ConfigFactory, ConfigObject } from '@nestjs/config'
 
 export const appConfig: ConfigFactory<ConfigObject> = (): ConfigObject => ({
-  apiOptions: {
+  server: {
     hostname: 'localhost',
     port: 3000,
-    protectedApiPath: '/back',
-    frontApiPath: '/front',
+    apiPaths: {
+      protected: '/protected',
+      public: '/public',
+    },
   },
-  paginationOptions: {
-    maxLimit: 100,
-    defaultLimit: 25,
+  pagination: {
+    limits: {
+      max: 100,
+      default: 25,
+    },
     defaultPosition: 0,
   },
-  authOptions: {
+  authentication: {
     strategy: process.env.AUTH_STRATEGY,
-    jwtExpiresIn: '30s',
-    isAuthorizationActive:
-      process.env.AUTHORIZATION_ACTIVE === 'true' ? true : false,
+    jwt: {
+      expiresIn: '30s',
+    },
+    authorizationEnabled:
+      process.env.AUTHORIZATION_ENABLED === 'true' ? true : false,
+  },
+  localization: {
+    language: {
+      default: 'en',
+      available: ['en', 'fr'],
+    },
+    currency: {
+      default: 'USD',
+    },
   },
 })

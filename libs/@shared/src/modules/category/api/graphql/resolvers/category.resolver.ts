@@ -44,7 +44,7 @@ export class CategoryResolver {
   @Allow(Permission.READ_PRODUCT_CATEGORY_GLOBAL)
   @Query(() => FindProductCategoryResponseType)
   async categories(
-    @Args('input')
+    @Args('input', { nullable: true })
     findCategoriesInput?: FindCategoriesByTypeInput,
   ) {
     const productCategorysData =

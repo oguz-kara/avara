@@ -8,7 +8,7 @@ export class AuthStorageService {
 
   constructor(private readonly configService: ConfigService) {
     const defaultStrategy = this.configService.get<AuthType | undefined>(
-      'authOptions.strategy',
+      'authentication.strategy',
     )
     if (defaultStrategy) {
       this.authStrategies.set('default', defaultStrategy)
