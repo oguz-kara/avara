@@ -1,7 +1,7 @@
 export abstract class CoreEntity {
   protected _id: string | undefined
-  protected _created_at: Date
-  protected _updated_at: Date
+  protected _created_at: Date = new Date()
+  protected _updated_at: Date = new Date()
 
   get id(): string {
     return this._id

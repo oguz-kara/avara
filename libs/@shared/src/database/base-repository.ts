@@ -5,7 +5,7 @@ import { Mapper } from './mapper.interface'
 import {
   PaginatedList,
   PaginationParams,
-} from '@avara/core/modules/user/api/types/pagination.type'
+} from '@avara/core/user/api/types/pagination.type'
 
 Injectable()
 export class BaseRepository<D extends CoreEntity, P> {

@@ -1,12 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { ConflictException, NotFoundException } from '@nestjs/common'
-import { ChannelService } from '@avara/shared/modules/channel/application/services/channel.service'
-import { ChannelRepository } from '@avara/shared/modules/channel/infrastructure/repositories/channel.repository'
+import { ChannelService } from '@avara/core/channel/application/services/channel.service'
+import { ChannelRepository } from '@avara/core/channel/infrastructure/repositories/channel.repository'
 import { PaginationUtils } from '@avara/shared/utils/pagination.util'
 import { ConfigService } from '@nestjs/config'
 import { DbService } from '@avara/shared/database/db-service'
-import { CreateChannelDto } from '@avara/shared/modules/channel/api/graphql/dto/create-channel.dto'
-import { ChannelMapper } from '@avara/shared/modules/channel/infrastructure/mappers/channel.mapper'
+import { CreateChannelDto } from '@avara/core/channel/api/graphql/dto/create-channel.dto'
+import { ChannelMapper } from '@avara/core/channel/infrastructure/mappers/channel.mapper'
 
 describe('ChannelService (Integration)', () => {
   let service: ChannelService

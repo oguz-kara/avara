@@ -1,26 +1,32 @@
 import { ConflictException, NotFoundException } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import { DbService } from '@avara/shared/database/db-service'
-import { RoleRepository } from '@avara/core/modules/user/infrastructure/orm/repository/role.repository'
-import { RoleMapper } from '@avara/core/modules/user/infrastructure/mappers/role.mapper'
-import { PermissionMapper } from '@avara/core/modules/user/infrastructure/mappers/permission.mapper'
-import { RolePermissionMapper } from '@avara/core/modules/user/infrastructure/mappers/role-permission.mapper'
-import { RolePermissionRepository } from '@avara/core/modules/user/infrastructure/orm/repository/role-permission.repository'
-import { UserService } from '@avara/core/modules/user/application/services/user.service'
-import { UserRepository } from '@avara/core/modules/user/infrastructure/orm/repository/user.repository'
-import { UserMapper } from '@avara/core/modules/user/infrastructure/mappers/user.mapper'
+import { RoleRepository } from '@avara/core/user/infrastructure/orm/repository/role.repository'
+import { RoleMapper } from '@avara/core/user/infrastructure/mappers/role.mapper'
+import { PermissionMapper } from '@avara/core/user/infrastructure/mappers/permission.mapper'
+import { RolePermissionMapper } from '@avara/core/user/infrastructure/mappers/role-permission.mapper'
+import { RolePermissionRepository } from '@avara/core/user/infrastructure/orm/repository/role-permission.repository'
+import { UserService } from '@avara/core/user/application/services/user.service'
+import { UserRepository } from '@avara/core/user/infrastructure/orm/repository/user.repository'
+import { UserMapper } from '@avara/core/user/infrastructure/mappers/user.mapper'
 import {
   AssignRoleInput,
   CreateUserDto,
-} from '@avara/core/modules/user/application/graphql/dto/user.dto'
-import { UserActiveStatus } from '@avara/core/modules/user/domain/enums/user-active-status.enum'
-import { PermissionRepository } from '@avara/core/modules/user/infrastructure/orm/repository/permission.repository'
+} from '@avara/core/user/application/graphql/dto/user.dto'
+import { UserActiveStatus } from '@avara/core/user/domain/enums/user-active-status.enum'
+import { PermissionRepository } from '@avara/core/user/infrastructure/orm/repository/permission.repository'
 import { PaginationUtils } from '@avara/shared/utils/pagination.util'
 import { ConfigService } from '@nestjs/config'
+import { RequestContext } from '@avara/core/context/request-context'
+import { ChannelRepository } from '@avara/core/channel/infrastructure/repositories/channel.repository'
+import { ChannelMapper } from '@avara/core/channel/infrastructure/mappers/channel.mapper'
+import { Channel } from '@avara/core/channel/domain/entities/channel.entity'
 
 describe('UserService (Integration)', () => {
   let userService: UserService
   let dbService: DbService
+  let ctx: RequestContext
+  let channelRepository: ChannelRepository
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -34,6 +40,8 @@ describe('UserService (Integration)', () => {
         RolePermissionRepository,
         PermissionRepository,
         PermissionMapper,
+        ChannelRepository,
+        ChannelMapper,
         RolePermissionMapper,
         PaginationUtils,
         ConfigService,
@@ -46,6 +54,26 @@ describe('UserService (Integration)', () => {
     // Clear database
     await dbService.user.deleteMany()
     await dbService.role.deleteMany()
+    await dbService.channel.deleteMany()
+
+    const channel = new Channel({
+      id: undefined,
+      name: 'Default',
+      code: 'default',
+      currency_code: 'USD',
+      default_language_code: 'en',
+      is_default: true,
+    })
+
+    await channelRepository.save(channel)
+
+    ctx = new RequestContext({
+      channel,
+      channel_code: channel.code,
+      channel_id: channel.id,
+      currency_code: channel.currency_code,
+      language_code: channel.default_language_code,
+    })
   })
 
   afterAll(async () => {
@@ -71,7 +99,7 @@ describe('UserService (Integration)', () => {
         is_active: UserActiveStatus.ACTIVE,
       }
 
-      const result = await userService.saveNewUser(input)
+      const result = await userService.saveNewUser(ctx, input)
 
       expect(result).toBeTruthy()
       expect(result.email).toBe(input.email)
@@ -101,9 +129,9 @@ describe('UserService (Integration)', () => {
         is_active: UserActiveStatus.ACTIVE,
       }
 
-      await userService.saveNewUser(input)
+      await userService.saveNewUser(ctx, input)
 
-      await expect(userService.saveNewUser(input)).rejects.toThrow(
+      await expect(userService.saveNewUser(ctx, input)).rejects.toThrow(
         ConflictException,
       )
     })
@@ -136,7 +164,11 @@ describe('UserService (Integration)', () => {
         roleId: newRole.id,
       }
 
-      const result = await userService.setUserRole(input.userId, input.roleId)
+      const result = await userService.setUserRole(
+        ctx,
+        input.userId,
+        input.roleId,
+      )
 
       expect(result).toBeTruthy()
       expect(result.role_id).toBe(input.roleId)
@@ -159,7 +191,7 @@ describe('UserService (Integration)', () => {
       }
 
       await expect(
-        userService.setUserRole(input.userId, input.roleId),
+        userService.setUserRole(ctx, input.userId, input.roleId),
       ).rejects.toThrow(NotFoundException)
     })
 
@@ -184,7 +216,7 @@ describe('UserService (Integration)', () => {
       }
 
       await expect(
-        userService.setUserRole(input.userId, input.roleId),
+        userService.setUserRole(ctx, input.userId, input.roleId),
       ).rejects.toThrow(NotFoundException)
     })
   })
@@ -205,7 +237,7 @@ describe('UserService (Integration)', () => {
         },
       })
 
-      const result = await userService.getUserById(user.id)
+      const result = await userService.getUserById(ctx, user.id)
 
       expect(result).toBeTruthy()
       expect(result.id).toBe(user.id)
@@ -216,7 +248,7 @@ describe('UserService (Integration)', () => {
     })
 
     it('should return null if user not found', async () => {
-      const result = await userService.getUserById('non-existent-id')
+      const result = await userService.getUserById(ctx, 'non-existent-id')
 
       expect(result).toBeNull()
     })
@@ -240,7 +272,7 @@ describe('UserService (Integration)', () => {
         },
       })
 
-      const result = await userService.getUserByEmail(user.email)
+      const result = await userService.getUserByEmail(ctx, user.email)
 
       expect(result).toBeTruthy()
       expect(result.id).toBe(user.id)
@@ -252,6 +284,7 @@ describe('UserService (Integration)', () => {
 
     it('should return null if user not found', async () => {
       const result = await userService.getUserByEmail(
+        ctx,
         'non-existent-email@example.com',
       )
 
@@ -286,8 +319,10 @@ describe('UserService (Integration)', () => {
       })
 
       const paginationParams = { limit: 10, position: 0 }
-      const paginatedResponse =
-        await userService.getUsersWithPagination(paginationParams)
+      const paginatedResponse = await userService.getUsersWithPagination(
+        ctx,
+        paginationParams,
+      )
 
       expect(paginatedResponse).toBeTruthy()
       expect(paginatedResponse.items).toHaveLength(2)

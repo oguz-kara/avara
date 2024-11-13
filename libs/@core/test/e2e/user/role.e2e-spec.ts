@@ -3,7 +3,7 @@ import { INestApplication } from '@nestjs/common'
 import * as request from 'supertest'
 import { AppModule } from '../../../../../src/app.module'
 import { DbService } from '@avara/shared/database/db-service'
-import { RoleRepository } from '@avara/core/modules/user/infrastructure/orm/repository/role.repository'
+import { RoleRepository } from '@avara/core/user/infrastructure/orm/repository/role.repository'
 
 describe('RoleResolver (e2e)', () => {
   let app: INestApplication

@@ -1,10 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { INestApplication } from '@nestjs/common'
 import * as request from 'supertest'
-import { AppModule } from '../../../../../src/app.module'
 import { DbService } from '@avara/shared/database/db-service'
-import { UserActiveStatus } from '@avara/core/modules/user/domain/enums/user-active-status.enum'
+import { UserActiveStatus } from '@avara/core/user/domain/enums/user-active-status.enum'
 import { createRoleByRequest } from '../helpers/create-role-by-request'
+import { AppModule } from 'apps/avara/src/app.module'
 
 describe('UserResolver (e2e)', () => {
   let app: INestApplication

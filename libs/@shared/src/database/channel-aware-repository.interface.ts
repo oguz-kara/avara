@@ -1,8 +1,8 @@
-import { RequestContext } from '@avara/core/context/request-context'
+import { RequestContext } from '@avara/core/application/context/request-context'
 import {
   PaginatedList,
   PaginationParams,
-} from '@avara/core/modules/user/api/types/pagination.type'
+} from '@avara/core/user/api/types/pagination.type'
 
 export interface ChannelResourceFinder<T> {
   findOneInChannel(resourceId: string): Promise<T | null>

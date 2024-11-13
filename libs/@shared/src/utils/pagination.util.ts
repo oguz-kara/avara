@@ -1,6 +1,6 @@
 import { Global, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { PaginationParams } from '../../../@core/src/modules/user/api/types/pagination.type'
+import { PaginationParams } from '../../../@core/src/user/api/types/pagination.type'
 
 @Global()
 @Injectable()

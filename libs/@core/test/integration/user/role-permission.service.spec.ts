@@ -1,31 +1,33 @@
-import { CreateRolePermissionDto } from '@avara/core/modules/user/application/graphql/dto/role-permission.dto'
-import { RolePermissionService } from '@avara/core/modules/user/application/services/role-permission.service'
+import { CreateRolePermissionDto } from '@avara/core/user/application/graphql/dto/role-permission.dto'
+import { RolePermissionService } from '@avara/core/user/application/services/role-permission.service'
 import { PaginationUtils } from '@avara/shared/utils/pagination.util'
-import { appConfig } from '@avara/core/modules/user/config/app.config'
-import { PermissionMapper } from '@avara/core/modules/user/infrastructure/mappers/permission.mapper'
-import { RolePermissionMapper } from '@avara/core/modules/user/infrastructure/mappers/role-permission.mapper'
-import { RoleMapper } from '@avara/core/modules/user/infrastructure/mappers/role.mapper'
-import { RolePermissionRepository } from '@avara/core/modules/user/infrastructure/orm/repository/role-permission.repository'
+import { appConfig } from '@avara/core/user/config/app.config'
+import { PermissionMapper } from '@avara/core/user/infrastructure/mappers/permission.mapper'
+import { RolePermissionMapper } from '@avara/core/user/infrastructure/mappers/role-permission.mapper'
+import { RoleMapper } from '@avara/core/user/infrastructure/mappers/role.mapper'
+import { RolePermissionRepository } from '@avara/core/user/infrastructure/orm/repository/role-permission.repository'
 import { DbService } from '@avara/shared/database/db-service'
 import { ConflictException } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
-import { PermissionService } from '@avara/core/modules/user/application/services/permission.service'
-import { PermissionRepository } from '@avara/core/modules/user/infrastructure/orm/repository/permission.repository'
-import { ChannelRepository } from '@avara/shared/modules/channel/infrastructure/repositories/channel.repository'
-import { CoreRepositories } from '@avara/core/core-repositories'
-import { ChannelMapper } from '@avara/shared/modules/channel/infrastructure/mappers/channel.mapper'
-import { UserRepository } from '@avara/core/modules/user/infrastructure/orm/repository/user.repository'
-import { UserMapper } from '@avara/core/modules/user/infrastructure/mappers/user.mapper'
-import { RoleRepository } from '@avara/core/modules/user/infrastructure/orm/repository/role.repository'
+import { PermissionService } from '@avara/core/user/application/services/permission.service'
+import { PermissionRepository } from '@avara/core/user/infrastructure/orm/repository/permission.repository'
+import { ChannelRepository } from '@avara/core/channel/infrastructure/repositories/channel.repository'
+import { CoreRepositories } from '@avara/core/application/core-repositories'
+import { ChannelMapper } from '@avara/core/channel/infrastructure/mappers/channel.mapper'
+import { UserRepository } from '@avara/core/user/infrastructure/orm/repository/user.repository'
+import { UserMapper } from '@avara/core/user/infrastructure/mappers/user.mapper'
+import { RoleRepository } from '@avara/core/user/infrastructure/orm/repository/role.repository'
 import { RequestContext } from '@avara/core/context/request-context'
-import { Channel } from '@avara/shared/modules/channel/domain/entities/channel.entity'
-import { RoleService } from '@avara/core/modules/user/application/services/role.service'
+import { Channel } from '@avara/core/channel/domain/entities/channel.entity'
+import { RoleService } from '@avara/core/user/application/services/role.service'
 import {
   ActionType,
   ResourceType,
   ScopeType,
-} from '@avara/core/modules/user/application/enums'
+} from '@avara/core/user/application/enums'
+import { AdministratorRepository } from '@avara/core/user/infrastructure/orm/repository/administrator.repository'
+import { AdministratorMapper } from '@avara/core/user/infrastructure/mappers/administrator.mapper'
 
 describe('RolePermissionService (Integration)', () => {
   let rolePermissionService: RolePermissionService
@@ -52,6 +54,8 @@ describe('RolePermissionService (Integration)', () => {
         ConfigService,
         ChannelRepository,
         CoreRepositories,
+        AdministratorRepository,
+        AdministratorMapper,
         ChannelMapper,
         UserRepository,
         PermissionRepository,

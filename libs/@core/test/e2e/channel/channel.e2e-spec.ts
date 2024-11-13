@@ -2,10 +2,10 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { INestApplication } from '@nestjs/common'
 import * as request from 'supertest'
 import { DbService } from '@avara/shared/database/db-service'
-import { AppModule } from 'src/app.module'
 import { createChannelListOnDb } from './helpers/create-channel-list-on-db'
-import { ChannelRepository } from '@avara/shared/modules/channel/infrastructure/repositories/channel.repository'
+import { ChannelRepository } from '@avara/core/channel/infrastructure/repositories/channel.repository'
 import { findChannelsQuery } from './queries/find-channels.query'
+import { AppModule } from 'apps/avara/src/app.module'
 
 describe('ChannelResolver (e2e)', () => {
   let app: INestApplication

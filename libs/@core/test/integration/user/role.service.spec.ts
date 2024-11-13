@@ -1,35 +1,35 @@
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { ConflictException, NotFoundException } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
-import { RoleService } from '@avara/core/modules/user/application/services/role.service'
-import { RolePermissionService } from '@avara/core/modules/user/application/services/role-permission.service'
+import { RoleService } from '@avara/core/user/application/services/role.service'
+import { RolePermissionService } from '@avara/core/user/application/services/role-permission.service'
 import { DbService } from '@avara/shared/database/db-service'
-import { appConfig } from '@avara/core/modules/user/config/app.config'
-import { RoleRepository } from '@avara/core/modules/user/infrastructure/orm/repository/role.repository'
-import { RoleMapper } from '@avara/core/modules/user/infrastructure/mappers/role.mapper'
+import { appConfig } from '@avara/core/user/config/app.config'
+import { RoleRepository } from '@avara/core/user/infrastructure/orm/repository/role.repository'
+import { RoleMapper } from '@avara/core/user/infrastructure/mappers/role.mapper'
 import { PaginationUtils } from '@avara/shared/utils/pagination.util'
-import { PermissionService } from '@avara/core/modules/user/application/services/permission.service'
-import { PermissionRepository } from '@avara/core/modules/user/infrastructure/orm/repository/permission.repository'
-import { PermissionMapper } from '@avara/core/modules/user/infrastructure/mappers/permission.mapper'
-import { RolePermissionMapper } from '@avara/core/modules/user/infrastructure/mappers/role-permission.mapper'
-import { RolePermissionRepository } from '@avara/core/modules/user/infrastructure/orm/repository/role-permission.repository'
+import { PermissionService } from '@avara/core/user/application/services/permission.service'
+import { PermissionRepository } from '@avara/core/user/infrastructure/orm/repository/permission.repository'
+import { PermissionMapper } from '@avara/core/user/infrastructure/mappers/permission.mapper'
+import { RolePermissionMapper } from '@avara/core/user/infrastructure/mappers/role-permission.mapper'
+import { RolePermissionRepository } from '@avara/core/user/infrastructure/orm/repository/role-permission.repository'
 import { DBTransactionService } from '@avara/shared/database/db-transaction'
 import {
   CreateRoleDto,
   RenameRoleDto,
-} from '@avara/core/modules/user/application/graphql/dto/role.dto'
-import { ChannelRepository } from '@avara/shared/modules/channel/infrastructure/repositories/channel.repository'
-import { Channel } from '@avara/shared/modules/channel/domain/entities/channel.entity'
-import { RequestContext } from '@avara/core/context/request-context'
-import { CoreRepositories } from '@avara/core/core-repositories'
-import { ChannelMapper } from '@avara/shared/modules/channel/infrastructure/mappers/channel.mapper'
-import { UserRepository } from '@avara/core/modules/user/infrastructure/orm/repository/user.repository'
-import { UserMapper } from '@avara/core/modules/user/infrastructure/mappers/user.mapper'
+} from '@avara/core/user/application/graphql/dto/role.dto'
+import { ChannelRepository } from '@avara/core/channel/infrastructure/repositories/channel.repository'
+import { Channel } from '@avara/core/channel/domain/entities/channel.entity'
+import { RequestContext } from '@avara/core/application/context/request-context'
+import { CoreRepositories } from '@avara/core/application/core-repositories'
+import { ChannelMapper } from '@avara/core/channel/infrastructure/mappers/channel.mapper'
+import { UserRepository } from '@avara/core/user/infrastructure/orm/repository/user.repository'
+import { UserMapper } from '@avara/core/user/infrastructure/mappers/user.mapper'
 import {
   ActionType,
   ResourceType,
   ScopeType,
-} from '@avara/core/modules/user/application/enums'
+} from '@avara/core/user/application/enums'
 
 describe('RoleService (Integration)', () => {
   let roleService: RoleService
@@ -296,7 +296,7 @@ describe('RoleService (Integration)', () => {
         permissions.map((p) => p.id),
       )
 
-      const rolePermissionsBefore = await rolePermissionService.findMany()
+      const rolePermissionsBefore = await rolePermissionService.findMany(ctx)
 
       expect(roleWithPermissions.permissions).toHaveLength(2)
       expect(rolePermissionsBefore.items).toHaveLength(2)
@@ -328,7 +328,7 @@ describe('RoleService (Integration)', () => {
         newPermissions.map((p) => p.id),
       )
 
-      const rolePermissionsAfter = await rolePermissionService.findMany()
+      const rolePermissionsAfter = await rolePermissionService.findMany(ctx)
 
       expect(rolePermissionsAfter.items).toHaveLength(3)
       expect(roleWithUpdatedPermissions.permissions).toHaveLength(3)

@@ -1,30 +1,36 @@
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { ConflictException } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
-import { PermissionService } from '@avara/core/modules/user/application/services/permission.service'
+import { PermissionService } from '@avara/core/user/application/services/permission.service'
 import { DbService } from '@avara/shared/database/db-service'
-import { PermissionRepository } from '@avara/core/modules/user/infrastructure/orm/repository/permission.repository'
-import { PermissionMapper } from '@avara/core/modules/user/infrastructure/mappers/permission.mapper'
+import { PermissionRepository } from '@avara/core/user/infrastructure/orm/repository/permission.repository'
+import { PermissionMapper } from '@avara/core/user/infrastructure/mappers/permission.mapper'
 import { PaginationUtils } from '@avara/shared/utils/pagination.util'
-import { appConfig } from '@avara/core/modules/user/config/app.config'
-import { CreatePermissionDto } from '@avara/core/modules/user/application/graphql/dto/permission.dto'
+import { appConfig } from '@avara/core/user/config/app.config'
+import { CreatePermissionDto } from '@avara/core/user/application/graphql/dto/permission.dto'
 import {
   ActionType,
   ResourceType,
   ScopeType,
-} from '@avara/core/modules/user/application/enums'
-import { PermissionString } from '@avara/core/modules/user/api/types/permission.types'
-import { ChannelRepository } from '@avara/shared/modules/channel/infrastructure/repositories/channel.repository'
-import { RequestContext } from '@avara/core/context/request-context'
-import { Channel } from '@avara/shared/modules/channel/domain/entities/channel.entity'
-import { CoreRepositories } from '@avara/core/core-repositories'
-import { ChannelMapper } from '@avara/shared/modules/channel/infrastructure/mappers/channel.mapper'
-import { UserRepository } from '@avara/core/modules/user/infrastructure/orm/repository/user.repository'
-import { RolePermissionRepository } from '@avara/core/modules/user/infrastructure/orm/repository/role-permission.repository'
-import { UserMapper } from '@avara/core/modules/user/infrastructure/mappers/user.mapper'
-import { RoleRepository } from '@avara/core/modules/user/infrastructure/orm/repository/role.repository'
-import { RolePermissionMapper } from '@avara/core/modules/user/infrastructure/mappers/role-permission.mapper'
-import { RoleMapper } from '@avara/core/modules/user/infrastructure/mappers/role.mapper'
+} from '@avara/core/user/application/enums'
+import { PermissionString } from '@avara/core/user/api/types/permission.types'
+import { ChannelRepository } from '@avara/core/channel/infrastructure/repositories/channel.repository'
+import { RequestContext } from '@avara/core/application/context/request-context'
+import { Channel } from '@avara/core/channel/domain/entities/channel.entity'
+import { CoreRepositories } from '@avara/core/application/core-repositories'
+import { UserRepository } from '@avara/core/user/infrastructure/orm/repository/user.repository'
+import { RolePermissionRepository } from '@avara/core/user/infrastructure/orm/repository/role-permission.repository'
+import { UserMapper } from '@avara/core/user/infrastructure/mappers/user.mapper'
+import { RoleRepository } from '@avara/core/user/infrastructure/orm/repository/role.repository'
+import { RolePermissionMapper } from '@avara/core/user/infrastructure/mappers/role-permission.mapper'
+import { RoleMapper } from '@avara/core/user/infrastructure/mappers/role.mapper'
+import { AdministratorMapper } from '@avara/core/user/infrastructure/mappers/administrator.mapper'
+import { AdministratorRepository } from '@avara/core/user/infrastructure/orm/repository/administrator.repository'
+import { RolePermissionService } from '@avara/core/user/application/services/role-permission.service'
+import { DBTransactionService } from '@avara/shared/database/db-transaction'
+import { RoleService } from '@avara/core/user/application/services/role.service'
+import { SeoMetadataRepository } from '@avara/core/seo-metadata/infrastructure/repositories/seo-metadata.repository'
+import { SeoMetadataMapper } from '@avara/core/seo-metadata/infrastructure/mappers/seo-metadata.mapper'
 
 describe('PermissionService (Integration)', () => {
   let permissionService: PermissionService
@@ -41,22 +47,28 @@ describe('PermissionService (Integration)', () => {
         }),
       ],
       providers: [
-        PermissionService,
-        PermissionRepository,
+        RoleService,
+        RoleRepository,
         DbService,
-        PermissionMapper,
+        RoleMapper,
         PaginationUtils,
         ConfigService,
-        ChannelRepository,
+        PermissionService,
+        PermissionRepository,
+        PermissionMapper,
+        RolePermissionMapper,
+        RolePermissionRepository,
+        RolePermissionService,
+        DBTransactionService,
         CoreRepositories,
-        ChannelMapper,
         UserRepository,
         PermissionRepository,
         RolePermissionRepository,
         UserMapper,
-        RoleRepository,
-        RolePermissionMapper,
-        RoleMapper,
+        SeoMetadataRepository,
+        SeoMetadataMapper,
+        AdministratorMapper,
+        AdministratorRepository,
       ],
     }).compile()
 
