@@ -43,6 +43,8 @@
     "rxjs": "^7.8.1"
   },
   "devDependencies": {
+    "@commitlint/cli": "^19.5.0",
+    "@commitlint/config-conventional": "^19.5.0",
     "@jest/types": "^29.6.3",
     "@nestjs/cli": "^10.0.0",
     "@nestjs/schematics": "^10.0.0",
@@ -57,7 +59,9 @@
     "eslint": "^8.42.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.0",
+    "husky": "^9.1.6",
     "jest": "^29.7.0",
+    "lint-staged": "^15.2.10",
     "prettier": "^3.0.0",
     "prisma": "^5.21.1",
     "source-map-support": "^0.5.21",
@@ -92,5 +96,18 @@
       "^@avara/core(|/.*)$": "<rootDir>/apps/core/src/$1",
       "^@avara/shared(|/.*)$": "<rootDir>/libs/@shared/src/$1"
     }
+  },
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{js,ts,json}": [
+      "eslint --fix",
+      "prettier --write",
+      "git add"
+    ]
   }
 }
