@@ -1,6 +1,6 @@
 import { Global, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { PaginationParams } from '../../../@core/src/user/api/types/pagination.type'
+import { PaginationParams } from '../../../../apps/core/src/domain/user/api/types/pagination.type'
 
 @Global()
 @Injectable()
@@ -23,6 +23,7 @@ export class PaginationUtils {
   private getPaginationParamsFromConfig(
     args: PaginationParams,
   ): PaginationParams {
+    console.log({ pgInArgs: args })
     return {
       limit: !isNaN(Number(args?.limit))
         ? Math.abs(args.limit)

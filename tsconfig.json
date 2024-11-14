@@ -19,10 +19,10 @@
     "noFallthroughCasesInSwitch": false,
     "paths": {
       "@avara/core": [
-        "libs/@core/src"
+        "apps/core/src"
       ],
       "@avara/core/*": [
-        "libs/@core/src/*"
+        "apps/core/src/*"
       ],
       "@avara/shared": [
         "libs/@shared/src"

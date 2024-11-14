@@ -11,13 +11,15 @@
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
-    "start:prod": "node dist/apps/avara/main",
+    "start:prod": "node dist/apps/core/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
+    "test:clear": "jest --clearCache",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./apps/avara/test/jest-e2e.json"
+    "test:e2e": "jest --config ./apps/core/test/jest-e2e.json",
+    "test:e2e:core": "jest --config ./apps/core/test/jest-e2e.json"
   },
   "dependencies": {
     "@apollo/server": "^4.11.0",
@@ -87,7 +89,7 @@
       "<rootDir>/apps"
     ],
     "moduleNameMapper": {
-      "^@avara/core(|/.*)$": "<rootDir>/libs/@core/src/$1",
+      "^@avara/core(|/.*)$": "<rootDir>/apps/core/src/$1",
       "^@avara/shared(|/.*)$": "<rootDir>/libs/@shared/src/$1"
     }
   }

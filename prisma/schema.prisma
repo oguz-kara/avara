@@ -59,6 +59,13 @@ enum ContentType {
   HTML
 }
 
+enum AssetType {
+  IMAGE
+  VIDEO
+  AUDIO
+  DOCUMENT
+}
+
 model SystemSettings {
   id String @id @default(uuid())
 
@@ -95,6 +102,29 @@ model SystemSettings {
 
   created_at DateTime? @default(now())
   updated_at DateTime? @updatedAt
+}
+
+model Asset {
+  id        String    @id @default(uuid())
+  name      String
+  type      AssetType
+  mime_type String
+  file_size Int
+  source    String
+  preview   String
+
+  width       Int?  @default(0)
+  height      Int?  @default(0)
+  focal_point Json?
+
+  channels Channel[] @relation("ChannelAssets")
+
+  created_at DateTime? @default(now())
+  updated_at DateTime? @updatedAt
+  updated_by String?
+  created_by String?
+  deleted_at DateTime?
+  deleted_by String?
 }
 
 model User {
@@ -368,6 +398,7 @@ model Channel {
   meta_fields      SeoMetadata[]    @relation("ChannelMetaFields")
   facets           Facet[]          @relation("ChannelFacets")
   facet_values     FacetValue[]     @relation("ChannelFacets")
+  assets           Asset[]          @relation("ChannelAssets")
 
   created_at DateTime? @default(now())
   updated_at DateTime? @updatedAt
@@ -375,4 +406,5 @@ model Channel {
   created_by String?
   updated_by String?
   deleted_by String?
+  assetId    String?
 }

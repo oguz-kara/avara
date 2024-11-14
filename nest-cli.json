@@ -1,22 +1,13 @@
 {
   "$schema": "https://json.schemastore.org/nest-cli",
   "collection": "@nestjs/schematics",
-  "sourceRoot": "apps/avara/src",
+  "sourceRoot": "apps/core/src",
   "compilerOptions": {
     "deleteOutDir": true,
     "webpack": true,
-    "tsConfigPath": "apps/avara/tsconfig.app.json"
+    "tsConfigPath": "apps/core/tsconfig.app.json"
   },
   "projects": {
-    "@core": {
-      "type": "library",
-      "root": "libs/@core",
-      "entryFile": "index",
-      "sourceRoot": "libs/@core/src",
-      "compilerOptions": {
-        "tsConfigPath": "libs/@core/tsconfig.lib.json"
-      }
-    },
     "@shared": {
       "type": "library",
       "root": "libs/@shared",
@@ -26,13 +17,13 @@
         "tsConfigPath": "libs/@shared/tsconfig.lib.json"
       }
     },
-    "avara": {
+    "core": {
       "type": "application",
-      "root": "apps/avara",
+      "root": "apps/core",
       "entryFile": "main",
-      "sourceRoot": "apps/avara/src",
+      "sourceRoot": "apps/core/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/avara/tsconfig.app.json"
+        "tsConfigPath": "apps/core/tsconfig.app.json"
       }
     },
     "uilocalize": {
@@ -46,5 +37,5 @@
     }
   },
   "monorepo": true,
-  "root": "apps/avara"
+  "root": "apps/core"
 }

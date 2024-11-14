@@ -1,7 +1,7 @@
 import {
   PaginatedList,
   PaginationParams,
-} from '@avara/core/user/api/types/pagination.type'
+} from '@avara/core/domain/user/api/types/pagination.type'
 
 export interface Repository<T> {
   findOneById(resourceId: string): Promise<T | null>
