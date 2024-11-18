@@ -136,4 +136,13 @@ export class LocalStorageStrategy implements StorageStrategy {
       }
     }
   }
+
+  // ! FOR TESTING PURPOSES ONLY
+  async deleteAll(): Promise<void> {
+    try {
+      await fs.rm(this.basePath, { recursive: true })
+    } catch (error) {
+      if (error.code !== 'ENOENT') throw error
+    }
+  }
 }

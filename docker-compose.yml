@@ -1,0 +1,44 @@
+version: '3.9'
+services:
+
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 4784961ed
+      POSTGRES_DB: yag_ve_yag_test
+    ports:
+      - '5432:5432'
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  core:
+    build:
+      context: .
+      dockerfile: apps/core/Dockerfile
+    ports:
+      - '3000:3000'
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgresql://postgres:4784961ed@db:5432/saas_development_db?schema=public
+      STORAGE_HOST: localhost
+      STORAGE_URL: http://localhost:3000/assets/preview
+      NODE_ENV: development
+      JWT_SECRET: 1a3f433eebbd6f83a8af2459ce637b09443d9cab3c07b223b28046b16a9a5bd9347cb8d7d3f40df168e6e5dab347524f61ab8af1ba877238ef7a5a553bc21a30
+      PORT: 3000
+      AUTHORIZATION_ENABLED: false
+      AUTH_STRATEGY: bearer
+      ASSET_STORAGE_STRATEGY: LOCAL
+    volumes:
+    - .:/app 
+    - /app/node_modules 
+
+    command: >
+      sh -c "
+      pnpm prisma migrate dev --name init &&
+      pnpm start:dev
+      "
+
+volumes:
+  db_data:

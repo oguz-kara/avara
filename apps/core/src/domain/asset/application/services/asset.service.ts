@@ -194,4 +194,14 @@ export class AssetService {
 
     return asset
   }
+
+  async deleteAll(ctx: RequestContext): Promise<void> {
+    const assetRepo = this.repositories.get(ctx, 'Asset')
+
+    await assetRepo.deleteAllResources()
+
+    const assetStorage = this.storageFactory.create()
+
+    await assetStorage.deleteAll()
+  }
 }

@@ -37,6 +37,13 @@ export class AssetController {
     return await this.assetService.uploadMultipleAssets(ctx, files)
   }
 
+  @Delete('delete-all')
+  async deleteAll(@Ctx() ctx: RequestContext) {
+    await this.assetService.deleteAll(ctx)
+
+    return { message: 'All assets deleted' }
+  }
+
   @Delete('multiple')
   deleteFiles(@Ctx() ctx: RequestContext, @Body() body: { ids: string[] }) {
     const ids = body.ids

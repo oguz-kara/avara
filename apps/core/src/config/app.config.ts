@@ -35,7 +35,7 @@ export const appConfig: ConfigFactory<ConfigObject> = (): ConfigObject => ({
     },
   },
   asset: {
-    imageExtension: 'avif',
+    imageExtension: 'webp',
     supportedTypes: supportedTypes,
     storage: {
       localPath: '/assets/preview',

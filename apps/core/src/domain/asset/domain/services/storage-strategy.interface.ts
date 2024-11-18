@@ -5,4 +5,5 @@ export interface StorageStrategy {
   saveImageWithScreenVariations(asset: Asset, file: Buffer): Promise<void>
   getAssetBy(asset: Asset): Promise<Buffer>
   delete(asset: Asset): Promise<void>
+  deleteAll(): Promise<void>
 }

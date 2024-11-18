@@ -40,7 +40,7 @@ export class AssetRepository
     this.transaction = transaction
   }
 
-  getClient(tx: DbTransactionalClient): DbTransactionalClient | PrismaClient {
+  getClient(tx?: DbTransactionalClient): DbTransactionalClient | PrismaClient {
     return tx ? tx : this.transaction || this.db
   }
 
@@ -128,6 +128,10 @@ export class AssetRepository
         updated_at: newEntry.updated_at,
       })
     }
+  }
+
+  async deleteAllResources() {
+    await this.getClient().asset.deleteMany()
   }
 
   private async updateAsset(

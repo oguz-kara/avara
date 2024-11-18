@@ -13,7 +13,7 @@ export class DelegatingExceptionFilter implements ExceptionFilter {
     if (type === 'http') {
       return this.restExceptionFilter.catch(exception, host)
     } else {
-      return this.gqlExceptionFilter.catch(exception, host)
+      return this.gqlExceptionFilter.catch(exception)
     }
   }
 }
