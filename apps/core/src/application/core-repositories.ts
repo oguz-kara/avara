@@ -8,6 +8,8 @@ import { ChannelRepository } from '../domain/channel/infrastructure/repositories
 import { SeoMetadataRepository } from '../domain/seo-metadata/infrastructure/repositories/seo-metadata.repository'
 import { CategoryRepository } from '../domain/category/infrastructure/repositories/category.repository'
 import { RequestContext } from '../application/context/request-context'
+import { AssetRepository } from '../domain/asset/infrastructure/orm/repositories/asset.repository'
+import { PersistenceContext } from '../database/channel-aware-repository.interface'
 
 type EntityRepositoryMap = {
   Role: RoleRepository
@@ -18,6 +20,7 @@ type EntityRepositoryMap = {
   Category: CategoryRepository
   Channel: ChannelRepository
   SeoMetadata: SeoMetadataRepository
+  Asset: AssetRepository
 }
 
 @Injectable()
@@ -26,7 +29,6 @@ export class CoreRepositories {
     keyof EntityRepositoryMap,
     EntityRepositoryMap[keyof EntityRepositoryMap]
   >()
-
   constructor(
     private readonly roleRepository: RoleRepository,
     private readonly userRepository: UserRepository,
@@ -36,26 +38,23 @@ export class CoreRepositories {
     private readonly categoryRepository: CategoryRepository,
     private readonly channelRepository: ChannelRepository,
     private readonly seoMetadataRepository: SeoMetadataRepository,
+    private readonly assetRepository: AssetRepository,
   ) {
-    this.repositories.set('Role', roleRepository)
-    this.repositories.set('User', userRepository)
-    this.repositories.set('Permission', permissionRepository)
-    this.repositories.set('RolePermission', rolePermissionRepository)
-    this.repositories.set('Administrator', administratorRepository)
-    this.repositories.set('Category', categoryRepository)
-    this.repositories.set('Channel', channelRepository)
-    this.repositories.set('SeoMetadata', seoMetadataRepository)
+    this.repositories.set('Asset', assetRepository)
   }
 
   get<E extends keyof EntityRepositoryMap>(
     ctx: RequestContext,
     entity: E,
+    persistenceContext?: PersistenceContext,
   ): EntityRepositoryMap[E] {
     const repository = this.repositories.get(entity) as EntityRepositoryMap[E]
     if (!repository) {
       throw new Error(`Repository for ${entity} not found`)
     }
     repository.saveContext(ctx)
+    if (persistenceContext?.tx)
+      repository.setTransactionObject(persistenceContext.tx)
     return repository
   }
 }

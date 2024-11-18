@@ -1,4 +1,5 @@
 import { ConfigFactory, ConfigObject } from '@nestjs/config'
+import { supportedTypes } from './file-types.config'
 
 export const appConfig: ConfigFactory<ConfigObject> = (): ConfigObject => ({
   server: {
@@ -31,6 +32,25 @@ export const appConfig: ConfigFactory<ConfigObject> = (): ConfigObject => ({
     },
     currency: {
       default: 'USD',
+    },
+  },
+  asset: {
+    imageExtension: 'avif',
+    supportedTypes: supportedTypes,
+    storage: {
+      localPath: '/assets/preview',
+      maxFileSize: 1024 * 1024 * 10,
+      strategy: process.env.ASSET_STORAGE_STRATEGY || 'LOCAL',
+      host: process.env.STORAGE_HOST,
+      url: process.env.STORAGE_URL,
+      aws: {
+        region: process.env.AWS_REGION,
+        bucket: process.env.AWS_BUCKET,
+      },
+    },
+    variation: {
+      variationsEnabled: true,
+      sizes: {},
     },
   },
 })

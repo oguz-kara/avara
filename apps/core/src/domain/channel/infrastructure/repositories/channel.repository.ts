@@ -4,12 +4,23 @@ import {
   PaginatedList,
   PaginationParams,
 } from '@avara/core/domain/user/api/types/pagination.type'
-import { ContextSaver } from '@avara/core/database/channel-aware-repository.interface'
+import {
+  ContextSaver,
+  PersistenceContext,
+} from '@avara/core/database/channel-aware-repository.interface'
 import { ChannelMapper } from '../mappers/channel.mapper'
 import { Channel } from '../../domain/entities/channel.entity'
+import { PrismaClient } from '@prisma/client'
+import { DbTransactionalClient } from '@avara/shared/database/db-transactional-client'
+import { TransactionAware } from '@avara/shared/database/transaction-aware.abstract'
 
 @Injectable()
-export class ChannelRepository extends ContextSaver {
+export class ChannelRepository
+  extends ContextSaver
+  implements TransactionAware
+{
+  transaction: DbTransactionalClient | null = null
+
   constructor(
     private readonly db: DbService,
     private readonly mapper: ChannelMapper,
@@ -17,11 +28,23 @@ export class ChannelRepository extends ContextSaver {
     super()
   }
 
-  async save(channel: Channel): Promise<void> {
+  setTransactionObject(transaction: DbTransactionalClient): void {
+    this.transaction = transaction
+  }
+
+  getClient(tx: DbTransactionalClient): DbTransactionalClient | PrismaClient {
+    return tx ? tx : this.transaction ? this.transaction : this.db
+  }
+
+  async save(
+    channel: Channel,
+    persistenceContext?: PersistenceContext,
+  ): Promise<void> {
+    const client = this.getClient(persistenceContext?.tx)
     if (channel.id) {
       const persistence = this.mapper.toPersistence(channel)
 
-      const result = await this.db.channel.update({
+      const result = await client.channel.update({
         where: {
           id: channel.id,
         },
@@ -35,7 +58,7 @@ export class ChannelRepository extends ContextSaver {
     } else {
       const persistence = this.mapper.toPersistence(channel)
 
-      const result = await this.db.channel.create({
+      const result = await client.channel.create({
         data: persistence,
       })
 
@@ -48,8 +71,12 @@ export class ChannelRepository extends ContextSaver {
     }
   }
 
-  async remove(id: string): Promise<Channel> {
-    const result = await this.db.channel.delete({
+  async remove(
+    id: string,
+    persistenceContext?: PersistenceContext,
+  ): Promise<Channel> {
+    const client = this.getClient(persistenceContext?.tx)
+    const result = await client.channel.delete({
       where: {
         id,
       },
@@ -58,8 +85,12 @@ export class ChannelRepository extends ContextSaver {
     return this.mapper.toDomain(result)
   }
 
-  async findById(id: string): Promise<Channel | null> {
-    const result = await this.db.channel.findUnique({
+  async findById(
+    id: string,
+    persistenceContext?: PersistenceContext,
+  ): Promise<Channel | null> {
+    const client = this.getClient(persistenceContext?.tx)
+    const result = await client.channel.findUnique({
       where: {
         id,
       },
@@ -70,8 +101,11 @@ export class ChannelRepository extends ContextSaver {
     return this.mapper.toDomain(result)
   }
 
-  async findDefaultChannel(): Promise<Channel | null> {
-    const result = await this.db.channel.findFirst({
+  async findDefaultChannel(
+    persistenceContext?: PersistenceContext,
+  ): Promise<Channel | null> {
+    const client = this.getClient(persistenceContext?.tx)
+    const result = await client.channel.findFirst({
       where: {
         is_default: true,
       },
@@ -82,8 +116,12 @@ export class ChannelRepository extends ContextSaver {
     return this.mapper.toDomain(result)
   }
 
-  async findAll(args: PaginationParams): Promise<PaginatedList<Channel>> {
-    const result = await this.db.channel.findMany({
+  async findAll(
+    args: PaginationParams,
+    persistenceContext?: PersistenceContext,
+  ): Promise<PaginatedList<Channel>> {
+    const client = this.getClient(persistenceContext?.tx)
+    const result = await client.channel.findMany({
       where: {
         deleted_at: null,
       },
@@ -99,8 +137,12 @@ export class ChannelRepository extends ContextSaver {
     }
   }
 
-  async findByCode(code: string): Promise<Channel | null> {
-    const channel = await this.db.channel.findUnique({
+  async findByCode(
+    code: string,
+    persistenceContext?: PersistenceContext,
+  ): Promise<Channel | null> {
+    const client = this.getClient(persistenceContext?.tx)
+    const channel = await client.channel.findUnique({
       where: {
         code,
       },
@@ -113,8 +155,10 @@ export class ChannelRepository extends ContextSaver {
 
   async findMany(
     params: PaginationParams,
+    persistenceContext?: PersistenceContext,
   ): Promise<PaginatedList<Channel> | null> {
-    const result = await this.db.channel.findMany({
+    const client = this.getClient(persistenceContext?.tx)
+    const result = await client.channel.findMany({
       take: params?.limit,
       skip: params?.position,
     })

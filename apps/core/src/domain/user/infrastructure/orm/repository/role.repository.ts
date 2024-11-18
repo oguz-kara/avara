@@ -13,7 +13,11 @@ import {
   ChannelResourceFinder,
   ChannelResourceRemover,
   ContextSaver,
+  PersistenceContext,
 } from '@avara/core/database/channel-aware-repository.interface'
+import { TransactionAware } from '@avara/shared/database/transaction-aware.abstract'
+import { DbTransactionalClient } from '@avara/shared/database/db-transactional-client'
+import { PrismaClient } from '@prisma/client'
 
 @Injectable()
 export class RoleRepository
@@ -22,8 +26,11 @@ export class RoleRepository
     ChannelResourceRemover<Role>,
     ChannelResourceFinder<Role>,
     NameFinder<Role>,
-    ChannelResourceFinder<Role>
+    ChannelResourceFinder<Role>,
+    TransactionAware
 {
+  transaction: DbTransactionalClient | null = null
+
   constructor(
     private readonly roleMapper: RoleMapper,
     private readonly db: DbService,
@@ -31,8 +38,25 @@ export class RoleRepository
     super()
   }
 
-  async findOneInChannel(id: string): Promise<Role | null> {
-    const role = await this.db.role.findUnique({
+  getClient(
+    transaction?: DbTransactionalClient,
+  ): DbTransactionalClient | PrismaClient {
+    return transaction
+      ? transaction
+      : this.transaction
+        ? this.transaction
+        : this.db
+  }
+
+  setTransactionObject(transaction: DbTransactionalClient): void {
+    this.transaction = transaction
+  }
+
+  async findOneInChannel(
+    id: string,
+    persistenceContext?: PersistenceContext,
+  ): Promise<Role | null> {
+    const role = await this.getClient(persistenceContext.tx).role.findUnique({
       where: { id, channels: { some: { id: this.ctx.channel_id } } },
       include: {
         channels: true,
@@ -44,8 +68,11 @@ export class RoleRepository
     return this.roleMapper.toDomain(role)
   }
 
-  async findOneByNameInChannel(name: string): Promise<Role | null> {
-    const role = await this.db.role.findFirst({
+  async findOneByNameInChannel(
+    name: string,
+    persistenceContext?: PersistenceContext,
+  ): Promise<Role | null> {
+    const role = await this.getClient(persistenceContext.tx).role.findFirst({
       where: { name },
       include: { channels: true },
     })
@@ -57,12 +84,13 @@ export class RoleRepository
 
   async findManyInChannel(
     args: PaginationParams,
+    persistenceContext?: PersistenceContext,
   ): Promise<PaginatedList<Role>> {
     const { limit, position } = args
 
-    const total = await this.db.role.count()
+    const total = await this.getClient(persistenceContext.tx).role.count()
 
-    const users = await this.db.role.findMany({
+    const users = await this.getClient(persistenceContext.tx).role.findMany({
       where: {
         channels: {
           some: {
@@ -88,18 +116,26 @@ export class RoleRepository
     }
   }
 
-  async removeResourceInChannel(role: Role): Promise<void> {
+  async removeResourceInChannel(
+    role: Role,
+    persistenceContext?: PersistenceContext,
+  ): Promise<void> {
     const roleChannels = role.channels
 
     if (roleChannels.length === 1)
-      await this.db.role.delete({ where: { id: role.id } })
+      await this.getClient(persistenceContext.tx).role.delete({
+        where: { id: role.id },
+      })
     else {
       role.removeChannel(this.ctx.channel)
       await this.save(role)
     }
   }
 
-  async save(role: Role): Promise<void> {
+  async save(
+    role: Role,
+    persistenceContext?: PersistenceContext,
+  ): Promise<void> {
     const { permissions, channels, ...persistenceRole } =
       this.roleMapper.toPersistence(role)
 
@@ -107,7 +143,9 @@ export class RoleRepository
       const { channels, ...persistenceRole } =
         this.roleMapper.toPersistence(role)
 
-      const createdRole = await this.db.role.create({
+      const createdRole = await this.getClient(
+        persistenceContext.tx,
+      ).role.create({
         data: {
           name: persistenceRole.name,
           channels: {
@@ -128,7 +166,7 @@ export class RoleRepository
       return
     }
 
-    await this.db.role.update({
+    await this.getClient(persistenceContext.tx).role.update({
       where: { id: role.id },
       data: {
         ...(channels &&

@@ -3,6 +3,7 @@ import { DbService } from './database/db-service'
 import { JwtModule } from '@nestjs/jwt'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { PaginationUtils } from './utils/pagination.util'
+import { TransactionContext } from './database/transaction-context'
 
 @Global()
 @Module({
@@ -16,7 +17,7 @@ import { PaginationUtils } from './utils/pagination.util'
       inject: [ConfigService],
     }),
   ],
-  providers: [DbService, PaginationUtils],
-  exports: [PaginationUtils, DbService],
+  providers: [DbService, PaginationUtils, TransactionContext],
+  exports: [PaginationUtils, DbService, TransactionContext],
 })
 export class SharedModule {}

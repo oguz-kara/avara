@@ -38,4 +38,12 @@ export class ChannelMapper implements Mapper<Channel, ChannelPersistence> {
       updated_at: entity.updated_at,
     }
   }
+
+  toDomainList(entities: ChannelPersistence[]): Channel[] {
+    return entities.map((entity) => this.toDomain(entity))
+  }
+
+  toPersistenceList(entities: Channel[]): ChannelPersistence[] {
+    return entities.map((entity) => this.toPersistence(entity))
+  }
 }

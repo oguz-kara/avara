@@ -7,13 +7,21 @@ import {
   PaginatedList,
   PaginationParams,
 } from '@avara/core/domain/user/api/types/pagination.type'
-import { ContextSaver } from '@avara/core/database/channel-aware-repository.interface'
+import {
+  ContextSaver,
+  PersistenceContext,
+} from '@avara/core/database/channel-aware-repository.interface'
+import { PrismaClient } from '@prisma/client'
+import { DbTransactionalClient } from '@avara/shared/database/db-transactional-client'
+import { TransactionAware } from '@avara/shared/database/transaction-aware.abstract'
 
 @Injectable()
 export class UserRepository
   extends ContextSaver
-  implements UserEmailFinderRepository
+  implements UserEmailFinderRepository, TransactionAware
 {
+  transaction: DbTransactionalClient | null = null
+
   constructor(
     private readonly db: DbService,
     private readonly userMapper: UserMapper,
@@ -21,20 +29,36 @@ export class UserRepository
     super()
   }
 
-  async findById(id: string): Promise<User | null> {
-    const user = await this.db.user.findUnique({ where: { id } })
+  setTransactionObject(transaction: DbTransactionalClient): void {
+    this.transaction = transaction
+  }
+
+  getClient(tx: DbTransactionalClient): DbTransactionalClient | PrismaClient {
+    return tx ? tx : this.transaction ? this.transaction : this.db
+  }
+
+  async findById(
+    id: string,
+    persistenceContext?: PersistenceContext,
+  ): Promise<User | null> {
+    const user = await this.getClient(persistenceContext?.tx).user.findUnique({
+      where: { id },
+    })
 
     if (!user) return null
 
     return this.userMapper.toDomain(user)
   }
 
-  async findAll(args: PaginationParams): Promise<PaginatedList<User>> {
+  async findAll(
+    args: PaginationParams,
+    persistenceContext?: PersistenceContext,
+  ): Promise<PaginatedList<User>> {
     const { limit, position } = args
 
-    const total = await this.db.user.count()
+    const total = await this.getClient(persistenceContext?.tx).user.count()
 
-    const users = await this.db.user.findMany({
+    const users = await this.getClient(persistenceContext?.tx).user.findMany({
       take: limit,
       skip: position,
     })
@@ -49,22 +73,32 @@ export class UserRepository
     }
   }
 
-  async findByEmail(email: string): Promise<User | null> {
-    const user = await this.db.user.findUnique({ where: { email } })
+  async findByEmail(
+    email: string,
+    persistenceContext?: PersistenceContext,
+  ): Promise<User | null> {
+    const user = await this.getClient(persistenceContext?.tx).user.findUnique({
+      where: { email },
+    })
 
     if (!user) return null
 
     return this.userMapper.toDomain(user)
   }
 
-  async remove(id: string): Promise<User | null> {
-    const role = await this.db.user.findFirst({
+  async remove(
+    id: string,
+    persistenceContext?: PersistenceContext,
+  ): Promise<User | null> {
+    const role = await this.getClient(persistenceContext?.tx).user.findFirst({
       where: { AND: [{ id }, { deleted_at: null }] },
     })
 
     if (!role) return null
 
-    const removedUser = await this.db.user.update({
+    const removedUser = await this.getClient(
+      persistenceContext?.tx,
+    ).user.update({
       where: { id },
       data: { deleted_at: new Date() },
     })
@@ -72,17 +106,20 @@ export class UserRepository
     return this.userMapper.toDomain(removedUser)
   }
 
-  async save(user: User): Promise<void> {
+  async save(
+    user: User,
+    persistenceContext?: PersistenceContext,
+  ): Promise<void> {
     const persistenceUser = this.userMapper.toPersistence(user)
     if (user.id) {
-      await this.db.user.update({
+      await this.getClient(persistenceContext?.tx).user.update({
         where: { id: user.id },
         data: persistenceUser,
       })
     } else {
       const { role_id, ...rest } = persistenceUser
 
-      const newUser = await this.db.user.create({
+      const newUser = await this.getClient(persistenceContext?.tx).user.create({
         data: {
           ...rest,
           role: {

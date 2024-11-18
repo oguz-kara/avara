@@ -1,20 +1,19 @@
-import { ConfigService } from '@nestjs/config'
-import { Injectable, NestMiddleware } from '@nestjs/common'
 import { Request, Response, NextFunction } from 'express'
-import { RequestContext } from './application/context/request-context'
-import { ChannelService } from './domain/channel/application/services/channel.service'
-import { Channel } from './domain/channel/domain/entities/channel.entity'
+import { Injectable, NestMiddleware } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
 
-type CustomRequest = Request & { context: RequestContext }
+import { ChannelService } from '@avara/core/domain/channel/application/services/channel.service'
+
+import { RequestContext } from './application/context/request-context'
 
 @Injectable()
-export class ContextMiddleware implements NestMiddleware {
+export class RestContextMiddleware implements NestMiddleware {
   constructor(
     private readonly configService: ConfigService,
     private readonly channelService: ChannelService,
   ) {}
 
-  async use(req: CustomRequest, res: Response, next: NextFunction) {
+  async use(req: Request, res: Response, next: NextFunction) {
     const defaultLanguage = this.configService.get<string>(
       'localization.language.default',
       'en',
@@ -23,34 +22,22 @@ export class ContextMiddleware implements NestMiddleware {
       'localization.currency.default',
       'USD',
     )
+    const channelId = req.headers['x-channel-id'] as string
+    const languageCode = req.headers['x-language-code'] as string
+    const currencyCode = req.headers['x-currency-code'] as string
 
-    const channelId = req.headers['x-channel-id']
-    const channelCode = req.headers['x-channel-code']
-    const languageCode = req.headers['x-language-code']
-    const currencyCode = req.headers['x-currency-code']
-    const channel = await this.getChannel(channelId)
+    const channel =
+      await this.channelService.getOrCreateDefaultChannel(channelId)
 
+    // @ts-expect-error Property 'context' does not exist on type 'Request'.
     req.context = new RequestContext({
-      channel: channel,
-      channel_code: channelCode as string,
-      channel_id: channelId as string,
-      language_code: (languageCode || defaultLanguage) as string,
-      currency_code: (currencyCode || defaultCurrency) as string,
+      channel,
+      channel_id: channel.id,
+      channel_code: channel.code,
+      language_code: languageCode ? languageCode : defaultLanguage,
+      currency_code: currencyCode ? currencyCode : defaultCurrency,
     })
 
     next()
-  }
-
-  private async getChannel(channelId: string | string[] | undefined) {
-    let channel: Channel | undefined = undefined
-
-    if (channelId) {
-      channel = await this.channelService.getChannelById(channelId as string)
-      channel = channel
-        ? channel
-        : await this.channelService.getOrCreateDefaultChannel()
-    } else channel = await this.channelService.getOrCreateDefaultChannel()
-
-    return channel
   }
 }

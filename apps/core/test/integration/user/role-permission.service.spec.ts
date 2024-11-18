@@ -1,7 +1,7 @@
 import { CreateRolePermissionDto } from '@avara/core/domain/user/application/graphql/dto/role-permission.dto'
 import { RolePermissionService } from '@avara/core/domain/user/application/services/role-permission.service'
 import { PaginationUtils } from '@avara/shared/utils/pagination.util'
-import { appConfig } from '@avara/core/domain/user/config/app.config'
+import { appConfig } from '@avara/core/config/app.config'
 import { PermissionMapper } from '@avara/core/domain/user/infrastructure/mappers/permission.mapper'
 import { RolePermissionMapper } from '@avara/core/domain/user/infrastructure/mappers/role-permission.mapper'
 import { RoleMapper } from '@avara/core/domain/user/infrastructure/mappers/role.mapper'

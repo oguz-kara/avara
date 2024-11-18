@@ -1,4 +1,5 @@
 import { ConflictException, Injectable } from '@nestjs/common'
+import { PrismaClient } from '@prisma/client'
 
 import { RolePermissionMapper } from '../../mappers/role-permission.mapper'
 import { RolePermission } from '@avara/core/domain/user/domain/entities/role-permission.entity'
@@ -12,7 +13,10 @@ import {
   ChannelResourceRemover,
   ChannelResourceSaver,
   ContextSaver,
+  PersistenceContext,
 } from '@avara/core/database/channel-aware-repository.interface'
+import { DbTransactionalClient } from '@avara/shared/database/db-transactional-client'
+import { TransactionAware } from '@avara/shared/database/transaction-aware.abstract'
 
 @Injectable()
 export class RolePermissionRepository
@@ -20,8 +24,11 @@ export class RolePermissionRepository
   implements
     ChannelResourceFinder<RolePermission>,
     ChannelResourceRemover<RolePermission>,
-    ChannelResourceSaver<RolePermission>
+    ChannelResourceSaver<RolePermission>,
+    TransactionAware
 {
+  transaction: DbTransactionalClient | null = null
+
   constructor(
     private readonly rolePermissionMapper: RolePermissionMapper,
     private readonly db: DbService,
@@ -29,8 +36,21 @@ export class RolePermissionRepository
     super()
   }
 
-  async findOneInChannel(id: string): Promise<RolePermission | null> {
-    const rolePermission = await this.db.rolePermission.findUnique({
+  setTransactionObject(transaction: DbTransactionalClient): void {
+    this.transaction = transaction
+  }
+
+  getClient(tx?: DbTransactionalClient): DbTransactionalClient | PrismaClient {
+    return tx ? tx : this.transaction ? this.transaction : this.db
+  }
+
+  async findOneInChannel(
+    id: string,
+    persistenceContext?: PersistenceContext,
+  ): Promise<RolePermission | null> {
+    const rolePermission = await this.getClient(
+      persistenceContext?.tx,
+    ).rolePermission.findUnique({
       where: { id, channels: { some: { id: this.ctx.channel_id } } },
       include: { role: true, permission: true },
     })
@@ -40,8 +60,13 @@ export class RolePermissionRepository
     return this.rolePermissionMapper.toDomain(rolePermission)
   }
 
-  async findByRoleId(role_id: string): Promise<RolePermission[]> {
-    const rolePermissions = await this.db.rolePermission.findMany({
+  async findByRoleId(
+    role_id: string,
+    persistenceContext?: PersistenceContext,
+  ): Promise<RolePermission[]> {
+    const rolePermissions = await this.getClient(
+      persistenceContext?.tx,
+    ).rolePermission.findMany({
       where: { role_id, channels: { some: { id: this.ctx.channel_id } } },
       include: { permission: true, role: true },
     })
@@ -53,12 +78,17 @@ export class RolePermissionRepository
 
   async findManyInChannel(
     args: PaginationParams,
+    persistenceContext?: PersistenceContext,
   ): Promise<PaginatedList<RolePermission>> {
     const { limit, position } = args
 
-    const total = await this.db.rolePermission.count()
+    const total = await this.getClient(
+      persistenceContext?.tx,
+    ).rolePermission.count()
 
-    const rolePermissions = await this.db.rolePermission.findMany({
+    const rolePermissions = await this.getClient(
+      persistenceContext?.tx,
+    ).rolePermission.findMany({
       where: { channels: { some: { id: this.ctx.channel_id } } },
       take: limit,
       skip: position,
@@ -80,8 +110,13 @@ export class RolePermissionRepository
     }
   }
 
-  async removeResourceInChannel(resource: RolePermission): Promise<void> {
-    const rolePermission = await this.db.rolePermission.findFirst({
+  async removeResourceInChannel(
+    resource: RolePermission,
+    persistenceContext?: PersistenceContext,
+  ): Promise<void> {
+    const rolePermission = await this.getClient(
+      persistenceContext?.tx,
+    ).rolePermission.findFirst({
       where: {
         id: resource.id,
         channels: { some: { id: this.ctx.channel_id } },
@@ -91,7 +126,7 @@ export class RolePermissionRepository
     if (!rolePermission)
       throw new ConflictException('RolePermission not found!')
 
-    await this.db.rolePermission.delete({
+    await this.getClient(persistenceContext?.tx).rolePermission.delete({
       where: {
         id: resource.id,
         channels: { some: { id: this.ctx.channel_id } },
@@ -103,12 +138,15 @@ export class RolePermissionRepository
     })
   }
 
-  async saveResourceToChannel(rolePermission: RolePermission): Promise<void> {
+  async saveResourceToChannel(
+    rolePermission: RolePermission,
+    persistenceContext?: PersistenceContext,
+  ): Promise<void> {
     const { role_id, permission_id, ...rest } =
       this.rolePermissionMapper.toPersistence(rolePermission)
 
     if (rolePermission.id) {
-      await this.db.rolePermission.update({
+      await this.getClient(persistenceContext?.tx).rolePermission.update({
         where: {
           id: rolePermission.id,
           channels: { some: { id: this.ctx.channel_id } },
@@ -121,7 +159,9 @@ export class RolePermissionRepository
         },
       })
     } else {
-      const createdRolePermission = await this.db.rolePermission.create({
+      const createdRolePermission = await this.getClient(
+        persistenceContext?.tx,
+      ).rolePermission.create({
         data: {
           ...rest,
           role: { connect: { id: role_id } },
@@ -139,8 +179,12 @@ export class RolePermissionRepository
     }
   }
 
-  async removePermissionsByRoleId(role_id: string, permissionIds: string[]) {
-    await this.db.rolePermission.deleteMany({
+  async removePermissionsByRoleId(
+    role_id: string,
+    permissionIds: string[],
+    persistenceContext?: PersistenceContext,
+  ) {
+    await this.getClient(persistenceContext?.tx).rolePermission.deleteMany({
       where: {
         role_id,
         permission_id: { in: permissionIds },
@@ -151,14 +195,18 @@ export class RolePermissionRepository
     return true
   }
 
-  async addByRoleIdAndPermissionIds(role_id: string, permissionIds: string[]) {
+  async addByRoleIdAndPermissionIds(
+    role_id: string,
+    permissionIds: string[],
+    persistenceContext?: PersistenceContext,
+  ) {
     const data = permissionIds.map((permission_id) => ({
       role_id,
       permission_id,
       channels: { connect: { id: this.ctx.channel_id } },
     }))
 
-    return this.db.rolePermission.createMany({
+    return this.getClient(persistenceContext?.tx).rolePermission.createMany({
       data,
     })
   }
@@ -166,8 +214,11 @@ export class RolePermissionRepository
   async findRolePermission(
     role_id: string,
     permission_id: string,
+    persistenceContext?: PersistenceContext,
   ): Promise<RolePermission | null> {
-    const rp = await this.db.rolePermission.findFirst({
+    const rp = await this.getClient(
+      persistenceContext?.tx,
+    ).rolePermission.findFirst({
       where: {
         role_id,
         permission_id,

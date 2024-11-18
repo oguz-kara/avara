@@ -1,15 +1,20 @@
-import { MiddlewareConsumer, Module } from '@nestjs/common'
+import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
-import { appConfig } from './domain/user/config/app.config'
+import { appConfig } from './config/app.config'
 import { ProtectedModule } from './protected/protected.module'
-import { ContextMiddleware } from './middleware'
 import { SharedModule } from '@avara/shared/shared.module'
+import { ServeStaticModule } from '@nestjs/serve-static'
+import { join } from 'path'
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       load: [appConfig],
+    }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, 'assets'),
+      serveRoot: '/assets',
     }),
     ProtectedModule,
     SharedModule,
@@ -18,8 +23,4 @@ import { SharedModule } from '@avara/shared/shared.module'
   providers: [],
   exports: [],
 })
-export class CoreModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(ContextMiddleware).forRoutes('*')
-  }
-}
+export class CoreModule {}

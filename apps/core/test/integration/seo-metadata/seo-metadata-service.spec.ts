@@ -1,5 +1,4 @@
 import { RequestContext } from '@avara/core/application/context/request-context'
-import { CoreRepositories } from '@avara/core/shared/core-repositories'
 import { CategoryMapper } from '@avara/core/domain/category/infrastructure/mappers/category.mapper'
 import { CategoryRepository } from '@avara/core/domain/category/infrastructure/repositories/category.repository'
 import { Channel } from '@avara/core/domain/channel/domain/entities/channel.entity'
@@ -9,7 +8,7 @@ import { CreateSeoMetadataDto } from '@avara/core/domain/seo-metadata/api/graphq
 import { SeoMetadataService } from '@avara/core/domain/seo-metadata/application/services/seo-metadata.service'
 import { SeoMetadataMapper } from '@avara/core/domain/seo-metadata/infrastructure/mappers/seo-metadata.mapper'
 import { SeoMetadataRepository } from '@avara/core/domain/seo-metadata/infrastructure/repositories/seo-metadata.repository'
-import { appConfig } from '@avara/core/domain/user/config/app.config'
+import { appConfig } from '@avara/core/config/app.config'
 import { AdministratorMapper } from '@avara/core/domain/user/infrastructure/mappers/administrator.mapper'
 import { PermissionMapper } from '@avara/core/domain/user/infrastructure/mappers/permission.mapper'
 import { RolePermissionMapper } from '@avara/core/domain/user/infrastructure/mappers/role-permission.mapper'
@@ -26,6 +25,7 @@ import { PaginationUtils } from '@avara/shared/utils/pagination.util'
 import { NotFoundException } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
+import { CoreRepositories } from '@avara/core/application/core-repositories'
 
 describe('SeoMetadataService (Integration)', () => {
   let seoMetadataService: SeoMetadataService

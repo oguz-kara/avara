@@ -1,30 +1,56 @@
 import { PaginatedList } from '@avara/core/domain/user/api/types/pagination.type'
 import { PaginationParams } from '@avara/core/domain/user/api/types/pagination.type'
 import { RequestContext } from '../application/context/request-context'
+import { DbTransactionalClient } from '@avara/shared/database/db-transactional-client'
+
+export interface PersistenceContext {
+  tx?: DbTransactionalClient | null
+}
 
 export interface ChannelResourceFinder<T> {
-  findOneInChannel(resourceId: string): Promise<T | null>
-  findManyInChannel(args: PaginationParams): Promise<PaginatedList<T>>
+  findOneInChannel(
+    resourceId: string,
+    context?: PersistenceContext,
+  ): Promise<T | null>
+  findManyInChannel(
+    args: PaginationParams,
+    context: PersistenceContext,
+  ): Promise<PaginatedList<T>>
 }
 
 export interface ChannelResourceCreator<T> {
-  createResourcesInChannel(resources: T[]): Promise<void>
+  createResourcesInChannel(
+    resources: T[],
+    context?: PersistenceContext,
+  ): Promise<void>
 }
 
 export interface ChannelResourceEditor<T> {
-  editResourcesInChannel(resources: T[]): Promise<void>
+  editResourcesInChannel(
+    resources: T[],
+    context?: PersistenceContext,
+  ): Promise<void>
 }
 
 export interface ChannelResourceRemover<T> {
-  removeResourceInChannel(resource: T): Promise<void>
+  removeResourceInChannel(
+    resource: T,
+    context?: PersistenceContext,
+  ): Promise<void>
 }
 
 export interface ChannelResourcesRemover<T> {
-  removeResourcesInChannel(resources: T[]): Promise<void>
+  removeResourcesInChannel(
+    resources: T[],
+    context?: PersistenceContext,
+  ): Promise<void>
 }
 
 export interface ChannelResourceSaver<T> {
-  saveResourceToChannel(record: T | T[]): Promise<void>
+  saveResourceToChannel(
+    record: T | T[],
+    context?: PersistenceContext,
+  ): Promise<void>
 }
 
 export abstract class ContextSaver {

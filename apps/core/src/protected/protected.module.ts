@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common'
+import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common'
 import { GraphQLModule } from '@nestjs/graphql'
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo'
 import { ConfigModule, ConfigService } from '@nestjs/config'
@@ -13,6 +13,9 @@ import { UserProviders } from '../domain/user'
 import { CategoryProviders } from '../domain/category'
 import { ChannelModule, ChannelProviders } from '../domain/channel'
 import { SeoMetadataProviders } from '../domain/seo-metadata'
+import { AssetControllers, AssetProviders } from '../domain/asset'
+import { RestContextMiddleware } from '../middleware'
+import { GqlExceptionFilter } from '@avara/shared/exception-filter/gql-exception-filter'
 
 @Module({
   imports: [
@@ -46,7 +49,7 @@ import { SeoMetadataProviders } from '../domain/seo-metadata'
     }),
     SharedModule,
   ],
-  controllers: [],
+  controllers: [...AssetControllers],
   providers: [
     CoreRepositories,
     ...UserProviders,
@@ -54,9 +57,14 @@ import { SeoMetadataProviders } from '../domain/seo-metadata'
     ...ChannelProviders,
     ...SeoMetadataProviders,
     ...ChannelProviders,
+    ...AssetProviders,
     {
       provide: APP_GUARD,
       useClass: PermissionsGuard,
+    },
+    {
+      provide: 'APP_FILTER',
+      useClass: GqlExceptionFilter,
     },
   ],
   exports: [
@@ -68,4 +76,10 @@ import { SeoMetadataProviders } from '../domain/seo-metadata'
     ...ChannelProviders,
   ],
 })
-export class ProtectedModule {}
+export class ProtectedModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(RestContextMiddleware)
+      .forRoutes({ path: 'assets*', method: RequestMethod.ALL })
+  }
+}

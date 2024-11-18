@@ -105,13 +105,14 @@ model SystemSettings {
 }
 
 model Asset {
-  id        String    @id @default(uuid())
-  name      String
-  type      AssetType
-  mime_type String
-  file_size Int
-  source    String
-  preview   String
+  id            String    @id @default(uuid())
+  original_name String
+  name          String
+  type          AssetType
+  mime_type     String
+  file_size     Int
+  source        String
+  preview       String?
 
   width       Int?  @default(0)
   height      Int?  @default(0)
@@ -406,5 +407,4 @@ model Channel {
   created_by String?
   updated_by String?
   deleted_by String?
-  assetId    String?
 }

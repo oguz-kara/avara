@@ -1,12 +1,12 @@
 import { PrismaClient } from '@prisma/client'
 import { DbTransactionalClient } from './db-transactional-client'
 
-export abstract class TransactionAware {
-  protected transaction: DbTransactionalClient | null = null
+export interface TransactionAware {
+  transaction: DbTransactionalClient | null
 
-  setTransactionObject(transaction: DbTransactionalClient) {
-    this.transaction = transaction
-  }
+  setTransactionObject(transaction: DbTransactionalClient): void
 
-  abstract getClient(): DbTransactionalClient | PrismaClient
+  getClient(
+    transaction?: DbTransactionalClient,
+  ): DbTransactionalClient | PrismaClient
 }

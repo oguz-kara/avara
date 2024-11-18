@@ -13,7 +13,11 @@ import {
   ChannelResourceRemover,
   ChannelResourceSaver,
   ContextSaver,
+  PersistenceContext,
 } from '@avara/core/database/channel-aware-repository.interface'
+import { PrismaClient } from '@prisma/client'
+import { TransactionAware } from '@avara/shared/database/transaction-aware.abstract'
+import { DbTransactionalClient } from '@avara/shared/database/db-transactional-client'
 
 @Injectable()
 export class CategoryRepository
@@ -21,8 +25,11 @@ export class CategoryRepository
   implements
     ChannelResourceSaver<Category>,
     ChannelResourceRemover<Category>,
-    ChannelResourceFinder<Category>
+    ChannelResourceFinder<Category>,
+    TransactionAware
 {
+  transaction: DbTransactionalClient | null = null
+
   constructor(
     private readonly db: DbService,
     private readonly mapper: CategoryMapper,
@@ -30,11 +37,23 @@ export class CategoryRepository
     super()
   }
 
-  async saveResourceToChannel(entity: Category): Promise<void> {
+  setTransactionObject(transaction: DbTransactionalClient): void {
+    this.transaction = transaction
+  }
+
+  getClient(tx?: DbTransactionalClient): DbTransactionalClient | PrismaClient {
+    return tx ? tx : this.transaction ? this.transaction : this.db
+  }
+
+  async saveResourceToChannel(
+    entity: Category,
+    persistenceContext?: PersistenceContext,
+  ): Promise<void> {
+    const client = this.getClient(persistenceContext?.tx)
     if (entity.id) {
       const persistence = this.mapper.toPersistence(entity)
 
-      const result = await this.db.category.update({
+      const result = await client.category.update({
         where: {
           id: entity.id,
           channels: {
@@ -60,7 +79,7 @@ export class CategoryRepository
     } else {
       const persistence = this.mapper.toPersistence(entity)
 
-      const result = await this.db.category.create({
+      const result = await client.category.create({
         data: {
           ...persistence,
           channels: {
@@ -80,8 +99,12 @@ export class CategoryRepository
     }
   }
 
-  async removeResourceInChannel(category: Category): Promise<void> {
-    await this.db.category.delete({
+  async removeResourceInChannel(
+    category: Category,
+    persistenceContext?: PersistenceContext,
+  ): Promise<void> {
+    const client = this.getClient(persistenceContext?.tx)
+    await client.category.delete({
       where: {
         id: category.id,
         channels: {
@@ -93,8 +116,12 @@ export class CategoryRepository
     })
   }
 
-  async findOneInChannel(id: string): Promise<Category | null> {
-    const result = await this.db.category.findUnique({
+  async findOneInChannel(
+    id: string,
+    persistenceContext?: PersistenceContext,
+  ): Promise<Category | null> {
+    const client = this.getClient(persistenceContext?.tx)
+    const result = await client.category.findUnique({
       where: {
         id,
         channels: {
@@ -112,8 +139,10 @@ export class CategoryRepository
 
   async findManyInChannel(
     args: PaginationParams,
+    persistenceContext?: PersistenceContext,
   ): Promise<PaginatedList<Category>> {
-    const result = await this.db.category.findMany({
+    const client = this.getClient(persistenceContext?.tx)
+    const result = await client.category.findMany({
       where: {
         channels: {
           some: {
@@ -136,8 +165,10 @@ export class CategoryRepository
   async findByNameAndType(
     name: string,
     type: CategoryType | AppCategoryType,
+    persistenceContext?: PersistenceContext,
   ): Promise<Category | null> {
-    const category = await this.db.category.findFirst({
+    const client = this.getClient(persistenceContext?.tx)
+    const category = await client.category.findFirst({
       where: {
         AND: [
           {
@@ -164,8 +195,10 @@ export class CategoryRepository
 
   async findManyByType(
     params: PaginationParams & { type: CategoryType },
+    persistenceContext?: PersistenceContext,
   ): Promise<PaginatedList<Category> | null> {
-    const result = await this.db.category.findMany({
+    const client = this.getClient(persistenceContext?.tx)
+    const result = await client.category.findMany({
       where: {
         AND: [
           {

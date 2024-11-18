@@ -6,7 +6,7 @@ import { DbService } from '@avara/shared/database/db-service'
 import { PermissionRepository } from '@avara/core/domain/user/infrastructure/orm/repository/permission.repository'
 import { PermissionMapper } from '@avara/core/domain/user/infrastructure/mappers/permission.mapper'
 import { PaginationUtils } from '@avara/shared/utils/pagination.util'
-import { appConfig } from '@avara/core/domain/user/config/app.config'
+import { appConfig } from '@avara/core/config/app.config'
 import { CreatePermissionDto } from '@avara/core/domain/user/application/graphql/dto/permission.dto'
 import {
   ActionType,

@@ -54,14 +54,10 @@ export class SeoMetadataService {
     const { limit, position } =
       this.paginationUtils.validateAndGetPaginationLimit(params)
 
-    console.log({ limit, position, fromservice: 'yes' })
-
     const seoMetadataData = await seoMetadataRepo.findManyInChannel({
       limit,
       position,
     })
-
-    console.log({ fromrepo: seoMetadataData.pagination })
 
     return seoMetadataData
   }

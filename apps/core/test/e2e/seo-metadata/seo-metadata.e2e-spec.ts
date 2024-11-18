@@ -151,8 +151,6 @@ describe('SeoMetadataResolver (e2e)', () => {
         .post('/protected')
         .send({ query: graphql })
 
-      const errors = response.body
-      console.log(JSON.stringify(errors, null, 2))
       const data = response.body.data.updateSeoMetadata
 
       expect(data.title).toBe('test updated')

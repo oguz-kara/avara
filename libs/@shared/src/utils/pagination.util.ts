@@ -23,7 +23,6 @@ export class PaginationUtils {
   private getPaginationParamsFromConfig(
     args: PaginationParams,
   ): PaginationParams {
-    console.log({ pgInArgs: args })
     return {
       limit: !isNaN(Number(args?.limit))
         ? Math.abs(args.limit)

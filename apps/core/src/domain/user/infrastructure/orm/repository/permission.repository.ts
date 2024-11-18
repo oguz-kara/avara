@@ -18,7 +18,11 @@ import {
   ChannelResourceRemover,
   ChannelResourceSaver,
   ContextSaver,
+  PersistenceContext,
 } from '@avara/core/database/channel-aware-repository.interface'
+import { PrismaClient } from '@prisma/client'
+import { TransactionAware } from '@avara/shared/database/transaction-aware.abstract'
+import { DbTransactionalClient } from '@avara/shared/database/db-transactional-client'
 
 @Injectable()
 export class PermissionRepository
@@ -27,8 +31,11 @@ export class PermissionRepository
     ChannelResourceFinder<Permission>,
     ChannelResourceRemover<Permission>,
     ChannelResourceSaver<Permission>,
-    NameFinder<Permission>
+    NameFinder<Permission>,
+    TransactionAware
 {
+  transaction: DbTransactionalClient | null = null
+
   constructor(
     private readonly permissionMapper: PermissionMapper,
     private readonly db: DbService,
@@ -36,8 +43,21 @@ export class PermissionRepository
     super()
   }
 
-  async findOneInChannel(id: string): Promise<Permission | null> {
-    const permission = await this.db.permission.findUnique({
+  setTransactionObject(transaction: DbTransactionalClient): void {
+    this.transaction = transaction
+  }
+
+  getClient(tx?: DbTransactionalClient): DbTransactionalClient | PrismaClient {
+    return tx ? tx : this.transaction ? this.transaction : this.db
+  }
+
+  async findOneInChannel(
+    id: string,
+    persistenceContext?: PersistenceContext,
+  ): Promise<Permission | null> {
+    const permission = await this.getClient(
+      persistenceContext?.tx,
+    ).permission.findUnique({
       where: { id, channels: { some: { id: this.ctx.channel_id } } },
     })
 
@@ -46,8 +66,13 @@ export class PermissionRepository
     return this.permissionMapper.toDomain(permission)
   }
 
-  async getPermissionsByRoleId(roleId: string): Promise<Permission[]> {
-    const rolePermissions = await this.db.rolePermission.findMany({
+  async getPermissionsByRoleId(
+    roleId: string,
+    persistenceContext?: PersistenceContext,
+  ): Promise<Permission[]> {
+    const rolePermissions = await this.getClient(
+      persistenceContext?.tx,
+    ).rolePermission.findMany({
       where: {
         role_id: roleId,
         channels: { some: { id: this.ctx.channel_id } },
@@ -66,12 +91,15 @@ export class PermissionRepository
 
   async findOneByNameInChannel(
     permissionString: PermissionString,
+    persistenceContext?: PersistenceContext,
   ): Promise<Permission | null> {
     const [action, resource, scope] = permissionString.split(
       ':',
     ) as PermissionArray
 
-    const permission = await this.db.permission.findFirst({
+    const permission = await this.getClient(
+      persistenceContext?.tx,
+    ).permission.findFirst({
       where: {
         action,
         scope: scope as ScopeType,
@@ -91,12 +119,17 @@ export class PermissionRepository
 
   async findManyInChannel(
     args: PaginationParams & Ids,
+    persistenceContext?: PersistenceContext,
   ): Promise<PaginatedList<Permission>> {
     const { limit, position, ids } = args
 
-    const total = await this.db.permission.count()
+    const total = await this.getClient(
+      persistenceContext?.tx,
+    ).permission.count()
 
-    const users = await this.db.permission.findMany({
+    const users = await this.getClient(
+      persistenceContext?.tx,
+    ).permission.findMany({
       where: {
         AND: [
           {
@@ -129,26 +162,34 @@ export class PermissionRepository
     }
   }
 
-  async removeResourceInChannel(resource: Permission): Promise<void> {
+  async removeResourceInChannel(
+    resource: Permission,
+    persistenceContext?: PersistenceContext,
+  ): Promise<void> {
     const { id } = resource
 
-    const permission = await this.db.permission.findFirst({
+    const permission = await this.getClient(
+      persistenceContext?.tx,
+    ).permission.findFirst({
       where: { id, channels: { some: { id: this.ctx.channel_id } } },
     })
 
     if (!permission) throw new ConflictException('Permission not found!')
 
-    await this.db.permission.delete({
+    await this.getClient(persistenceContext?.tx).permission.delete({
       where: { id },
     })
   }
 
-  async saveResourceToChannel(permission: Permission): Promise<void> {
+  async saveResourceToChannel(
+    permission: Permission,
+    persistenceContext?: PersistenceContext,
+  ): Promise<void> {
     const persistencePermission =
       this.permissionMapper.toPersistence(permission)
 
     if (permission.id) {
-      await this.db.permission.update({
+      await this.getClient(persistenceContext?.tx).permission.update({
         where: {
           id: permission.id,
           channels: { some: { id: this.ctx.channel_id } },
@@ -166,7 +207,9 @@ export class PermissionRepository
         },
       })
     } else {
-      const createdPermission = await this.db.permission.create({
+      const createdPermission = await this.getClient(
+        persistenceContext?.tx,
+      ).permission.create({
         data: {
           ...persistencePermission,
           scope: persistencePermission.scope as ScopeType,

@@ -4,6 +4,7 @@ import {
   ChannelResourceRemover,
   ChannelResourceSaver,
   ContextSaver,
+  PersistenceContext,
 } from '@avara/core/database/channel-aware-repository.interface'
 import { DbService } from '@avara/shared/database/db-service'
 import {
@@ -13,6 +14,9 @@ import {
 import { Channel } from '@avara/core/domain/channel/domain/entities/channel.entity'
 import { SeoMetadata } from '../../domain/entities/seo-metadata.entity'
 import { SeoMetadataMapper } from '../mappers/seo-metadata.mapper'
+import { TransactionAware } from '@avara/shared/database/transaction-aware.abstract'
+import { DbTransactionalClient } from '@avara/shared/database/db-transactional-client'
+import { PrismaClient } from '@prisma/client'
 
 @Injectable()
 export class SeoMetadataRepository
@@ -20,8 +24,11 @@ export class SeoMetadataRepository
   implements
     ChannelResourceSaver<SeoMetadata>,
     ChannelResourceRemover<SeoMetadata>,
-    ChannelResourceFinder<SeoMetadata>
+    ChannelResourceFinder<SeoMetadata>,
+    TransactionAware
 {
+  transaction: DbTransactionalClient | null = null
+
   constructor(
     private readonly db: DbService,
     private readonly seoMetadataMapper: SeoMetadataMapper,
@@ -29,8 +36,21 @@ export class SeoMetadataRepository
     super()
   }
 
-  async findOneInChannel(id: string): Promise<SeoMetadata | null> {
-    const seoMetadata = await this.db.seoMetadata.findUnique({
+  getClient(tx: DbTransactionalClient): DbTransactionalClient | PrismaClient {
+    return tx ? tx : this.transaction || this.db
+  }
+
+  setTransactionObject(transaction: DbTransactionalClient): void {
+    this.transaction = transaction
+  }
+
+  async findOneInChannel(
+    id: string,
+    persistenceContext?: PersistenceContext,
+  ): Promise<SeoMetadata | null> {
+    const seoMetadata = await this.getClient(
+      persistenceContext?.tx,
+    ).seoMetadata.findUnique({
       where: { id, channels: { some: { id: this.ctx.channel_id } } },
       include: {
         channels: true,
@@ -44,12 +64,17 @@ export class SeoMetadataRepository
 
   async findManyInChannel(
     args: PaginationParams,
+    persistenceContext?: PersistenceContext,
   ): Promise<PaginatedList<SeoMetadata>> {
     const { limit, position } = args
 
-    const total = await this.db.seoMetadata.count()
+    const total = await this.getClient(
+      persistenceContext?.tx,
+    ).seoMetadata.count()
 
-    const seoMetadatas = await this.db.seoMetadata.findMany({
+    const seoMetadatas = await this.getClient(
+      persistenceContext?.tx,
+    ).seoMetadata.findMany({
       where: {
         channels: {
           some: { id: this.ctx.channel_id },
@@ -79,8 +104,9 @@ export class SeoMetadataRepository
 
   async removeResourceInChannel(
     seoMetadata: SeoMetadata,
+    persistenceContext?: PersistenceContext,
   ): Promise<void | null> {
-    await this.db.seoMetadata.delete({
+    await this.getClient(persistenceContext?.tx).seoMetadata.delete({
       where: {
         id: seoMetadata.id,
         channels: { some: { id: this.ctx.channel_id } },
@@ -88,13 +114,23 @@ export class SeoMetadataRepository
     })
   }
 
-  async saveResourceToChannel(seoMetadata: SeoMetadata): Promise<void> {
+  async saveResourceToChannel(
+    seoMetadata: SeoMetadata,
+    persistenceContext?: PersistenceContext,
+  ): Promise<void> {
     const persistenceData = this.seoMetadataMapper.toPersistence(seoMetadata)
 
     if (seoMetadata.id)
-      await this.updateSeoMetadata(seoMetadata.id, persistenceData)
+      await this.updateSeoMetadata(
+        seoMetadata.id,
+        persistenceData,
+        persistenceContext,
+      )
     else {
-      const newEntry = await this.createSeoMetadata(persistenceData)
+      const newEntry = await this.createSeoMetadata(
+        persistenceData,
+        persistenceContext,
+      )
 
       seoMetadata.assignId(newEntry.id)
       await seoMetadata.edit({
@@ -105,9 +141,13 @@ export class SeoMetadataRepository
     }
   }
 
-  private async updateSeoMetadata(id: string, data: any): Promise<void> {
+  private async updateSeoMetadata(
+    id: string,
+    data: any,
+    persistenceContext?: PersistenceContext,
+  ): Promise<void> {
     const { channels, ...rest } = data
-    await this.db.seoMetadata.update({
+    await this.getClient(persistenceContext?.tx).seoMetadata.update({
       where: {
         id,
         channels: { some: { id: this.ctx.channel_id } },
@@ -119,9 +159,14 @@ export class SeoMetadataRepository
     })
   }
 
-  private async createSeoMetadata(data: any): Promise<SeoMetadata> {
+  private async createSeoMetadata(
+    data: any,
+    persistenceContext?: PersistenceContext,
+  ): Promise<SeoMetadata> {
     const { channels, ...rest } = data
-    const newSeoMetadata = await this.db.seoMetadata.create({
+    const newSeoMetadata = await this.getClient(
+      persistenceContext?.tx,
+    ).seoMetadata.create({
       data: {
         ...rest,
         channels: this.mapChannelsForPersistence(channels),

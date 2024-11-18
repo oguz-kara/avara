@@ -5,25 +5,25 @@ import { SoftDeletableEntity } from '@avara/shared/domain/soft-deletable-entity.
 import { validate } from 'class-validator'
 import { DomainValidationError } from '@avara/shared/errors/domain-validation.error'
 import { ValidationError } from '@nestjs/common'
-import {
-  IsString,
-  IsEnum,
-  IsNumber,
-  IsOptional,
-  IsDate,
-  IsUrl,
-} from 'class-validator'
+import { IsString, IsEnum, IsNumber, IsOptional, IsDate } from 'class-validator'
+import { Channel } from '@avara/core/domain/channel/domain/entities/channel.entity'
+import { FileProcessingContext } from '../services/file-processing-context'
+import { RequestContext } from '@avara/core/application/context/request-context'
+import * as path from 'path'
 
-interface AssetProps {
+export interface AssetProps {
   id?: string
   name: string
+  original_name: string
   type: AssetType
-  mime_type: AssetType
+  mime_type: string
   file_size: number
   source: string
-  preview: string
+  preview?: string
   width?: number
   height?: number
+  focal_point?: string
+  channels?: Channel[]
   created_at?: Date
   created_by?: string
   updated_at?: Date
@@ -39,6 +39,9 @@ export class Asset
   @IsString()
   private _name: string
 
+  @IsString()
+  private _original_name: string
+
   @IsEnum(AssetType)
   private _type: AssetType
 
@@ -48,10 +51,11 @@ export class Asset
   @IsNumber()
   private _file_size: number
 
-  @IsUrl()
+  @IsString()
   private _source: string
 
-  @IsUrl()
+  @IsString()
+  @IsOptional()
   private _preview: string
 
   @IsOptional()
@@ -61,6 +65,10 @@ export class Asset
   @IsOptional()
   @IsNumber()
   private _height?: number
+
+  @IsOptional()
+  @IsString()
+  private _focal_point?: string
 
   @IsOptional()
   @IsString()
@@ -84,6 +92,10 @@ export class Asset
 
   get name(): string {
     return this._name
+  }
+
+  get original_name(): string {
+    return this._original_name
   }
 
   get type(): AssetType {
@@ -114,6 +126,10 @@ export class Asset
     return this._height
   }
 
+  get focal_point(): string | undefined {
+    return this._focal_point
+  }
+
   get created_by(): string | undefined {
     return this._created_by
   }
@@ -142,7 +158,9 @@ export class Asset
 
   static async create(props: AssetProps): Promise<Asset> {
     const asset = new Asset()
+    asset._id = props.id
     asset._name = props.name
+    asset._original_name = props.original_name
     asset._type = props.type
     asset._mime_type = props.mime_type
     asset._file_size = props.file_size
@@ -150,6 +168,7 @@ export class Asset
     asset._preview = props.preview
     asset._width = props.width
     asset._height = props.height
+    asset._channels = props.channels
     asset._created_at = props.created_at
     asset._created_by = props.created_by
     asset._updated_at = props.updated_at
@@ -162,8 +181,34 @@ export class Asset
     return asset
   }
 
+  static async createFromContext(
+    context: FileProcessingContext,
+    ctx: RequestContext,
+  ) {
+    const { originalFilename, normalizedFilename, metadata } = context
+
+    const asset = new Asset()
+    asset._name = normalizedFilename
+    asset._original_name = path.basename(
+      originalFilename,
+      path.extname(originalFilename),
+    )
+    asset._mime_type = metadata.mime_type || ''
+    asset._file_size = metadata.file_size || 0
+    asset._width = metadata.width || 0
+    asset._height = metadata.height || 0
+    asset._type = metadata.type
+    asset._source = metadata.source
+    asset._channels = [ctx.channel]
+
+    await asset.validate()
+
+    return asset
+  }
+
   async edit(args: Partial<Omit<AssetProps, 'id'>>): Promise<void> {
     if (args.name !== undefined) this._name = args.name
+    if (args.original_name !== undefined) this._name = args.original_name
     if (args.type !== undefined) this._type = args.type
     if (args.mime_type !== undefined) this._mime_type = args.mime_type
     if (args.file_size !== undefined) this._file_size = args.file_size
@@ -176,6 +221,31 @@ export class Asset
     if (args.deleted_by !== undefined) this._deleted_by = args.deleted_by
 
     await this.validate()
+  }
+
+  getFields(): AssetProps {
+    const dt = {
+      id: this._id,
+      file_size: this._file_size,
+      original_name: this._original_name,
+      height: this._height,
+      mime_type: this._mime_type,
+      name: this._name,
+      preview: this._preview,
+      source: this._source,
+      type: this._type,
+      width: this._width,
+      created_at: this._created_at,
+      created_by: this._created_by,
+      updated_at: this._updated_at,
+      updated_by: this._updated_by,
+      deleted_at: this._deleted_at,
+      deleted_by: this._deleted_by,
+    }
+
+    console.log({ dt })
+
+    return dt
   }
 
   private async validate() {
