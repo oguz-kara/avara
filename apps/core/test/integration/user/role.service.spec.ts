@@ -29,7 +29,7 @@ import {
   ResourceType,
   ScopeType,
 } from '@avara/core/domain/user/application/enums'
-import { CoreRepositories } from '@avara/core/shared/core-repositories'
+import { CoreRepositories } from '@avara/core/application/core-repositories'
 
 describe('RoleService (Integration)', () => {
   let roleService: RoleService

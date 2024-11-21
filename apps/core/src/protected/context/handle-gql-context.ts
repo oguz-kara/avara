@@ -1,3 +1,4 @@
+import { RequestContext } from '@avara/core/application/context/request-context'
 import { ChannelService } from '@avara/core/domain/channel/application/services/channel.service'
 import { ConfigService } from '@nestjs/config'
 
@@ -20,14 +21,18 @@ export const getGqlContextHandler = (
 
     const channel = await channelService.getOrCreateDefaultChannel(channelId)
 
-    return {
-      req,
-      res,
+    const requestContext = new RequestContext({
       channel,
       channel_id: channel.id,
       channel_code: channel.code,
       language_code: languageCode ? languageCode : defaultLanguage,
       currency_code: currencyCode ? currencyCode : defaultCurrency,
+    })
+
+    return {
+      req,
+      res,
+      context: requestContext,
     }
   }
 }

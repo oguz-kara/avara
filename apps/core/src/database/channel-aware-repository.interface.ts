@@ -5,6 +5,7 @@ import { DbTransactionalClient } from '@avara/shared/database/db-transactional-c
 
 export interface PersistenceContext {
   tx?: DbTransactionalClient | null
+  relations?: Record<string, object | boolean>
 }
 
 export interface ChannelResourceFinder<T> {

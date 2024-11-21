@@ -1,7 +1,7 @@
-import { CoreEntity } from '@avara/shared/domain/core-entity.abstract'
 import { Channel } from './channel.entity'
+import { ValidateAbleCoreEntity } from '@avara/shared/domain/validateable-core.entity'
 
-export abstract class ChannelListAwareEntity extends CoreEntity {
+export abstract class ChannelListAwareEntity extends ValidateAbleCoreEntity {
   protected _channels?: Channel[]
 
   get channels(): Channel[] {

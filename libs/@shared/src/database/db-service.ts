@@ -1,6 +1,6 @@
 import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common'
 import { PrismaClient } from '@prisma/client'
-import { DbTransactionalClient } from './db-transactional-client'
+import { channelAwareModels } from '../channels/channel-aware-models'
 
 @Injectable()
 export class DbService
@@ -25,11 +25,7 @@ export class DbService
     await this.$disconnect()
   }
 
-  async executeTransaction<T>(
-    fn: (transactionClient: DbTransactionalClient) => Promise<T>,
-  ): Promise<T> {
-    return this.$transaction(async (transactionClient) => {
-      return fn(transactionClient)
-    })
+  private isModelChannelAware = (modelName: string) => {
+    return channelAwareModels.includes(modelName)
   }
 }

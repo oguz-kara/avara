@@ -112,7 +112,7 @@ export class Permission
     this._deleted_at = new Date()
   }
 
-  public softRecover(): void {
+  public recover(): void {
     this._deleted_at = undefined
   }
 }

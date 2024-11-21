@@ -105,7 +105,7 @@ export class RolePermissionService {
     if (!rolePermission)
       throw new NotFoundException('Role permission not found!')
 
-    rolePermission.softRecover()
+    rolePermission.recover()
 
     await rolePermissionRepo.saveResourceToChannel(rolePermission)
 

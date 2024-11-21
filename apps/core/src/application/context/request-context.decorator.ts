@@ -1,10 +1,10 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common'
-import { getRequestContextFrom } from './get-request-context'
+import { GqlExecutionContext } from '@nestjs/graphql'
 
 export const Ctx = createParamDecorator(
   (data: unknown, ctx: ExecutionContext) => {
     if ((ctx.getType() as string) === 'graphql')
-      return getRequestContextFrom(ctx)
+      return GqlExecutionContext.create(ctx).getContext().context
 
     const req = ctx.switchToHttp().getRequest()
     return req.context

@@ -9,11 +9,8 @@ import {
   MaxLength,
   MinLength,
   ValidateNested,
-  validate,
 } from 'class-validator'
 import { Type } from 'class-transformer'
-import { ValidationError } from '@nestjs/common'
-import { DomainValidationError } from '@avara/shared/errors/domain-validation.error'
 
 interface SeoMetadataProps {
   id?: string
@@ -89,34 +86,40 @@ export class SeoMetadata extends ChannelListAwareEntity {
   @Type(() => Channel)
   protected _channels: Channel[]
 
-  constructor() {
+  private constructor(props: SeoMetadataProps) {
     super()
+    this._id = props.id
+    this._title = props.title
+    this._description = props.description
+    this._keywords = props.keywords
+    this._version = props.version
+    this._canonical_url = props.canonical_url
+    this._og_title = props.og_title
+    this._og_description = props.og_description
+    this._og_image = props.og_image
+    this._robots = props.robots
+    this._schema_markup = props.schema_markup
+    this._hreflang = props.hreflang
+    this._page_type = props.page_type
+    this._channels = props.channels ?? []
+    this._created_at = props.created_at ?? new Date()
+    this._updated_at = props.updated_at
   }
 
-  static async create(args: SeoMetadataProps): Promise<SeoMetadata> {
-    const seoMetadata = new SeoMetadata()
-    if (args.id !== undefined) seoMetadata._id = args.id
-    if (args.title !== undefined) seoMetadata._title = args.title
-    if (args.description !== undefined)
-      seoMetadata._description = args.description
-    if (args.keywords !== undefined) seoMetadata._keywords = args.keywords
-    if (args.version !== undefined) seoMetadata._version = args.version
-    if (args.canonical_url !== undefined)
-      seoMetadata._canonical_url = args.canonical_url
-    if (args.og_title !== undefined) seoMetadata._og_title = args.og_title
-    if (args.og_description !== undefined)
-      seoMetadata._og_description = args.og_description
-    if (args.og_image !== undefined) seoMetadata._og_image = args.og_image
-    if (args.robots !== undefined) seoMetadata._robots = args.robots
-    if (args.schema_markup !== undefined)
-      seoMetadata._schema_markup = args.schema_markup
-    if (args.hreflang !== undefined) seoMetadata._hreflang = args.hreflang
-    if (args.page_type !== undefined) seoMetadata._page_type = args.page_type
-    if (args.channels !== undefined) seoMetadata._channels = args.channels
-
-    await seoMetadata.validate()
-
+  static create(props: SeoMetadataProps): SeoMetadata {
+    const seoMetadata = new SeoMetadata(props)
+    seoMetadata.validateSync('SeoMetadata')
     return seoMetadata
+  }
+
+  public edit(args: Partial<Omit<SeoMetadataProps, 'id'>>): void {
+    Object.entries(args).forEach(([key, value]) => {
+      if (value !== undefined && key in this) {
+        this[`_${key}`] = value
+      }
+    })
+
+    this.validateSync('SeoMetadata')
   }
 
   get title(): string {
@@ -167,33 +170,7 @@ export class SeoMetadata extends ChannelListAwareEntity {
     return this._page_type
   }
 
-  public async edit(
-    args: Partial<Omit<SeoMetadataProps, 'id'>>,
-  ): Promise<void> {
-    if (args.title !== undefined) this._title = args.title
-    if (args.description !== undefined) this._description = args.description
-    if (args.keywords !== undefined) this._keywords = args.keywords
-    if (args.version !== undefined) this._version = args.version
-    if (args.canonical_url !== undefined)
-      this._canonical_url = args.canonical_url
-    if (args.og_title !== undefined) this._og_title = args.og_title
-    if (args.og_description !== undefined)
-      this._og_description = args.og_description
-    if (args.og_image !== undefined) this._og_image = args.og_image
-    if (args.robots !== undefined) this._robots = args.robots
-    if (args.schema_markup !== undefined)
-      this._schema_markup = args.schema_markup
-    if (args.hreflang !== undefined) this._hreflang = args.hreflang
-    if (args.page_type !== undefined) this._page_type = args.page_type
-    if (args.channels !== undefined) this._channels = args.channels
-
-    await this.validate()
-  }
-
-  private async validate() {
-    const errors: ValidationError[] = await validate(this)
-    if (errors.length > 0) {
-      throw new DomainValidationError('SeoMetadata', errors)
-    }
+  get channels(): Channel[] {
+    return this._channels
   }
 }

@@ -17,7 +17,7 @@ import { PermissionString } from '@avara/core/domain/user/api/types/permission.t
 import { ChannelRepository } from '@avara/core/domain/channel/infrastructure/repositories/channel.repository'
 import { RequestContext } from '@avara/core/application/context/request-context'
 import { Channel } from '@avara/core/domain/channel/domain/entities/channel.entity'
-import { CoreRepositories } from '@avara/core/shared/core-repositories'
+import { CoreRepositories } from '@avara/core/application/core-repositories'
 import { UserRepository } from '@avara/core/domain/user/infrastructure/orm/repository/user.repository'
 import { RolePermissionRepository } from '@avara/core/domain/user/infrastructure/orm/repository/role-permission.repository'
 import { UserMapper } from '@avara/core/domain/user/infrastructure/mappers/user.mapper'

@@ -133,7 +133,7 @@ export class Channel
     this._deleted_by = deleted_by
   }
 
-  softRecover(): void {
+  recover(): void {
     this._deleted_at = undefined
     this._deleted_by = undefined
   }

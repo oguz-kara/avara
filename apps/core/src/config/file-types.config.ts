@@ -17,6 +17,7 @@ export const supportedTypes = {
     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     'text/plain',
     'text/csv',
+    'text/plain',
   ],
   VIDEO: ['video/mp4'],
   AUDIO: [

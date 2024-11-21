@@ -26,12 +26,10 @@ export class CategoryResolver {
     @Ctx() ctx: RequestContext,
     @Args('input') createUserInput: CreateCategoryDto,
   ) {
-    const productCategory = await this.productCategoryService.createCategory(
+    return await this.productCategoryService.createCategory(
       ctx,
       createUserInput,
     )
-
-    return productCategory
   }
 
   @Allow(
@@ -43,13 +41,10 @@ export class CategoryResolver {
     @Ctx() ctx: RequestContext,
     @Args('input') removeproductCategoryInput: IDInput,
   ) {
-    const productCategory =
-      await this.productCategoryService.removeProductCategoryById(
-        ctx,
-        removeproductCategoryInput.id,
-      )
-
-    return productCategory
+    return await this.productCategoryService.removeProductCategoryById(
+      ctx,
+      removeproductCategoryInput.id,
+    )
   }
 
   @Allow(Permission.READ_PRODUCT_CATEGORY_GLOBAL)
@@ -59,10 +54,10 @@ export class CategoryResolver {
     @Args('input', { nullable: true })
     findCategoriesInput?: FindCategoriesByTypeInput,
   ) {
-    const productCategorysData =
-      await this.productCategoryService.findManyByType(ctx, findCategoriesInput)
-
-    return productCategorysData
+    return await this.productCategoryService.findManyByType(
+      ctx,
+      findCategoriesInput,
+    )
   }
 
   @Allow(Permission.READ_PRODUCT_CATEGORY_GLOBAL)

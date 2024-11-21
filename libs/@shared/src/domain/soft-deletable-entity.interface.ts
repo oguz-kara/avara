@@ -3,5 +3,5 @@ export interface SoftDeletableEntity {
   get deleted_by(): string | undefined
 
   softDelete(deleted_by: string): void
-  softRecover(): void
+  recover(): void
 }

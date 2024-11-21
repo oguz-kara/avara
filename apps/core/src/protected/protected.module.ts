@@ -16,9 +16,11 @@ import { SeoMetadataProviders } from '../domain/seo-metadata'
 import { AssetControllers, AssetProviders } from '../domain/asset'
 import { RestContextMiddleware } from '../middleware'
 import { GqlExceptionFilter } from '@avara/shared/exception-filter/gql-exception-filter'
+import { FacetProviders } from '../domain/facet'
 
 @Module({
   imports: [
+    SharedModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
@@ -28,7 +30,7 @@ import { GqlExceptionFilter } from '@avara/shared/exception-filter/gql-exception
       inject: [ConfigService],
     }),
     GraphQLModule.forRootAsync<ApolloDriverConfig>({
-      imports: [ConfigModule, ChannelModule],
+      imports: [ConfigModule, ChannelModule, SharedModule],
       inject: [ConfigService, ChannelService],
       driver: ApolloDriver,
       useFactory: async (
@@ -42,12 +44,25 @@ import { GqlExceptionFilter } from '@avara/shared/exception-filter/gql-exception
         formatError: (error) => {
           const originalError = error.extensions?.originalError as Error
           return originalError
-            ? { message: originalError.message, code: error.extensions?.code }
-            : { message: error.message, code: error.extensions?.code }
+            ? {
+                message: originalError.message,
+                code: error.extensions?.code,
+                extensions: {
+                  status: error?.extensions?.status,
+                  fields: error?.extensions?.fields,
+                },
+              }
+            : {
+                message: error.message,
+                code: error.extensions?.code,
+                extensions: {
+                  status: error?.extensions?.status,
+                  fields: error?.extensions?.fields,
+                },
+              }
         },
       }),
     }),
-    SharedModule,
   ],
   controllers: [...AssetControllers],
   providers: [
@@ -58,6 +73,7 @@ import { GqlExceptionFilter } from '@avara/shared/exception-filter/gql-exception
     ...SeoMetadataProviders,
     ...ChannelProviders,
     ...AssetProviders,
+    ...FacetProviders,
     {
       provide: APP_GUARD,
       useClass: PermissionsGuard,
@@ -74,6 +90,8 @@ import { GqlExceptionFilter } from '@avara/shared/exception-filter/gql-exception
     ...ChannelProviders,
     ...SeoMetadataProviders,
     ...ChannelProviders,
+    ...FacetProviders,
+    ...AssetProviders,
   ],
 })
 export class ProtectedModule {

@@ -2,9 +2,6 @@ import { ChannelListAwareEntity } from '@avara/core/domain/channel/domain/entiti
 import { AssetType } from '../enums/asset-type.enum'
 import { TrackableEntity } from '@avara/shared/domain/trackable-entity.interface'
 import { SoftDeletableEntity } from '@avara/shared/domain/soft-deletable-entity.interface'
-import { validate } from 'class-validator'
-import { DomainValidationError } from '@avara/shared/errors/domain-validation.error'
-import { ValidationError } from '@nestjs/common'
 import { IsString, IsEnum, IsNumber, IsOptional, IsDate } from 'class-validator'
 import { Channel } from '@avara/core/domain/channel/domain/entities/channel.entity'
 import { FileProcessingContext } from '../services/file-processing-context'
@@ -151,7 +148,7 @@ export class Asset
     this._deleted_by = deleted_by
   }
 
-  softRecover(): void {
+  recover(): void {
     this._deleted_at = undefined
     this._deleted_by = undefined
   }
@@ -176,7 +173,7 @@ export class Asset
     asset._deleted_at = props.deleted_at
     asset._deleted_by = props.deleted_by
 
-    await asset.validate()
+    await asset.validate('Asset')
 
     return asset
   }
@@ -201,7 +198,7 @@ export class Asset
     asset._source = metadata.source
     asset._channels = [ctx.channel]
 
-    await asset.validate()
+    await asset.validate('Asset')
 
     return asset
   }
@@ -220,7 +217,7 @@ export class Asset
     if (args.deleted_at !== undefined) this._deleted_at = args.deleted_at
     if (args.deleted_by !== undefined) this._deleted_by = args.deleted_by
 
-    await this.validate()
+    await this.validate('Asset')
   }
 
   getFields(): AssetProps {
@@ -243,15 +240,6 @@ export class Asset
       deleted_by: this._deleted_by,
     }
 
-    console.log({ dt })
-
     return dt
-  }
-
-  private async validate() {
-    const errors: ValidationError[] = await validate(this)
-    if (errors.length > 0) {
-      throw new DomainValidationError('Asset', errors)
-    }
   }
 }

@@ -19,6 +19,7 @@ enum CategoryType {
   ARTICLE
   PRODUCT
   INDUSTRY
+  APPLICATION
 }
 
 enum PartnerType {
@@ -118,7 +119,127 @@ model Asset {
   height      Int?  @default(0)
   focal_point Json?
 
-  channels Channel[] @relation("ChannelAssets")
+  channels                        Channel[]        @relation("ChannelAssets")
+  product_featured_images         Product[]        @relation("ProductFeaturedImage")
+  product_variant_featured_images ProductVariant[] @relation("ProductFeaturedImage")
+  product_documents               Product[]        @relation("ProductDocuments")
+  product_images                  Product[]        @relation("ProductImages")
+  product_variant_images          ProductVariant[] @relation("VariantImages")
+
+  created_at DateTime? @default(now())
+  updated_at DateTime? @updatedAt
+  updated_by String?
+  created_by String?
+  deleted_at DateTime?
+  deleted_by String?
+}
+
+model Product {
+  id                String  @id @default(uuid())
+  featured_image_id String?
+
+  name        String  @unique
+  slug        String? @unique
+  description String?
+
+  featured_image Asset?           @relation(name: "ProductFeaturedImage", fields: [featured_image_id], references: [id])
+  documents      Asset[]          @relation("ProductDocuments")
+  images         Asset[]          @relation("ProductImages")
+  channels       Channel[]        @relation("ChannelProducts")
+  facet_values   FacetValue[]     @relation("ProductFacetValues")
+  variants       ProductVariant[]
+
+  created_at DateTime? @default(now())
+  updated_at DateTime? @updatedAt
+  updated_by String?
+  created_by String?
+  deleted_at DateTime?
+  deleted_by String?
+}
+
+model ProductVariant {
+  id                String  @id @default(uuid())
+  product_id        String
+  tax_rate_id       String?
+  featured_asset_id String?
+
+  name               String
+  price              Float?
+  sku                String? @unique
+  price_includes_tax Boolean @default(false)
+  currency_code      String
+  stock_threshold    Int     @default(0)
+  track_inventory    Boolean @default(true)
+  is_enabled         Boolean @default(true)
+
+  tax_rate       TaxRate?        @relation(fields: [tax_rate_id], references: [id])
+  product        Product         @relation(fields: [product_id], references: [id])
+  featured_asset Asset?          @relation(name: "ProductFeaturedImage", fields: [featured_asset_id], references: [id])
+  images         Asset[]         @relation("VariantImages")
+  stock          StockLevel[]
+  options        ProductOption[] @relation("VariantOptions")
+  facet_values   FacetValue[]    @relation("VariantFacets")
+  channels       Channel[]       @relation("ChannelVariants")
+  collections    Collection[]    @relation("VariantCollections")
+
+  created_at DateTime? @default(now())
+  updated_at DateTime? @updatedAt
+  updated_by String?
+  created_by String?
+  deleted_at DateTime?
+  deleted_by String?
+}
+
+model TaxRate {
+  id String @id @default(uuid())
+
+  product_variants ProductVariant[]
+
+  name      String
+  rate      Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model StockLevel {
+  id         String @id @default(uuid())
+  variant_id String
+
+  location String
+  quantity Int
+
+  variant ProductVariant @relation(fields: [variant_id], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Collection {
+  id       String           @id @default(uuid())
+  name     String
+  variants ProductVariant[] @relation("VariantCollections")
+}
+
+model ProductOption {
+  id       String           @id @default(uuid())
+  name     String
+  values   String[]
+  variants ProductVariant[] @relation("VariantOptions") // Variants using this option
+}
+
+model Price {
+  id         String @id @default(uuid())
+  product_id String
+
+  type          String
+  value         Float
+  currency_code String  @default("USD")
+  is_active     Boolean @default(true)
+
+  start_date DateTime?
+  end_date   DateTime?
+
+  channels Channel[] @relation("ChannelPrices")
 
   created_at DateTime? @default(now())
   updated_at DateTime? @updatedAt
@@ -347,9 +468,9 @@ model Lang {
 model Facet {
   id String @id @default(uuid())
 
-  name        String
-  data_type   String
-  constraints Json?
+  name       String
+  code       String
+  is_private Boolean @default(false)
 
   values   FacetValue[]
   channels Channel[]    @relation("ChannelFacets")
@@ -366,10 +487,13 @@ model FacetValue {
   id       String @id @default(uuid())
   facet_id String
 
-  value String
+  name String
+  code String
 
-  facet    Facet     @relation(fields: [facet_id], references: [id])
-  channels Channel[] @relation("ChannelFacets")
+  facet            Facet            @relation(fields: [facet_id], references: [id])
+  channels         Channel[]        @relation("ChannelFacetValues")
+  products         Product[]        @relation("ProductFacetValues")
+  product_variants ProductVariant[] @relation("VariantFacets")
 
   created_at DateTime? @default(now())
   created_by String?
@@ -378,7 +502,8 @@ model FacetValue {
   deleted_at DateTime?
   deleted_by String?
 
-  @@unique([facet_id, value])
+  @@unique([facet_id, name])
+  @@unique([facet_id, code])
 }
 
 model Channel {
@@ -398,8 +523,11 @@ model Channel {
   articles         Article[]        @relation("ChannelArticles")
   meta_fields      SeoMetadata[]    @relation("ChannelMetaFields")
   facets           Facet[]          @relation("ChannelFacets")
-  facet_values     FacetValue[]     @relation("ChannelFacets")
+  facet_values     FacetValue[]     @relation("ChannelFacetValues")
   assets           Asset[]          @relation("ChannelAssets")
+  products         Product[]        @relation("ChannelProducts")
+  variants         ProductVariant[] @relation("ChannelVariants")
+  prices           Price[]          @relation("ChannelPrices")
 
   created_at DateTime? @default(now())
   updated_at DateTime? @updatedAt

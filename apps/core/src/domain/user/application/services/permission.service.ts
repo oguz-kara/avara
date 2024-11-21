@@ -135,7 +135,7 @@ export class PermissionService {
 
     if (!permission) throw new NotFoundException('Permission not found!')
 
-    permission.softRecover()
+    permission.recover()
 
     await permissionRepo.saveResourceToChannel(permission)
 

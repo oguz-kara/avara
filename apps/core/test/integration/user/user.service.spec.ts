@@ -17,7 +17,7 @@ import { UserActiveStatus } from '@avara/core/domain/user/domain/enums/user-acti
 import { PermissionRepository } from '@avara/core/domain/user/infrastructure/orm/repository/permission.repository'
 import { PaginationUtils } from '@avara/shared/utils/pagination.util'
 import { ConfigService } from '@nestjs/config'
-import { RequestContext } from '@avara/core/context/request-context'
+import { RequestContext } from '@avara/core/application/context/request-context'
 import { ChannelRepository } from '@avara/core/domain/channel/infrastructure/repositories/channel.repository'
 import { ChannelMapper } from '@avara/core/domain/channel/infrastructure/mappers/channel.mapper'
 import { Channel } from '@avara/core/domain/channel/domain/entities/channel.entity'

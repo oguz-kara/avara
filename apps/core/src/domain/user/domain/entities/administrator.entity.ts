@@ -99,7 +99,7 @@ export class Administrator
     this._deleted_by = deleted_by
   }
 
-  public softRecover(): void {
+  public recover(): void {
     if (!this._deleted_at) throw new Error('Role already recovered!')
 
     this._deleted_at = undefined

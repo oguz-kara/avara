@@ -39,12 +39,19 @@ export class LocalStorageStrategy implements StorageStrategy {
     }
   }
 
-  private buildAssetPath(assetName: string, variantKey?: string): string {
+  private buildAssetPath(
+    assetName: string,
+    options: { variantKey?: string; basePath: string } = { basePath: null },
+  ): string {
+    const { variantKey, basePath } = options
     const ext = path.extname(assetName)
     const basename = path.basename(assetName, ext)
     return variantKey
-      ? path.join(this.basePath, `${basename}-${variantKey}${ext}`)
-      : path.join(this.basePath, assetName)
+      ? path.join(
+          basePath ? basePath : this.basePath,
+          `${basename}-${variantKey}${ext}`,
+        )
+      : path.join(basePath ? basePath : this.basePath, assetName)
   }
 
   private async cleanUpFiles(files: string[]): Promise<void> {
@@ -57,20 +64,33 @@ export class LocalStorageStrategy implements StorageStrategy {
     }
   }
 
-  private setSourcePath(asset: Asset): void {
-    asset.edit({ source: path.join(__dirname, this.localPath, asset.name) })
+  private setSourcePath(asset: Asset, basePath?: string): void {
+    asset.edit({
+      source: path.join(
+        basePath ? basePath : __dirname,
+        this.localPath,
+        asset.name,
+      ),
+    })
   }
 
-  async save(asset: Asset, file: Buffer): Promise<void> {
+  async save(
+    asset: Asset,
+    file: Buffer,
+    options?: { basePath?: string },
+  ): Promise<void> {
     await this.ensureDirectoryExists(this.basePath)
-    const filePath = this.buildAssetPath(asset.name)
+    const filePath = this.buildAssetPath(asset.name, {
+      basePath: options.basePath,
+    })
     await fs.writeFile(filePath, file)
-    this.setSourcePath(asset)
+    this.setSourcePath(asset, options.basePath)
   }
 
   async saveImageWithScreenVariations(
     asset: Asset,
     file: Buffer,
+    options?: { basePath?: string },
   ): Promise<void> {
     if (asset.type !== 'IMAGE')
       throw new UnsupportedFileError(
@@ -86,12 +106,15 @@ export class LocalStorageStrategy implements StorageStrategy {
 
       for (const [key, size] of Object.entries(this.variationSizes)) {
         const resizedBuffer = await this.imageProcessor.resizeImage(file, size)
-        const variationPath = this.buildAssetPath(asset.name, key)
+        const variationPath = this.buildAssetPath(asset.name, {
+          basePath: options.basePath,
+          variantKey: key,
+        })
         await fs.writeFile(variationPath, resizedBuffer)
         createdFiles.push(variationPath)
       }
 
-      this.setSourcePath(asset)
+      this.setSourcePath(asset, options.basePath)
     } catch (error) {
       await this.cleanUpFiles(createdFiles)
       throw error

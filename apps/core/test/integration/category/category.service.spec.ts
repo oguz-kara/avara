@@ -9,11 +9,16 @@ import { DbService } from '@avara/shared/database/db-service'
 import { CategoryMapper } from '@avara/core/domain/category/infrastructure/mappers/category.mapper'
 import { ConfigService } from '@nestjs/config'
 import { DBTransactionService } from '@avara/shared/database/db-transaction'
+import { Channel } from '@avara/core/domain/channel/domain/entities/channel.entity'
+import { ChannelRepository } from '@avara/core/domain/channel/infrastructure/repositories/channel.repository'
+import { RequestContext } from '@avara/core/application/context/request-context'
 
 describe('CategoryService (Integration)', () => {
   let service: CategoryService
   let db: DbService
   let repo: CategoryRepository
+  let channelRepository: ChannelRepository
+  let ctx: RequestContext
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -26,12 +31,33 @@ describe('CategoryService (Integration)', () => {
         PaginationUtils,
         ConfigService,
         DBTransactionService,
+        ChannelRepository,
       ],
     }).compile()
 
     service = module.get<CategoryService>(CategoryService)
     db = module.get<DbService>(DbService)
     repo = module.get<CategoryRepository>(CategoryRepository)
+    channelRepository = module.get<ChannelRepository>(ChannelRepository)
+
+    const channel = new Channel({
+      id: undefined,
+      name: 'Default',
+      code: 'default',
+      currency_code: 'USD',
+      default_language_code: 'en',
+      is_default: true,
+    })
+
+    await channelRepository.save(channel)
+
+    ctx = new RequestContext({
+      channel,
+      channel_code: channel.code,
+      channel_id: channel.id,
+      currency_code: channel.currency_code,
+      language_code: channel.default_language_code,
+    })
   })
 
   beforeEach(async () => {
@@ -52,7 +78,7 @@ describe('CategoryService (Integration)', () => {
         content_type: 'MD',
       }
 
-      const result = await service.createCategory(input)
+      const result = await service.createCategory(ctx, input)
       expect(result).toBeDefined()
       expect(result.name).toBe('Electronics')
 
@@ -83,7 +109,7 @@ describe('CategoryService (Integration)', () => {
         },
       })
 
-      await expect(service.createCategory(input)).rejects.toThrow(
+      await expect(service.createCategory(ctx, input)).rejects.toThrow(
         ConflictException,
       )
     })
@@ -101,13 +127,13 @@ describe('CategoryService (Integration)', () => {
         },
       })
 
-      const result = await service.findById(category.id)
+      const result = await service.findById(ctx, category.id)
       expect(result).toBeDefined()
       expect(result?.name).toBe('Electronics')
     })
 
     it('should return null if category does not exist', async () => {
-      const result = await service.findById('non-existing-id')
+      const result = await service.findById(ctx, 'non-existing-id')
       expect(result).toBeNull()
     })
   })
@@ -124,7 +150,7 @@ describe('CategoryService (Integration)', () => {
         },
       })
 
-      await service.removeProductCategoryById(category.id)
+      await service.removeProductCategoryById(ctx, category.id)
 
       const categoryFromDb = await db.category.findUnique({
         where: { id: category.id },
@@ -134,7 +160,7 @@ describe('CategoryService (Integration)', () => {
 
     it('should throw NotFoundException if category does not exist', async () => {
       await expect(
-        service.removeProductCategoryById('non-existing-id'),
+        service.removeProductCategoryById(ctx, 'non-existing-id'),
       ).rejects.toThrow(NotFoundException)
     })
   })
