@@ -15,12 +15,12 @@ export class Category extends SimpleAuditingFields {
   @Field(() => String, { nullable: true })
   @IsString()
   @IsOptional()
-  parent_category_id: string
+  parentCategoryId: string
 
   @Field(() => String, { nullable: true })
   @IsString()
   @IsOptional()
-  meta_field_id: string
+  metaFieldId: string
 
   @Field(() => String)
   @IsString()
@@ -32,11 +32,11 @@ export class Category extends SimpleAuditingFields {
 
   @Field(() => String)
   @IsString()
-  content_type: ContentType
+  contentType: ContentType
 
   @Field(() => CategoryType)
   @IsString()
-  category_type: CategoryType
+  categoryType: CategoryType
 }
 
 @ObjectType()

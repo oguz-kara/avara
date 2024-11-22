@@ -18,8 +18,8 @@ import { TransactionContext } from '@avara/shared/database/transaction-context'
 import { DbTransactionalClient } from '@avara/shared/database/db-transactional-client'
 
 type FileMetadata = {
-  mime_type: string
-  file_size: number
+  mimeType: string
+  fileSize: number
   width?: number
   height?: number
 }

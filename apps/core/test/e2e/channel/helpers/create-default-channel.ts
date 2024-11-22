@@ -10,9 +10,9 @@ export const createDefaultChannelIfNotExists = async (db: DbService) => {
       data: {
         code: 'default',
         name: 'Default Channel',
-        currency_code: 'USD',
-        default_language_code: 'en',
-        is_default: true,
+        currencyCode: 'USD',
+        defaultLanguageCode: 'en',
+        isDefault: true,
       },
     })
   }

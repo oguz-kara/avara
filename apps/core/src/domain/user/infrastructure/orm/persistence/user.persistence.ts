@@ -4,14 +4,14 @@ import { UserActiveStatus as AppUserActiveStatus } from '../../../domain/enums/u
 export interface UserPersistence {
   id: string | null
   email: string
-  password_hash: string
-  email_verified: boolean
-  role_id: string
-  is_active: UserActiveStatus | AppUserActiveStatus
-  created_at: Date
-  created_by: string
-  updated_at: Date
-  updated_by: string
-  deleted_at?: Date
-  deleted_by?: string
+  passwordHash: string
+  emailVerified: boolean
+  roleId: string
+  isActive: UserActiveStatus | AppUserActiveStatus
+  createdAt: Date
+  createdBy: string
+  updatedAt: Date
+  updatedBy: string
+  deletedAt?: Date
+  deletedBy?: string
 }

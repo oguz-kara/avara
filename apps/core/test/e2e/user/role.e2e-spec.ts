@@ -96,9 +96,9 @@ describe('RoleResolver (e2e)', () => {
         data: {
           name: 'test-channel',
           code: 'test-channel-code',
-          default_language_code: 'en',
-          currency_code: 'USD',
-          is_default: false,
+          defaultLanguageCode: 'en',
+          currencyCode: 'USD',
+          isDefault: false,
         },
       })
 

@@ -100,6 +100,9 @@ devDependencies:
   '@commitlint/config-conventional':
     specifier: ^19.5.0
     version: 19.5.0
+  '@faker-js/faker':
+    specifier: ^9.2.0
+    version: 9.2.0
   '@jest/types':
     specifier: ^29.6.3
     version: 29.6.3
@@ -1006,6 +1009,11 @@ packages:
   /@eslint/js@8.57.1:
     resolution: {integrity: sha512-d9zaMRSTIKDLhctzH12MtXvJKSSUhaHcjV+2Z+GK+EEY7XKpP5yR4x+N3TAcHTcu963nIr+TMcCb4DBCYX1z6Q==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+    dev: true
+
+  /@faker-js/faker@9.2.0:
+    resolution: {integrity: sha512-ulqQu4KMr1/sTFIYvqSdegHT8NIkt66tFAkugGnHA+1WAfEn6hMzNR+svjXGFRVLnapxvej67Z/LwchFrnLBUg==}
+    engines: {node: '>=18.0.0', npm: '>=9.0.0'}
     dev: true
 
   /@graphql-tools/merge@8.4.2(graphql@16.9.0):

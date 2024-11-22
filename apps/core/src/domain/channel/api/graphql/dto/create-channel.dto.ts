@@ -15,16 +15,16 @@ export class CreateChannelDto {
   @Field()
   @IsString()
   @IsOptional()
-  default_language_code?: string
+  defaultLanguageCode?: string
 
   @Field()
   @IsString()
   @IsOptional()
-  currency_code?: string
+  currencyCode?: string
 
   @Field()
   @IsBoolean()
-  is_default: boolean
+  isDefault: boolean
 }
 
 @InputType()

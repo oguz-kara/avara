@@ -39,7 +39,7 @@ export class FacetValueResolver {
 
   @Allow(Permission.READ_FACET_VALUE_GLOBAL)
   @Query(() => FacetValueType, { nullable: true })
-  async findFacetValueById(
+  async facetValueById(
     @Ctx() ctx: RequestContext,
     @Args('input') findFacetValueInput: IDInput,
   ) {
@@ -52,7 +52,7 @@ export class FacetValueResolver {
     Permission.WRITE_FACET_VALUE_GLOBAL,
   )
   @Mutation(() => FacetValueType)
-  async createFacetValue(
+  async registerFacetValue(
     @Ctx() ctx: RequestContext,
     @Args('input') createFacetValueDto?: CreateFacetValueDto,
   ) {
@@ -67,7 +67,7 @@ export class FacetValueResolver {
     Permission.WRITE_FACET_VALUE_GLOBAL,
   )
   @Mutation(() => [FacetValueType])
-  async createFacetValueList(
+  async registerFacetValueList(
     @Ctx() ctx: RequestContext,
     @Args('input') createFacetValueDto?: CreateFacetValueListDto,
   ) {
@@ -92,11 +92,11 @@ export class FacetValueResolver {
     Permission.WRITE_FACET_VALUE_GLOBAL,
   )
   @Mutation(() => FacetValueType)
-  async deleteFacetValue(
+  async terminateFacetValue(
     @Ctx() ctx: RequestContext,
-    @Args('input') args?: IDInput,
+    @Args('id') id?: string,
   ) {
-    return await this.facetValueService.deleteFacetValue(ctx, args.id)
+    return await this.facetValueService.deleteFacetValue(ctx, id)
   }
 
   @Allow(
@@ -104,10 +104,10 @@ export class FacetValueResolver {
     Permission.WRITE_FACET_VALUE_GLOBAL,
   )
   @Mutation(() => FacetValueType)
-  async softDeleteFacetValue(
+  async markFacetValueAsDeleted(
     @Ctx() ctx: RequestContext,
-    @Args('input') args?: IDInput,
+    @Args('id') id?: string,
   ) {
-    return await this.facetValueService.softDeleteFacetValue(ctx, args.id)
+    return await this.facetValueService.softDeleteFacetValue(ctx, id)
   }
 }

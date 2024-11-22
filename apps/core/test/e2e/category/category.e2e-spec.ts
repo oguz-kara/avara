@@ -39,17 +39,17 @@ describe('CategoryResolver (e2e)', () => {
         mutation {
           createCategory(input: {
             name: "Electronics",
-            category_type: PRODUCT,
-            parent_category_id: null,
+            categoryType: PRODUCT,
+            parentCategoryId: null,
             content: "<p>Some content</p>"
-            content_type: "MD"
+            contentType: "MD"
           }) {
             id
             name
-            parent_category_id
-            category_type
+            parentCategoryId
+            categoryType
             content 
-            content_type
+            contentType
           }
         }
       `
@@ -71,7 +71,7 @@ describe('CategoryResolver (e2e)', () => {
 
       expect(savedCategory).toBeTruthy()
       expect(savedCategory.name).toBe('Electronics')
-      expect(savedCategory.parent_category_id).toBe(null)
+      expect(savedCategory.parentCategoryId).toBe(null)
       expect(savedCategory.content).toBe('<p>Some content</p>')
     })
 
@@ -80,10 +80,10 @@ describe('CategoryResolver (e2e)', () => {
       await dbService.category.create({
         data: {
           name: 'Electronics',
-          category_type: CategoryType.PRODUCT,
-          parent_category_id: null,
+          categoryType: CategoryType.PRODUCT,
+          parentCategoryId: null,
           content: '<p>Some content</p>',
-          content_type: 'MD',
+          contentType: 'MD',
           channels: {
             connect: {
               code: 'default',
@@ -96,14 +96,14 @@ describe('CategoryResolver (e2e)', () => {
         mutation {
           createCategory(input: {
             name: "Electronics",
-            category_type: PRODUCT,
-            parent_category_id: null,
+            categoryType: PRODUCT,
+            parentCategoryId: null,
             content: "<p>Some content</p>"
-            content_type: "MD"
+            contentType: "MD"
           }) {
             id
             name
-            category_type
+            categoryType
           }
         }
       `
@@ -125,10 +125,10 @@ describe('CategoryResolver (e2e)', () => {
       const category = await dbService.category.create({
         data: {
           name: 'Electronics',
-          category_type: CategoryType.PRODUCT,
-          parent_category_id: null,
+          categoryType: CategoryType.PRODUCT,
+          parentCategoryId: null,
           content: '<p>Some content</p>',
-          content_type: 'MD',
+          contentType: 'MD',
           channels: {
             connect: {
               code: 'default',
@@ -190,10 +190,10 @@ describe('CategoryResolver (e2e)', () => {
       await dbService.category.create({
         data: {
           name: 'Electronics',
-          category_type: CategoryType.PRODUCT,
-          parent_category_id: null,
+          categoryType: CategoryType.PRODUCT,
+          parentCategoryId: null,
           content: '<p>Some content</p>',
-          content_type: 'MD',
+          contentType: 'MD',
           channels: {
             connect: {
               code: 'default',
@@ -204,10 +204,10 @@ describe('CategoryResolver (e2e)', () => {
       await dbService.category.create({
         data: {
           name: 'Appliances',
-          category_type: CategoryType.PRODUCT,
-          parent_category_id: null,
+          categoryType: CategoryType.PRODUCT,
+          parentCategoryId: null,
           content: '<p>Another content</p>',
-          content_type: 'MD',
+          contentType: 'MD',
           channels: {
             connect: {
               code: 'default',
@@ -222,7 +222,7 @@ describe('CategoryResolver (e2e)', () => {
             items {
               id
               name
-              category_type
+              categoryType
             }
             pagination {
               total
@@ -248,10 +248,10 @@ describe('CategoryResolver (e2e)', () => {
       const category = await dbService.category.create({
         data: {
           name: 'Electronics',
-          category_type: CategoryType.PRODUCT,
-          parent_category_id: null,
+          categoryType: CategoryType.PRODUCT,
+          parentCategoryId: null,
           content: '<p>Some content</p>',
-          content_type: 'MD',
+          contentType: 'MD',
           channels: {
             connect: {
               code: 'default',
@@ -265,7 +265,7 @@ describe('CategoryResolver (e2e)', () => {
           findCategoryById(input: { id: "${category.id}" }) {
             id
             name
-            category_type
+            categoryType
           }
         }
       `
@@ -285,7 +285,7 @@ describe('CategoryResolver (e2e)', () => {
           findCategoryById(input: { id: "non-existing-id" }) {
             id
             name
-            category_type
+            categoryType
           }
         }
       `

@@ -51,7 +51,7 @@ export class SeoMetadataRepository
     const seoMetadata = await this.getClient(
       persistenceContext?.tx,
     ).seoMetadata.findUnique({
-      where: { id, channels: { some: { id: this.ctx.channel_id } } },
+      where: { id, channels: { some: { id: this.ctx.channelId } } },
       include: {
         channels: true,
       },
@@ -77,7 +77,7 @@ export class SeoMetadataRepository
     ).seoMetadata.findMany({
       where: {
         channels: {
-          some: { id: this.ctx.channel_id },
+          some: { id: this.ctx.channelId },
         },
       },
       take: limit,
@@ -109,7 +109,7 @@ export class SeoMetadataRepository
     await this.getClient(persistenceContext?.tx).seoMetadata.delete({
       where: {
         id: seoMetadata.id,
-        channels: { some: { id: this.ctx.channel_id } },
+        channels: { some: { id: this.ctx.channelId } },
       },
     })
   }
@@ -133,10 +133,10 @@ export class SeoMetadataRepository
       )
 
       seoMetadata.assignId(newEntry.id)
-      await seoMetadata.edit({
+      seoMetadata.edit({
         channels: newEntry.channels,
-        created_at: newEntry.created_at,
-        updated_at: newEntry.updated_at,
+        createdAt: newEntry.createdAt,
+        updatedAt: newEntry.updatedAt,
       })
     }
   }
@@ -150,7 +150,7 @@ export class SeoMetadataRepository
     await this.getClient(persistenceContext?.tx).seoMetadata.update({
       where: {
         id,
-        channels: { some: { id: this.ctx.channel_id } },
+        channels: { some: { id: this.ctx.channelId } },
       },
       data: {
         ...rest,
@@ -183,7 +183,7 @@ export class SeoMetadataRepository
     return {
       connect: channels
         ? channels.map((channel) => ({ id: channel.id }))
-        : { id: this.ctx.channel_id },
+        : { id: this.ctx.channelId },
     }
   }
 }

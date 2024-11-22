@@ -87,19 +87,19 @@ describe('PermissionService (Integration)', () => {
       id: undefined,
       name: 'Default',
       code: 'default',
-      currency_code: 'USD',
-      default_language_code: 'en',
-      is_default: true,
+      currencyCode: 'USD',
+      defaultLanguageCode: 'en',
+      isDefault: true,
     })
 
     await channelRepository.save(channel)
 
     ctx = new RequestContext({
       channel,
-      channel_code: channel.code,
-      channel_id: channel.id,
-      currency_code: channel.currency_code,
-      language_code: channel.default_language_code,
+      channelCode: channel.code,
+      channelId: channel.id,
+      currencyCode: channel.currencyCode,
+      languageCode: channel.defaultLanguageCode,
     })
   })
 
@@ -142,7 +142,7 @@ describe('PermissionService (Integration)', () => {
       })
 
       expect(permission.channels).toHaveLength(1)
-      expect(permission.channels[0].id).toBe(ctx.channel_id)
+      expect(permission.channels[0].id).toBe(ctx.channelId)
 
       expect(result).toBeTruthy()
       expect(result.action).toBe(input.action)

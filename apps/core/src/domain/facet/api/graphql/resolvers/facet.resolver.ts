@@ -28,9 +28,9 @@ export class FacetResolver {
 
   @Allow(Permission.READ_FACET_GLOBAL)
   @Query(() => FacetType, { nullable: true })
-  async findFacetById(
+  async facetById(
     @Ctx() ctx: RequestContext,
-    @Args('input') findFacetInput: IDInput,
+    @Args('paging') findFacetInput: IDInput,
     @Relations({ depth: 5 }) relations?: Record<string, object | boolean>,
   ) {
     const { id } = findFacetInput
@@ -39,7 +39,7 @@ export class FacetResolver {
 
   @Allow(Permission.CREATE_FACET_GLOBAL, Permission.WRITE_FACET_GLOBAL)
   @Mutation(() => FacetType)
-  async createFacet(
+  async registerFacet(
     @Ctx() ctx: RequestContext,
     @Args('input') createFacetDto?: CreateFacetDto,
   ) {
@@ -50,14 +50,15 @@ export class FacetResolver {
   @Mutation(() => FacetType)
   async editFacet(
     @Ctx() ctx: RequestContext,
+    @Args('id') id?: string,
     @Args('input') editFacetDto?: EditFacetDto,
   ) {
-    return await this.facetService.editFacet(ctx, editFacetDto)
+    return await this.facetService.editFacet(ctx, id, editFacetDto)
   }
 
   @Allow(Permission.DELETE_FACET_GLOBAL, Permission.WRITE_FACET_GLOBAL)
   @Mutation(() => FacetType)
-  async deleteFacet(@Ctx() ctx: RequestContext, @Args('input') args?: IDInput) {
-    return await this.facetService.deleteFacet(ctx, args.id)
+  async terminateFacet(@Ctx() ctx: RequestContext, @Args('id') id?: string) {
+    return await this.facetService.deleteFacet(ctx, id)
   }
 }

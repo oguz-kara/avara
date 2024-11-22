@@ -60,19 +60,19 @@ describe('UserService (Integration)', () => {
       id: undefined,
       name: 'Default',
       code: 'default',
-      currency_code: 'USD',
-      default_language_code: 'en',
-      is_default: true,
+      currencyCode: 'USD',
+      defaultLanguageCode: 'en',
+      isDefault: true,
     })
 
     await channelRepository.save(channel)
 
     ctx = new RequestContext({
       channel,
-      channel_code: channel.code,
-      channel_id: channel.id,
-      currency_code: channel.currency_code,
-      language_code: channel.default_language_code,
+      channelCode: channel.code,
+      channelId: channel.id,
+      currencyCode: channel.currencyCode,
+      languageCode: channel.defaultLanguageCode,
     })
   })
 
@@ -94,27 +94,27 @@ describe('UserService (Integration)', () => {
       const input: CreateUserDto = {
         email: 'test@example.com',
         password: 'password123',
-        role_id: role.id,
-        email_verified: false,
-        is_active: UserActiveStatus.ACTIVE,
+        roleId: role.id,
+        emailVerified: false,
+        isActive: UserActiveStatus.ACTIVE,
       }
 
       const result = await userService.saveNewUser(ctx, input)
 
       expect(result).toBeTruthy()
       expect(result.email).toBe(input.email)
-      expect(result.role_id).toBe(input.role_id)
-      expect(result.email_verified).toBe(input.email_verified)
-      expect(result.is_active).toBe(input.is_active)
+      expect(result.roleId).toBe(input.roleId)
+      expect(result.emailVerified).toBe(input.emailVerified)
+      expect(result.isActive).toBe(input.isActive)
 
       const savedUser = await dbService.user.findUnique({
         where: { id: result.id },
       })
       expect(savedUser).toBeTruthy()
       expect(savedUser?.email).toBe(input.email)
-      expect(savedUser?.role_id).toBe(input.role_id)
-      expect(savedUser?.email_verified).toBe(input.email_verified)
-      expect(savedUser?.is_active).toBe(input.is_active)
+      expect(savedUser?.roleId).toBe(input.roleId)
+      expect(savedUser?.emailVerified).toBe(input.emailVerified)
+      expect(savedUser?.isActive).toBe(input.isActive)
     })
 
     it('should throw ConflictException if email already exists', async () => {
@@ -124,9 +124,9 @@ describe('UserService (Integration)', () => {
       const input: CreateUserDto = {
         email: 'test@example.com',
         password: 'password123',
-        role_id: role.id,
-        email_verified: false,
-        is_active: UserActiveStatus.ACTIVE,
+        roleId: role.id,
+        emailVerified: false,
+        isActive: UserActiveStatus.ACTIVE,
       }
 
       await userService.saveNewUser(ctx, input)
@@ -148,10 +148,10 @@ describe('UserService (Integration)', () => {
       const user = await dbService.user.create({
         data: {
           email: 'test@example.com',
-          password_hash: 'password123',
-          role_id: role.id,
-          email_verified: false,
-          is_active: 'ACTIVE',
+          passwordHash: 'password123',
+          roleId: role.id,
+          emailVerified: false,
+          isActive: 'ACTIVE',
         },
       })
 
@@ -171,14 +171,14 @@ describe('UserService (Integration)', () => {
       )
 
       expect(result).toBeTruthy()
-      expect(result.role_id).toBe(input.roleId)
+      expect(result.roleId).toBe(input.roleId)
 
       const updatedUser = await dbService.user.findUnique({
         where: { id: user.id },
       })
 
       expect(updatedUser).toBeTruthy()
-      expect(updatedUser?.role_id).toBe(input.roleId)
+      expect(updatedUser?.roleId).toBe(input.roleId)
     })
 
     it('should throw NotFoundException if user not found', async () => {
@@ -203,10 +203,10 @@ describe('UserService (Integration)', () => {
       const user = await dbService.user.create({
         data: {
           email: 'test@example.com',
-          password_hash: 'password123',
-          role_id: role.id,
-          email_verified: false,
-          is_active: 'ACTIVE',
+          passwordHash: 'password123',
+          roleId: role.id,
+          emailVerified: false,
+          isActive: 'ACTIVE',
         },
       })
 
@@ -230,10 +230,10 @@ describe('UserService (Integration)', () => {
       const user = await dbService.user.create({
         data: {
           email: 'test@example.com',
-          password_hash: 'password123',
-          role_id: role.id,
-          email_verified: false,
-          is_active: 'ACTIVE',
+          passwordHash: 'password123',
+          roleId: role.id,
+          emailVerified: false,
+          isActive: 'ACTIVE',
         },
       })
 
@@ -242,9 +242,9 @@ describe('UserService (Integration)', () => {
       expect(result).toBeTruthy()
       expect(result.id).toBe(user.id)
       expect(result.email).toBe(user.email)
-      expect(result.role_id).toBe(user.role_id)
-      expect(result.email_verified).toBe(user.email_verified)
-      expect(result.is_active).toBe(user.is_active)
+      expect(result.roleId).toBe(user.roleId)
+      expect(result.emailVerified).toBe(user.emailVerified)
+      expect(result.isActive).toBe(user.isActive)
     })
 
     it('should return null if user not found', async () => {
@@ -265,10 +265,10 @@ describe('UserService (Integration)', () => {
       const user = await dbService.user.create({
         data: {
           email: 'test@example.com',
-          password_hash: 'password123',
-          role_id: role.id,
-          email_verified: false,
-          is_active: 'ACTIVE',
+          passwordHash: 'password123',
+          roleId: role.id,
+          emailVerified: false,
+          isActive: 'ACTIVE',
         },
       })
 
@@ -277,9 +277,9 @@ describe('UserService (Integration)', () => {
       expect(result).toBeTruthy()
       expect(result.id).toBe(user.id)
       expect(result.email).toBe(user.email)
-      expect(result.role_id).toBe(user.role_id)
-      expect(result.email_verified).toBe(user.email_verified)
-      expect(result.is_active).toBe(user.is_active)
+      expect(result.roleId).toBe(user.roleId)
+      expect(result.emailVerified).toBe(user.emailVerified)
+      expect(result.isActive).toBe(user.isActive)
     })
 
     it('should return null if user not found', async () => {
@@ -302,19 +302,19 @@ describe('UserService (Integration)', () => {
       await dbService.user.create({
         data: {
           email: 'user1@example.com',
-          password_hash: 'password123',
-          role_id: role.id,
-          email_verified: false,
-          is_active: 'ACTIVE',
+          passwordHash: 'password123',
+          roleId: role.id,
+          emailVerified: false,
+          isActive: 'ACTIVE',
         },
       })
       await dbService.user.create({
         data: {
           email: 'user2@example.com',
-          password_hash: 'password123',
-          role_id: role.id,
-          email_verified: false,
-          is_active: 'ACTIVE',
+          passwordHash: 'password123',
+          roleId: role.id,
+          emailVerified: false,
+          isActive: 'ACTIVE',
         },
       })
 

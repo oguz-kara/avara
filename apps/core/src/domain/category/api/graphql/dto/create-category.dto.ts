@@ -7,12 +7,12 @@ export class CreateCategoryDto {
   @Field({ nullable: true })
   @IsString()
   @IsOptional()
-  parent_category_id: string
+  parentCategoryId: string
 
   @Field({ nullable: true })
   @IsString()
   @IsOptional()
-  meta_field_id?: string
+  metaFieldId?: string
 
   @Field()
   @IsString()
@@ -24,11 +24,11 @@ export class CreateCategoryDto {
 
   @Field()
   @IsString()
-  content_type: string
+  contentType: string
 
   @Field(() => CategoryType)
   @IsString()
-  category_type: CategoryType
+  categoryType: CategoryType
 }
 
 @InputType()

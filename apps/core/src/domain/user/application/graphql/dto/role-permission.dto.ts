@@ -5,28 +5,28 @@ import { IsBoolean, IsString } from 'class-validator'
 export class CreateRolePermissionDto {
   @Field()
   @IsString()
-  role_id: string
+  roleId: string
 
   @Field()
   @IsString()
-  permission_id: string
+  permissionId: string
 
   @Field()
   @IsBoolean()
-  is_active: boolean
+  isActive: boolean
 }
 
 @InputType()
 export class UpdateRolePermissionDto {
   @Field({ nullable: true })
   @IsString()
-  role_id?: string
+  roleId?: string
 
   @Field({ nullable: true })
   @IsString()
-  permission_id?: string
+  permissionId?: string
 
   @Field()
   @IsBoolean()
-  is_active: string
+  isActive: string
 }

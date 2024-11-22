@@ -11,22 +11,22 @@ import * as path from 'path'
 export interface AssetProps {
   id?: string
   name: string
-  original_name: string
+  originalName: string
   type: AssetType
-  mime_type: string
-  file_size: number
+  mimeType: string
+  fileSize: number
   source: string
   preview?: string
   width?: number
   height?: number
-  focal_point?: string
+  focalPoint?: string
   channels?: Channel[]
-  created_at?: Date
-  created_by?: string
-  updated_at?: Date
-  updated_by?: string
-  deleted_at?: Date
-  deleted_by?: string
+  createdAt?: Date
+  createdBy?: string
+  updatedAt?: Date
+  updatedBy?: string
+  deletedAt?: Date
+  deletedBy?: string
 }
 
 export class Asset
@@ -37,16 +37,16 @@ export class Asset
   private _name: string
 
   @IsString()
-  private _original_name: string
+  private _originalName: string
 
   @IsEnum(AssetType)
   private _type: AssetType
 
   @IsString()
-  private _mime_type: string
+  private _mimeType: string
 
   @IsNumber()
-  private _file_size: number
+  private _fileSize: number
 
   @IsString()
   private _source: string
@@ -54,6 +54,10 @@ export class Asset
   @IsString()
   @IsOptional()
   private _preview: string
+
+  @IsString()
+  @IsOptional()
+  private _storageProvider?: string
 
   @IsOptional()
   @IsNumber()
@@ -65,23 +69,23 @@ export class Asset
 
   @IsOptional()
   @IsString()
-  private _focal_point?: string
+  private _focalPoint?: string
 
   @IsOptional()
   @IsString()
-  private _created_by?: string
+  private _createdBy?: string
 
   @IsOptional()
   @IsString()
-  private _updated_by?: string
+  private _updatedBy?: string
 
   @IsOptional()
   @IsDate()
-  private _deleted_at?: Date
+  private _deletedAt?: Date
 
   @IsOptional()
   @IsString()
-  private _deleted_by?: string
+  private _deletedBy?: string
 
   constructor() {
     super()
@@ -91,20 +95,24 @@ export class Asset
     return this._name
   }
 
-  get original_name(): string {
-    return this._original_name
+  get storageProvider(): string {
+    return this._storageProvider
+  }
+
+  get originalName(): string {
+    return this._originalName
   }
 
   get type(): AssetType {
     return this._type
   }
 
-  get mime_type(): string {
-    return this._mime_type
+  get mimeType(): string {
+    return this._mimeType
   }
 
-  get file_size(): number {
-    return this._file_size
+  get fileSize(): number {
+    return this._fileSize
   }
 
   get source(): string {
@@ -123,55 +131,55 @@ export class Asset
     return this._height
   }
 
-  get focal_point(): string | undefined {
-    return this._focal_point
+  get focalPoint(): string | undefined {
+    return this._focalPoint
   }
 
-  get created_by(): string | undefined {
-    return this._created_by
+  get createdBy(): string | undefined {
+    return this._createdBy
   }
 
-  get updated_by(): string | undefined {
-    return this._updated_by
+  get updatedBy(): string | undefined {
+    return this._updatedBy
   }
 
-  get deleted_at(): Date | undefined {
-    return this._deleted_at
+  get deletedAt(): Date | undefined {
+    return this._deletedAt
   }
 
-  get deleted_by(): string | undefined {
-    return this._deleted_by
+  get deletedBy(): string | undefined {
+    return this._deletedBy
   }
 
-  softDelete(deleted_by: string): void {
-    this._deleted_at = new Date()
-    this._deleted_by = deleted_by
+  softDelete(deletedBy: string): void {
+    this._deletedAt = new Date()
+    this._deletedBy = deletedBy
   }
 
   recover(): void {
-    this._deleted_at = undefined
-    this._deleted_by = undefined
+    this._deletedAt = undefined
+    this._deletedBy = undefined
   }
 
   static async create(props: AssetProps): Promise<Asset> {
     const asset = new Asset()
     asset._id = props.id
     asset._name = props.name
-    asset._original_name = props.original_name
+    asset._originalName = props.originalName
     asset._type = props.type
-    asset._mime_type = props.mime_type
-    asset._file_size = props.file_size
+    asset._mimeType = props.mimeType
+    asset._fileSize = props.fileSize
     asset._source = props.source
     asset._preview = props.preview
     asset._width = props.width
     asset._height = props.height
     asset._channels = props.channels
-    asset._created_at = props.created_at
-    asset._created_by = props.created_by
-    asset._updated_at = props.updated_at
-    asset._updated_by = props.updated_by
-    asset._deleted_at = props.deleted_at
-    asset._deleted_by = props.deleted_by
+    asset._createdAt = props.createdAt
+    asset._createdBy = props.createdBy
+    asset._updatedAt = props.updatedAt
+    asset._updatedBy = props.updatedBy
+    asset._deletedAt = props.deletedAt
+    asset._deletedBy = props.deletedBy
 
     await asset.validate('Asset')
 
@@ -186,12 +194,12 @@ export class Asset
 
     const asset = new Asset()
     asset._name = normalizedFilename
-    asset._original_name = path.basename(
+    asset._originalName = path.basename(
       originalFilename,
       path.extname(originalFilename),
     )
-    asset._mime_type = metadata.mime_type || ''
-    asset._file_size = metadata.file_size || 0
+    asset._mimeType = metadata.mimeType || ''
+    asset._fileSize = metadata.fileSize || 0
     asset._width = metadata.width || 0
     asset._height = metadata.height || 0
     asset._type = metadata.type
@@ -205,39 +213,39 @@ export class Asset
 
   async edit(args: Partial<Omit<AssetProps, 'id'>>): Promise<void> {
     if (args.name !== undefined) this._name = args.name
-    if (args.original_name !== undefined) this._name = args.original_name
+    if (args.originalName !== undefined) this._name = args.originalName
     if (args.type !== undefined) this._type = args.type
-    if (args.mime_type !== undefined) this._mime_type = args.mime_type
-    if (args.file_size !== undefined) this._file_size = args.file_size
+    if (args.mimeType !== undefined) this._mimeType = args.mimeType
+    if (args.fileSize !== undefined) this._fileSize = args.fileSize
     if (args.source !== undefined) this._source = args.source
     if (args.preview !== undefined) this._preview = args.preview
     if (args.width !== undefined) this._width = args.width
     if (args.height !== undefined) this._height = args.height
-    if (args.updated_by !== undefined) this._updated_by = args.updated_by
-    if (args.deleted_at !== undefined) this._deleted_at = args.deleted_at
-    if (args.deleted_by !== undefined) this._deleted_by = args.deleted_by
+    if (args.updatedBy !== undefined) this._updatedBy = args.updatedBy
+    if (args.deletedAt !== undefined) this._deletedAt = args.deletedAt
+    if (args.deletedBy !== undefined) this._deletedBy = args.deletedBy
 
     await this.validate('Asset')
   }
 
   getFields(): AssetProps {
     const dt = {
-      id: this._id,
-      file_size: this._file_size,
-      original_name: this._original_name,
+      id: this.id,
+      fileSize: this._fileSize,
+      originalName: this._originalName,
       height: this._height,
-      mime_type: this._mime_type,
+      mimeType: this._mimeType,
       name: this._name,
       preview: this._preview,
       source: this._source,
       type: this._type,
       width: this._width,
-      created_at: this._created_at,
-      created_by: this._created_by,
-      updated_at: this._updated_at,
-      updated_by: this._updated_by,
-      deleted_at: this._deleted_at,
-      deleted_by: this._deleted_by,
+      createdAt: this._createdAt,
+      createdBy: this._createdBy,
+      updatedAt: this._updatedAt,
+      updatedBy: this._updatedBy,
+      deletedAt: this._deletedAt,
+      deletedBy: this._deletedBy,
     }
 
     return dt

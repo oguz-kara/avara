@@ -18,17 +18,17 @@ interface SeoMetadataProps {
   description: string
   keywords: string
   version: number
-  canonical_url?: string
-  og_title?: string
-  og_description?: string
-  og_image?: string
+  canonicalUrl?: string
+  ogTitle?: string
+  ogDescription?: string
+  ogImage?: string
   robots?: string
-  schema_markup?: JsonValue
+  schemaMarkup?: JsonValue
   hreflang?: string
-  page_type?: string
+  pageType?: string
   channels?: Channel[]
-  created_at?: Date
-  updated_at?: Date
+  createdAt?: Date
+  updatedAt?: Date
 }
 
 export class SeoMetadata extends ChannelListAwareEntity {
@@ -50,19 +50,19 @@ export class SeoMetadata extends ChannelListAwareEntity {
 
   @IsOptional()
   @IsString()
-  private _canonical_url?: string
+  private _canonicalUrl?: string
 
   @IsOptional()
   @IsString()
-  private _og_title?: string
+  private _ogTitle?: string
 
   @IsOptional()
   @IsString()
-  private _og_description?: string
+  private _ogDescription?: string
 
   @IsOptional()
   @IsString()
-  private _og_image?: string
+  private _ogImage?: string
 
   @IsOptional()
   @IsString()
@@ -70,7 +70,7 @@ export class SeoMetadata extends ChannelListAwareEntity {
 
   @IsOptional()
   @IsString()
-  private _schema_markup?: JsonValue
+  private _schemaMarkup?: JsonValue
 
   @IsOptional()
   @IsString()
@@ -78,7 +78,7 @@ export class SeoMetadata extends ChannelListAwareEntity {
 
   @IsOptional()
   @IsString()
-  private _page_type?: string
+  private _pageType?: string
 
   @IsOptional()
   @IsArray()
@@ -93,17 +93,17 @@ export class SeoMetadata extends ChannelListAwareEntity {
     this._description = props.description
     this._keywords = props.keywords
     this._version = props.version
-    this._canonical_url = props.canonical_url
-    this._og_title = props.og_title
-    this._og_description = props.og_description
-    this._og_image = props.og_image
+    this._canonicalUrl = props.canonicalUrl
+    this._ogTitle = props.ogTitle
+    this._ogDescription = props.ogDescription
+    this._ogImage = props.ogImage
     this._robots = props.robots
-    this._schema_markup = props.schema_markup
+    this._schemaMarkup = props.schemaMarkup
     this._hreflang = props.hreflang
-    this._page_type = props.page_type
+    this._pageType = props.pageType
     this._channels = props.channels ?? []
-    this._created_at = props.created_at ?? new Date()
-    this._updated_at = props.updated_at
+    this._createdAt = props.createdAt ?? new Date()
+    this._updatedAt = props.updatedAt
   }
 
   static create(props: SeoMetadataProps): SeoMetadata {
@@ -114,8 +114,8 @@ export class SeoMetadata extends ChannelListAwareEntity {
 
   public edit(args: Partial<Omit<SeoMetadataProps, 'id'>>): void {
     Object.entries(args).forEach(([key, value]) => {
-      if (value !== undefined && key in this) {
-        this[`_${key}`] = value
+      if (value !== undefined && `_${key}` in this) {
+        this[`${key}`] = value
       }
     })
 
@@ -138,36 +138,36 @@ export class SeoMetadata extends ChannelListAwareEntity {
     return this._version
   }
 
-  get canonical_url(): string | undefined {
-    return this._canonical_url
+  get canonicalUrl(): string | undefined {
+    return this._canonicalUrl
   }
 
-  get og_title(): string | undefined {
-    return this._og_title
+  get ogTitle(): string | undefined {
+    return this._ogTitle
   }
 
-  get og_description(): string | undefined {
-    return this._og_description
+  get ogDescription(): string | undefined {
+    return this._ogDescription
   }
 
-  get og_image(): string | undefined {
-    return this._og_image
+  get ogImage(): string | undefined {
+    return this._ogImage
   }
 
   get robots(): string | undefined {
     return this._robots
   }
 
-  get schema_markup(): JsonValue | undefined {
-    return this._schema_markup
+  get schemaMarkup(): JsonValue | undefined {
+    return this._schemaMarkup
   }
 
   get hreflang(): string | undefined {
     return this._hreflang
   }
 
-  get page_type(): string | undefined {
-    return this._page_type
+  get pageType(): string | undefined {
+    return this._pageType
   }
 
   get channels(): Channel[] {

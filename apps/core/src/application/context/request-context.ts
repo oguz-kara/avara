@@ -3,50 +3,50 @@ import { ID } from '@avara/shared/types/id.type'
 
 interface RequestContextProps {
   channel: Channel
-  channel_id: ID
-  channel_code: string
-  language_code: string
-  currency_code: string
+  channelId: ID
+  channelCode: string
+  languageCode: string
+  currencyCode: string
 }
 
 export class RequestContext {
-  private readonly _channel_id: ID
-  private readonly _channel_code: string
+  private readonly _channelId: ID
+  private readonly _channelCode: string
   private readonly _channel: Channel
-  private readonly _language_code: string
-  private readonly _currency_code: string
+  private readonly _languageCode: string
+  private readonly _currencyCode: string
 
   constructor({
-    channel_code,
-    channel_id,
+    channelCode,
+    channelId,
     channel,
-    language_code,
-    currency_code,
+    languageCode,
+    currencyCode,
   }: RequestContextProps) {
-    this._channel_code = channel_code
-    this._channel_id = channel_id
+    this._channelCode = channelCode
+    this._channelId = channelId
     this._channel = channel
-    this._language_code = language_code
-    this._currency_code = currency_code
+    this._languageCode = languageCode
+    this._currencyCode = currencyCode
   }
 
-  get channel_id(): ID {
-    return this._channel_id
+  get channelId(): ID {
+    return this._channelId
   }
 
-  get channel_code(): string {
-    return this._channel_code
+  get channelCode(): string {
+    return this._channelCode
   }
 
   get channel(): Channel {
     return this._channel
   }
 
-  get language_code(): string {
-    return this._language_code
+  get languageCode(): string {
+    return this._languageCode
   }
 
-  get currency_code(): string {
-    return this._currency_code
+  get currencyCode(): string {
+    return this._currencyCode
   }
 }

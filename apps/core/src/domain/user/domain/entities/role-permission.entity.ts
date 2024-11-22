@@ -4,91 +4,91 @@ import { TrackableEntity } from '@avara/shared/domain/trackable-entity.interface
 
 export interface RolePermissionProps {
   id?: string
-  role_id: string
-  permission_id: string
-  is_active: boolean
-  created_by?: string
-  updated_by?: string
-  created_at?: Date
-  updated_at?: Date
-  deleted_at?: Date
-  deleted_by?: string
+  roleId: string
+  permissionId: string
+  isActive: boolean
+  createdBy?: string
+  updatedBy?: string
+  createdAt?: Date
+  updatedAt?: Date
+  deletedAt?: Date
+  deletedBy?: string
 }
 
 export class RolePermission
   extends CoreEntity
   implements TrackableEntity, SoftDeletableEntity
 {
-  private _role_id: string
-  private _permission_id: string
-  private _is_active: boolean
-  private _created_by: string = 'system'
-  private _updated_by: string = 'system'
-  private _deleted_at: Date | undefined
-  private _deleted_by: string | undefined
-  private _specific_scope_id: string
+  private _roleId: string
+  private _permissionId: string
+  private _isActive: boolean
+  private _createdBy: string = 'system'
+  private _updatedBy: string = 'system'
+  private _deletedAt: Date | undefined
+  private _deletedBy: string | undefined
+  private _specificScopeId: string
 
   constructor({
     id,
-    role_id,
-    permission_id,
-    is_active,
-    created_by = 'system',
-    updated_by = 'system',
-    created_at = undefined,
-    updated_at = undefined,
-    deleted_at = undefined,
-    deleted_by = undefined,
+    roleId,
+    permissionId,
+    isActive,
+    createdBy = 'system',
+    updatedBy = 'system',
+    createdAt = undefined,
+    updatedAt = undefined,
+    deletedAt = undefined,
+    deletedBy = undefined,
   }: RolePermissionProps) {
     super()
     this._id = id
-    this._role_id = role_id
-    this._permission_id = permission_id
-    this._is_active = is_active
-    this._created_at = created_at
-    this._created_by = created_by
-    this._updated_at = updated_at
-    this._updated_by = updated_by
-    this._deleted_at = deleted_at
-    this._deleted_by = deleted_by
+    this._roleId = roleId
+    this._permissionId = permissionId
+    this._isActive = isActive
+    this._createdAt = createdAt
+    this._createdBy = createdBy
+    this._updatedAt = updatedAt
+    this._updatedBy = updatedBy
+    this._deletedAt = deletedAt
+    this._deletedBy = deletedBy
   }
 
-  get role_id(): string {
-    return this._role_id
+  get roleId(): string {
+    return this._roleId
   }
 
-  get permission_id(): string {
-    return this._permission_id
+  get permissionId(): string {
+    return this._permissionId
   }
 
-  get is_active(): boolean {
-    return this._is_active
+  get isActive(): boolean {
+    return this._isActive
   }
 
-  get created_by(): string {
-    return this._created_by
+  get createdBy(): string {
+    return this._createdBy
   }
-  get updated_by(): string {
-    return this._updated_by
+  get updatedBy(): string {
+    return this._updatedBy
   }
-  get deleted_at(): Date | undefined {
-    return this._deleted_at
+  get deletedAt(): Date | undefined {
+    return this._deletedAt
   }
-  get deleted_by(): string | undefined {
-    return this._deleted_by
+  get deletedBy(): string | undefined {
+    return this._deletedBy
   }
-  get specific_scope_id(): string {
-    return this._specific_scope_id
+  get specificScopeId(): string {
+    return this._specificScopeId
   }
 
   public softDelete(): void {
-    if (this._deleted_at)
+    if (this._deletedAt)
       throw new Error('Role permission already soft removed!')
 
-    this._deleted_at = new Date()
+    this._deletedAt = new Date()
   }
 
   public recover(): void {
-    this._deleted_at = undefined
+    this._deletedAt = undefined
   }
 }

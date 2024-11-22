@@ -17,7 +17,7 @@ export class FacetType extends SimpleAuditingFields {
   code: string
 
   @Field(() => Boolean)
-  is_private: boolean
+  isPrivate: boolean
 
   @Field(() => [ChannelType])
   @IsOptional()

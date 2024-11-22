@@ -1,4 +1,3 @@
-import { IDInput } from '@avara/core/domain/user/application/graphql/input/id.input'
 import { Field, InputType, PartialType } from '@nestjs/graphql'
 import {
   IsBoolean,
@@ -25,15 +24,8 @@ export class CreateFacetDto {
   @Field()
   @IsBoolean()
   @IsOptional()
-  is_private?: boolean
+  isPrivate?: boolean
 }
 
 @InputType()
-export class EditFacetDto
-  extends PartialType(CreateFacetDto)
-  implements IDInput
-{
-  @Field()
-  @IsString()
-  id: string
-}
+export class EditFacetDto extends PartialType(CreateFacetDto) {}

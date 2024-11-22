@@ -6,30 +6,30 @@ export class SimpleAuditingFields {
   @Field(() => Date, { nullable: true })
   @IsDate()
   @IsOptional()
-  created_at: Date
+  createdAt: Date
 
   @Field(() => String, { nullable: true })
   @IsString()
   @IsOptional()
-  created_by: string
+  createdBy: string
 
   @Field(() => Date, { nullable: true })
   @IsDate()
   @IsOptional()
-  updated_at: Date
+  updatedAt: Date
 
   @Field(() => String, { nullable: true })
   @IsString()
   @IsOptional()
-  updated_by: string
+  updatedBy: string
 
   @Field(() => Date, { nullable: true })
   @IsDate()
   @IsOptional()
-  deleted_at: Date
+  deletedAt: Date
 
   @Field(() => String, { nullable: true })
   @IsString()
   @IsOptional()
-  deleted_by: string
+  deletedBy: string
 }

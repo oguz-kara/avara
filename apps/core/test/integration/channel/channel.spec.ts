@@ -43,9 +43,9 @@ describe('ChannelService (Integration)', () => {
       const input: CreateChannelDto = {
         name: 'Global Channel',
         code: 'GLOBAL',
-        currency_code: 'USD',
-        default_language_code: 'EN',
-        is_default: true,
+        currencyCode: 'USD',
+        defaultLanguageCode: 'EN',
+        isDefault: true,
       }
 
       const result = await service.createChannel(input)
@@ -62,18 +62,18 @@ describe('ChannelService (Integration)', () => {
       const input: CreateChannelDto = {
         name: 'Global Channel',
         code: 'GLOBAL',
-        currency_code: 'USD',
-        default_language_code: 'EN',
-        is_default: true,
+        currencyCode: 'USD',
+        defaultLanguageCode: 'EN',
+        isDefault: true,
       }
 
       await db.channel.create({
         data: {
           name: input.name,
           code: input.code,
-          currency_code: input.currency_code,
-          default_language_code: input.default_language_code,
-          is_default: input.is_default,
+          currencyCode: input.currencyCode,
+          defaultLanguageCode: input.defaultLanguageCode,
+          isDefault: input.isDefault,
         },
       })
 
@@ -89,9 +89,9 @@ describe('ChannelService (Integration)', () => {
         data: {
           name: 'Global Channel',
           code: 'GLOBAL',
-          currency_code: 'USD',
-          default_language_code: 'EN',
-          is_default: true,
+          currencyCode: 'USD',
+          defaultLanguageCode: 'EN',
+          isDefault: true,
         },
       })
 
@@ -115,9 +115,9 @@ describe('ChannelService (Integration)', () => {
         data: {
           name: 'Existing Channel',
           code: 'EXISTING',
-          currency_code: 'USD',
-          default_language_code: 'EN',
-          is_default: false,
+          currencyCode: 'USD',
+          defaultLanguageCode: 'EN',
+          isDefault: false,
         },
       })
 
@@ -125,9 +125,9 @@ describe('ChannelService (Integration)', () => {
         data: {
           name: 'Test Channel',
           code: 'TEST',
-          currency_code: 'USD',
-          default_language_code: 'EN',
-          is_default: false,
+          currencyCode: 'USD',
+          defaultLanguageCode: 'EN',
+          isDefault: false,
         },
       })
 
@@ -143,9 +143,9 @@ describe('ChannelService (Integration)', () => {
         data: {
           name: 'Test Channel',
           code: 'TEST',
-          currency_code: 'USD',
-          default_language_code: 'EN',
-          is_default: false,
+          currencyCode: 'USD',
+          defaultLanguageCode: 'EN',
+          isDefault: false,
         },
       })
 
@@ -166,9 +166,9 @@ describe('ChannelService (Integration)', () => {
         data: {
           name: 'Test Channel',
           code: 'TEST',
-          currency_code: 'USD',
-          default_language_code: 'EN',
-          is_default: false,
+          currencyCode: 'USD',
+          defaultLanguageCode: 'EN',
+          isDefault: false,
         },
       })
 
@@ -195,19 +195,19 @@ describe('ChannelService (Integration)', () => {
         data: {
           name: 'Test Channel',
           code: 'TEST',
-          currency_code: 'USD',
-          default_language_code: 'EN',
-          is_default: false,
+          currencyCode: 'USD',
+          defaultLanguageCode: 'EN',
+          isDefault: false,
         },
       })
 
       const result = await service.markChannelAsDeleted(channel.id)
       expect(result).toBeDefined()
-      expect(result._deleted_at).toBeTruthy()
-      expect(result._deleted_by).toBeTruthy()
+      expect(result.deletedAt).toBeTruthy()
+      expect(result.deletedBy).toBeTruthy()
 
       const channelFromDb = await repo.findById(channel.id)
-      expect(channelFromDb?._deleted_by).toBeTruthy()
+      expect(channelFromDb?.deletedBy).toBeTruthy()
     })
 
     it('should throw NotFoundException if channel does not exist', async () => {

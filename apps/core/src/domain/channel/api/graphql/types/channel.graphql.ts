@@ -20,15 +20,15 @@ export class ChannelType extends SimpleAuditingFields {
 
   @Field()
   @IsString()
-  default_language_code: string
+  defaultLanguageCode: string
 
   @Field()
   @IsString()
-  currency_code: string
+  currencyCode: string
 
   @Field()
   @IsBoolean()
-  is_default: boolean
+  isDefault: boolean
 }
 
 @ObjectType()

@@ -70,130 +70,151 @@ enum AssetType {
 model SystemSettings {
   id String @id @default(uuid())
 
-  site_on          Boolean @default(false)
-  default_language String  @default("en")
-  timezone         String  @default("UTC")
-  site_name        String  @default("yag_ve_yag")
-  contact_email    String?
+  siteOn          Boolean @default(false)
+  defaultLanguage String  @default("en")
+  timezone        String  @default("UTC")
+  siteName        String  @default("yagVeYag")
+  contactEmail    String?
 
-  allow_registration Boolean @default(true)
-  maintenance_mode   Boolean @default(false)
+  allowRegistration Boolean @default(true)
+  maintenanceMode   Boolean @default(false)
 
-  default_meta_title       String?
-  default_meta_description String?
-  default_meta_keywords    String[]
+  defaultMetaTitle       String?
+  defaultMetaDescription String?
+  defaultMetaKeywords    String[]
 
-  smtp_host     String?
-  smtp_port     Int?
-  smtp_username String?
-  smtp_password String?
+  smtpHost     String?
+  smtpPort     Int?
+  smtpUsername String?
+  smtpPassword String?
 
-  max_file_upload_size Int      @default(10485760) // 10 MB
-  allowed_file_types   String[] @default(["jpg", "png", "pdf"])
+  maxFileUploadSize Int      @default(10485760) // 10 MB
+  allowedFileTypes  String[] @default(["jpg", "png", "pdf"])
 
-  max_login_attempts  Int @default(5)
-  password_min_length Int @default(8)
+  maxLoginAttempts  Int @default(5)
+  passwordMinLength Int @default(8)
 
-  google_analytics_key String?
-  stripe_api_key       String?
+  googleAnalyticsKey String?
+  stripeApiKey       String?
 
-  facebook_url String?
-  twitter_url  String?
-  linkedin_url String?
+  facebookUrl String?
+  twitterUrl  String?
+  linkedinUrl String?
 
-  created_at DateTime? @default(now())
-  updated_at DateTime? @updatedAt
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
 }
 
 model Asset {
-  id            String    @id @default(uuid())
-  original_name String
-  name          String
-  type          AssetType
-  mime_type     String
-  file_size     Int
-  source        String
-  preview       String?
+  id              String    @id @default(uuid())
+  originalName    String
+  name            String
+  type            AssetType
+  mimeType        String
+  fileSize        Int
+  source          String
+  preview         String?
+  storageProvider String?
 
-  width       Int?  @default(0)
-  height      Int?  @default(0)
-  focal_point Json?
+  width      Int?  @default(0)
+  height     Int?  @default(0)
+  focalPoint Json?
 
-  channels                        Channel[]        @relation("ChannelAssets")
-  product_featured_images         Product[]        @relation("ProductFeaturedImage")
-  product_variant_featured_images ProductVariant[] @relation("ProductFeaturedImage")
-  product_documents               Product[]        @relation("ProductDocuments")
-  product_images                  Product[]        @relation("ProductImages")
-  product_variant_images          ProductVariant[] @relation("VariantImages")
+  channels                     Channel[]        @relation("ChannelAssets")
+  productFeaturedImages        Product[]        @relation("ProductFeaturedImage")
+  productVariantFeaturedImages ProductVariant[] @relation("ProductFeaturedImage")
+  productAssets                Product[]        @relation("ProductAssets")
+  productVariantImages         ProductVariant[] @relation("VariantImages")
 
-  created_at DateTime? @default(now())
-  updated_at DateTime? @updatedAt
-  updated_by String?
-  created_by String?
-  deleted_at DateTime?
-  deleted_by String?
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
+  updatedBy String?
+  createdBy String?
+  deletedAt DateTime?
+  deletedBy String?
 }
 
 model Product {
-  id                String  @id @default(uuid())
-  featured_image_id String?
+  id              String  @id @default(uuid())
+  featuredAssetId String?
+  draft           Boolean @default(true)
 
+  name        String
+  slug        String?
+  description String?
+
+  featuredAsset      Asset?              @relation(name: "ProductFeaturedImage", fields: [featuredAssetId], references: [id])
+  assets             Asset[]             @relation("ProductAssets")
+  channels           Channel[]           @relation("ChannelProducts")
+  facetValues        FacetValue[]        @relation("ProductFacetValues")
+  variants           ProductVariant[]
+  productCollections ProductCollection[] @relation("CollectionProducts")
+
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
+  updatedBy String?
+  createdBy String?
+  deletedAt DateTime?
+  deletedBy String?
+}
+
+model ProductCollection {
+  id          String  @id @default(uuid())
   name        String  @unique
   slug        String? @unique
   description String?
 
-  featured_image Asset?           @relation(name: "ProductFeaturedImage", fields: [featured_image_id], references: [id])
-  documents      Asset[]          @relation("ProductDocuments")
-  images         Asset[]          @relation("ProductImages")
-  channels       Channel[]        @relation("ChannelProducts")
-  facet_values   FacetValue[]     @relation("ProductFacetValues")
-  variants       ProductVariant[]
+  isDynamic Boolean @default(false)
 
-  created_at DateTime? @default(now())
-  updated_at DateTime? @updatedAt
-  updated_by String?
-  created_by String?
-  deleted_at DateTime?
-  deleted_by String?
+  products Product[] @relation("CollectionProducts")
+
+  rules Json?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  createdBy String?
+  updatedBy String?
+  deletedAt DateTime?
+  deletedBy String?
 }
 
 model ProductVariant {
-  id                String  @id @default(uuid())
-  product_id        String
-  tax_rate_id       String?
-  featured_asset_id String?
+  id              String  @id @default(uuid())
+  productId       String
+  taxRateId       String?
+  featuredAssetId String?
 
-  name               String
-  price              Float?
-  sku                String? @unique
-  price_includes_tax Boolean @default(false)
-  currency_code      String
-  stock_threshold    Int     @default(0)
-  track_inventory    Boolean @default(true)
-  is_enabled         Boolean @default(true)
+  name             String
+  price            Float?
+  sku              String? @unique
+  priceIncludesTax Boolean @default(false)
+  currencyCode     String
+  stockThreshold   Int     @default(0)
+  trackInventory   Boolean @default(true)
+  isEnabled        Boolean @default(true)
 
-  tax_rate       TaxRate?        @relation(fields: [tax_rate_id], references: [id])
-  product        Product         @relation(fields: [product_id], references: [id])
-  featured_asset Asset?          @relation(name: "ProductFeaturedImage", fields: [featured_asset_id], references: [id])
-  images         Asset[]         @relation("VariantImages")
-  stock          StockLevel[]
-  options        ProductOption[] @relation("VariantOptions")
-  facet_values   FacetValue[]    @relation("VariantFacets")
-  channels       Channel[]       @relation("ChannelVariants")
-  collections    Collection[]    @relation("VariantCollections")
+  taxRate       TaxRate?        @relation(fields: [taxRateId], references: [id])
+  product       Product         @relation(fields: [productId], references: [id])
+  featuredAsset Asset?          @relation(name: "ProductFeaturedImage", fields: [featuredAssetId], references: [id])
+  images        Asset[]         @relation("VariantImages")
+  stock         StockLevel[]
+  options       ProductOption[] @relation("VariantOptions")
+  facetValues   FacetValue[]    @relation("VariantFacets")
+  channels      Channel[]       @relation("ChannelVariants")
+  collections   Collection[]    @relation("VariantCollections")
 
-  created_at DateTime? @default(now())
-  updated_at DateTime? @updatedAt
-  updated_by String?
-  created_by String?
-  deleted_at DateTime?
-  deleted_by String?
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
+  updatedBy String?
+  createdBy String?
+  deletedAt DateTime?
+  deletedBy String?
 }
 
 model TaxRate {
   id String @id @default(uuid())
 
-  product_variants ProductVariant[]
+  productVariants ProductVariant[]
 
   name      String
   rate      Float
@@ -202,13 +223,13 @@ model TaxRate {
 }
 
 model StockLevel {
-  id         String @id @default(uuid())
-  variant_id String
+  id        String @id @default(uuid())
+  variantId String
 
   location String
   quantity Int
 
-  variant ProductVariant @relation(fields: [variant_id], references: [id])
+  variant ProductVariant @relation(fields: [variantId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -228,76 +249,76 @@ model ProductOption {
 }
 
 model Price {
-  id         String @id @default(uuid())
-  product_id String
+  id        String @id @default(uuid())
+  productId String
 
-  type          String
-  value         Float
-  currency_code String  @default("USD")
-  is_active     Boolean @default(true)
+  type         String
+  value        Float
+  currencyCode String  @default("USD")
+  isActive     Boolean @default(true)
 
-  start_date DateTime?
-  end_date   DateTime?
+  startDate DateTime?
+  endDate   DateTime?
 
   channels Channel[] @relation("ChannelPrices")
 
-  created_at DateTime? @default(now())
-  updated_at DateTime? @updatedAt
-  updated_by String?
-  created_by String?
-  deleted_at DateTime?
-  deleted_by String?
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
+  updatedBy String?
+  createdBy String?
+  deletedAt DateTime?
+  deletedBy String?
 }
 
 model User {
-  id                String  @id @default(uuid())
-  role_id           String
-  oauth_provider_id String?
+  id              String  @id @default(uuid())
+  roleId          String
+  oauthProviderId String?
 
-  email                    String  @unique
-  password_hash            String
-  email_verification_token String?
-  reset_password_token     String?
-  oauth_provider           String?
-  two_factor_secret        String?
+  email                  String  @unique
+  passwordHash           String
+  emailVerificationToken String?
+  resetPasswordToken     String?
+  oauthProvider          String?
+  twoFactorSecret        String?
 
   permissions String[]
 
-  two_factor_enabled Boolean @default(false)
-  email_verified     Boolean @default(false)
+  twoFactorEnabled Boolean @default(false)
+  emailVerified    Boolean @default(false)
 
-  is_active UserActiveStatus @default(INACTIVE)
+  isActive UserActiveStatus @default(INACTIVE)
 
-  role          Role           @relation(fields: [role_id], references: [id])
+  role          Role           @relation(fields: [roleId], references: [id])
   administrator Administrator?
 
-  reset_password_expires DateTime?
-  last_login             DateTime?
-  created_at             DateTime? @default(now())
-  updated_at             DateTime? @updatedAt
-  updated_by             String?
-  created_by             String?
-  deleted_at             DateTime?
-  deleted_by             String?
+  resetPasswordExpires DateTime?
+  lastLogin            DateTime?
+  createdAt            DateTime? @default(now())
+  updatedAt            DateTime? @updatedAt
+  updatedBy            String?
+  createdBy            String?
+  deletedAt            DateTime?
+  deletedBy            String?
 
   @@index([email])
-  @@index([role_id])
+  @@index([roleId])
 }
 
 model Administrator {
-  id      String @id @default(uuid())
-  user_id String @unique
+  id     String @id @default(uuid())
+  userId String @unique
 
   email String @unique
 
-  user User @relation(fields: [user_id], references: [id])
+  user User @relation(fields: [userId], references: [id])
 
-  created_at DateTime? @default(now())
-  updated_at DateTime? @updatedAt
-  created_by String?
-  updated_by String?
-  deleted_at DateTime?
-  deleted_by String?
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
+  createdBy String?
+  updatedBy String?
+  deletedAt DateTime?
+  deletedBy String?
 }
 
 model Role {
@@ -305,125 +326,125 @@ model Role {
 
   name String @unique
 
-  users            User[]
-  role_permissions RolePermission[]
-  channels         Channel[]        @relation("ChannelRoles")
+  users           User[]
+  rolePermissions RolePermission[]
+  channels        Channel[]        @relation("ChannelRoles")
 
-  created_at DateTime? @default(now())
-  created_by String?
-  updated_at DateTime? @updatedAt
-  updated_by String?
-  deleted_at DateTime?
-  deleted_by String?
+  createdAt DateTime? @default(now())
+  createdBy String?
+  updatedAt DateTime? @updatedAt
+  updatedBy String?
+  deletedAt DateTime?
+  deletedBy String?
 }
 
 model Permission {
-  id                String  @id @default(uuid())
-  specific_scope_id String?
+  id              String  @id @default(uuid())
+  specificScopeId String?
 
-  resource        ResourceType
-  action          ActionType
-  scope           ScopeType
-  permission_type PermissionType @default(value: GLOBAL)
+  resource       ResourceType
+  action         ActionType
+  scope          ScopeType
+  permissionType PermissionType @default(value: GLOBAL)
 
-  role_permissions RolePermission[]
-  channels         Channel[]        @relation("ChannelPermissions")
+  rolePermissions RolePermission[]
+  channels        Channel[]        @relation("ChannelPermissions")
 
-  created_at DateTime? @default(now())
-  updated_at DateTime? @updatedAt
-  created_by String?
-  updated_by String?
-  deleted_at DateTime?
-  deleted_by String?
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
+  createdBy String?
+  updatedBy String?
+  deletedAt DateTime?
+  deletedBy String?
 
   @@unique([action, resource, scope])
 }
 
 model RolePermission {
-  id            String @id @default(uuid())
-  role_id       String
-  permission_id String
+  id           String @id @default(uuid())
+  roleId       String
+  permissionId String
 
-  is_active Boolean @default(true)
+  isActive Boolean @default(true)
 
-  role       Role       @relation(fields: [role_id], references: [id], onDelete: Cascade)
-  permission Permission @relation(fields: [permission_id], references: [id], onDelete: Cascade)
+  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
   channels   Channel[]  @relation("ChannelRolePermission")
 
-  created_at DateTime? @default(now())
-  updated_at DateTime? @updatedAt
-  created_by String?
-  updated_by String?
-  deleted_at DateTime?
-  deleted_by String?
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
+  createdBy String?
+  updatedBy String?
+  deletedAt DateTime?
+  deletedBy String?
 
-  @@unique([role_id, permission_id])
+  @@unique([roleId, permissionId])
 }
 
 model Partner {
-  id         String @id @default(uuid())
-  channel_id String
+  id        String @id @default(uuid())
+  channelId String
 
-  name         String
-  email        String?
-  phone_number String?
-  address      String?
-  partner_type PartnerType
-  website      String?
+  name        String
+  email       String?
+  phoneNumber String?
+  address     String?
+  partnerType PartnerType
+  website     String?
 
-  channel Channel @relation(fields: [channel_id], references: [id])
+  channel Channel @relation(fields: [channelId], references: [id])
 
-  created_at DateTime? @default(now())
-  updated_at DateTime? @updatedAt
-  created_by String?
-  updated_by String?
-  deleted_at DateTime?
-  deleted_by String?
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
+  createdBy String?
+  updatedBy String?
+  deletedAt DateTime?
+  deletedBy String?
 
-  @@index([partner_type])
+  @@index([partnerType])
 }
 
 model Category {
-  id                 String  @id @default(uuid())
-  parent_category_id String?
-  seo_metadata_id    String?
+  id               String  @id @default(uuid())
+  parentCategoryId String?
+  seoMetadataId    String?
 
-  name          String
-  content       String
-  content_type  ContentType
-  category_type CategoryType
+  name         String
+  content      String
+  contentType  ContentType
+  categoryType CategoryType
 
-  parent_category Category?    @relation(fields: [parent_category_id], references: [id], name: "category_tree")
-  sub_categories  Category[]   @relation(name: "category_tree")
-  seo_metadata    SeoMetadata? @relation(fields: [seo_metadata_id], references: [id])
-  channels        Channel[]    @relation("ChannelCategories")
+  parentCategory Category?    @relation(fields: [parentCategoryId], references: [id], name: "categoryTree")
+  subCategories  Category[]   @relation(name: "categoryTree")
+  seoMetadata    SeoMetadata? @relation(fields: [seoMetadataId], references: [id])
+  channels       Channel[]    @relation("ChannelCategories")
 
-  created_at DateTime? @default(now())
-  created_by String?
-  updated_at DateTime? @updatedAt
-  updated_by String?
-  deleted_at DateTime?
-  deleted_by String?
+  createdAt DateTime? @default(now())
+  createdBy String?
+  updatedAt DateTime? @updatedAt
+  updatedBy String?
+  deletedAt DateTime?
+  deletedBy String?
 
-  @@unique([name, category_type])
-  @@index([seo_metadata_id])
+  @@unique([name, categoryType])
+  @@index([seoMetadataId])
 }
 
 model Article {
-  id              String  @id @default(uuid())
-  seo_metadata_id String?
+  id            String  @id @default(uuid())
+  seoMetadataId String?
 
-  title        String
-  content      String
-  content_type ContentType
+  title       String
+  content     String
+  contentType ContentType
 
-  seo_metadata SeoMetadata? @relation(fields: [seo_metadata_id], references: [id])
-  channels     Channel[]    @relation("ChannelArticles")
+  seoMetadata SeoMetadata? @relation(fields: [seoMetadataId], references: [id])
+  channels    Channel[]    @relation("ChannelArticles")
 
-  created_at DateTime? @default(now())
-  updated_at DateTime? @updatedAt
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
 
-  @@index([seo_metadata_id])
+  @@index([seoMetadataId])
 }
 
 model SeoMetadata {
@@ -434,21 +455,21 @@ model SeoMetadata {
   keywords    String
   version     Int    @default(1)
 
-  canonical_url  String?
-  og_title       String?
-  og_description String?
-  og_image       String?
-  robots         String?
-  schema_markup  Json?
-  hreflang       String?
-  page_type      String?
+  canonicalUrl  String?
+  ogTitle       String?
+  ogDescription String?
+  ogImage       String?
+  robots        String?
+  schemaMarkup  Json?
+  hreflang      String?
+  pageType      String?
 
   categories Category[]
-  blog_posts Article[]
+  blogPosts  Article[]
   channels   Channel[]  @relation("ChannelMetaFields")
 
-  created_at DateTime? @default(now())
-  updated_at DateTime? @updatedAt
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
 
   @@map("MetaField")
 }
@@ -460,79 +481,79 @@ model Lang {
   code      String @unique
   direction String @default("ltr")
 
-  created_at DateTime? @default(now())
-  updated_at DateTime? @updatedAt
-  deleted_at DateTime?
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
+  deletedAt DateTime?
 }
 
 model Facet {
   id String @id @default(uuid())
 
-  name       String
-  code       String
-  is_private Boolean @default(false)
+  name      String
+  code      String
+  isPrivate Boolean @default(false)
 
   values   FacetValue[]
   channels Channel[]    @relation("ChannelFacets")
 
-  created_at DateTime? @default(now())
-  created_by String?
-  updated_at DateTime? @updatedAt
-  updated_by String?
-  deleted_at DateTime?
-  deleted_by String?
+  createdAt DateTime? @default(now())
+  createdBy String?
+  updatedAt DateTime? @updatedAt
+  updatedBy String?
+  deletedAt DateTime?
+  deletedBy String?
 }
 
 model FacetValue {
-  id       String @id @default(uuid())
-  facet_id String
+  id      String @id @default(uuid())
+  facetId String
 
   name String
   code String
 
-  facet            Facet            @relation(fields: [facet_id], references: [id])
-  channels         Channel[]        @relation("ChannelFacetValues")
-  products         Product[]        @relation("ProductFacetValues")
-  product_variants ProductVariant[] @relation("VariantFacets")
+  facet           Facet            @relation(fields: [facetId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  channels        Channel[]        @relation("ChannelFacetValues")
+  products        Product[]        @relation("ProductFacetValues")
+  productVariants ProductVariant[] @relation("VariantFacets")
 
-  created_at DateTime? @default(now())
-  created_by String?
-  updated_at DateTime? @updatedAt
-  updated_by String?
-  deleted_at DateTime?
-  deleted_by String?
+  createdAt DateTime? @default(now())
+  createdBy String?
+  updatedAt DateTime? @updatedAt
+  updatedBy String?
+  deletedAt DateTime?
+  deletedBy String?
 
-  @@unique([facet_id, name])
-  @@unique([facet_id, code])
+  @@unique([facetId, name])
+  @@unique([facetId, code])
 }
 
 model Channel {
   id String @id @default(uuid())
 
-  code                  String  @unique
-  name                  String
-  default_language_code String
-  currency_code         String
-  is_default            Boolean @default(false)
+  code                String  @unique
+  name                String
+  defaultLanguageCode String
+  currencyCode        String
+  isDefault           Boolean @default(false)
 
-  partners         Partner[]
-  roles            Role[]           @relation("ChannelRoles")
-  permissions      Permission[]     @relation("ChannelPermissions")
-  role_permissions RolePermission[] @relation("ChannelRolePermission")
-  categories       Category[]       @relation("ChannelCategories")
-  articles         Article[]        @relation("ChannelArticles")
-  meta_fields      SeoMetadata[]    @relation("ChannelMetaFields")
-  facets           Facet[]          @relation("ChannelFacets")
-  facet_values     FacetValue[]     @relation("ChannelFacetValues")
-  assets           Asset[]          @relation("ChannelAssets")
-  products         Product[]        @relation("ChannelProducts")
-  variants         ProductVariant[] @relation("ChannelVariants")
-  prices           Price[]          @relation("ChannelPrices")
+  partners        Partner[]
+  roles           Role[]           @relation("ChannelRoles")
+  permissions     Permission[]     @relation("ChannelPermissions")
+  rolePermissions RolePermission[] @relation("ChannelRolePermission")
+  categories      Category[]       @relation("ChannelCategories")
+  articles        Article[]        @relation("ChannelArticles")
+  metaFields      SeoMetadata[]    @relation("ChannelMetaFields")
+  facets          Facet[]          @relation("ChannelFacets")
+  facetValues     FacetValue[]     @relation("ChannelFacetValues")
+  assets          Asset[]          @relation("ChannelAssets")
+  products        Product[]        @relation("ChannelProducts")
+  variants        ProductVariant[] @relation("ChannelVariants")
+  prices          Price[]          @relation("ChannelPrices")
 
-  created_at DateTime? @default(now())
-  updated_at DateTime? @updatedAt
-  deleted_at DateTime?
-  created_by String?
-  updated_by String?
-  deleted_by String?
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
+  deletedAt DateTime?
+  createdBy String?
+  updatedBy String?
+  deletedBy String?
 }

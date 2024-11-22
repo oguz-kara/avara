@@ -38,13 +38,13 @@ describe('ChannelResolver (e2e)', () => {
     it('should create a new channel successfully', async () => {
       const createChannelMutation = `
         mutation {
-          createChannel(input: { name: "Global Channel", code: "GLOBAL", currency_code: "USD", default_language_code: "EN", is_default: true }) {
+          createChannel(input: { name: "Global Channel", code: "GLOBAL", currencyCode: "USD", defaultLanguageCode: "EN", isDefault: true }) {
             id
             name
             code
-            currency_code
-            default_language_code
-            is_default
+            currencyCode
+            defaultLanguageCode
+            isDefault
           }
         }
       `
@@ -72,15 +72,15 @@ describe('ChannelResolver (e2e)', () => {
         data: {
           name: 'Global Channel',
           code: 'GLOBAL',
-          currency_code: 'USD',
-          default_language_code: 'EN',
-          is_default: true,
+          currencyCode: 'USD',
+          defaultLanguageCode: 'EN',
+          isDefault: true,
         },
       })
 
       const createChannelMutation = `
         mutation {
-          createChannel(input: { name: "Global Channel", code: "GLOBAL", currency_code: "USD", default_language_code: "EN", is_default: true }) {
+          createChannel(input: { name: "Global Channel", code: "GLOBAL", currencyCode: "USD", defaultLanguageCode: "EN", isDefault: true }) {
             id
             name
             code
@@ -106,9 +106,9 @@ describe('ChannelResolver (e2e)', () => {
         data: {
           name: 'Global Channel',
           code: 'GLOBAL',
-          currency_code: 'USD',
-          default_language_code: 'EN',
-          is_default: true,
+          currencyCode: 'USD',
+          defaultLanguageCode: 'EN',
+          isDefault: true,
         },
       })
 
@@ -118,9 +118,9 @@ describe('ChannelResolver (e2e)', () => {
             id
             name
             code
-            currency_code
-            default_language_code
-            is_default
+            currencyCode
+            defaultLanguageCode
+            isDefault
           }
         }
       `
@@ -159,9 +159,9 @@ describe('ChannelResolver (e2e)', () => {
         data: {
           name: 'Global Channel',
           code: 'GLOBAL',
-          currency_code: 'USD',
-          default_language_code: 'EN',
-          is_default: true,
+          currencyCode: 'USD',
+          defaultLanguageCode: 'EN',
+          isDefault: true,
         },
       })
 
@@ -187,7 +187,7 @@ describe('ChannelResolver (e2e)', () => {
     it('should return null if channel code not found', async () => {
       const findChannelByCodeQuery = `
         query {
-          findChannelByCode(input: { code: "NON_EXISTENT" }) {
+          findChannelByCode(input: { code: "NONeXISTENT" }) {
             id
             name
           }
@@ -209,18 +209,18 @@ describe('ChannelResolver (e2e)', () => {
         data: {
           name: 'Channel One',
           code: 'ONE',
-          currency_code: 'USD',
-          default_language_code: 'EN',
-          is_default: false,
+          currencyCode: 'USD',
+          defaultLanguageCode: 'EN',
+          isDefault: false,
         },
       })
       await dbService.channel.create({
         data: {
           name: 'Channel Two',
           code: 'TWO',
-          currency_code: 'EUR',
-          default_language_code: 'FR',
-          is_default: false,
+          currencyCode: 'EUR',
+          defaultLanguageCode: 'FR',
+          isDefault: false,
         },
       })
 
@@ -265,9 +265,9 @@ describe('ChannelResolver (e2e)', () => {
         data: {
           name: 'Channel Marked',
           code: 'MARKED',
-          currency_code: 'USD',
-          default_language_code: 'EN',
-          is_default: false,
+          currencyCode: 'USD',
+          defaultLanguageCode: 'EN',
+          isDefault: false,
         },
       })
 
@@ -276,8 +276,8 @@ describe('ChannelResolver (e2e)', () => {
           markChannelAsDeleted(input: { id: "${channel.id}" }) {
             id
             name
-            deleted_at
-            deleted_by
+            deletedAt
+            deletedBy
           }
         }
       `
@@ -288,14 +288,14 @@ describe('ChannelResolver (e2e)', () => {
 
       expect(response.status).toBe(200)
       expect(response.body.data.markChannelAsDeleted).toBeTruthy()
-      expect(response.body.data.markChannelAsDeleted.deleted_at).toBeTruthy()
-      expect(response.body.data.markChannelAsDeleted.deleted_by).toBeTruthy()
+      expect(response.body.data.markChannelAsDeleted.deletedAt).toBeTruthy()
+      expect(response.body.data.markChannelAsDeleted.deletedBy).toBeTruthy()
 
       const markedChannel = await dbService.channel.findUnique({
         where: { id: channel.id },
       })
-      expect(markedChannel?.deleted_at).toBeTruthy()
-      expect(markedChannel?.deleted_by).toBeTruthy()
+      expect(markedChannel?.deletedAt).toBeTruthy()
+      expect(markedChannel?.deletedBy).toBeTruthy()
     })
 
     it('should be filter if a channel is already marked as deleted', async () => {
@@ -316,8 +316,8 @@ describe('ChannelResolver (e2e)', () => {
         markChannelAsDeleted(input: { id: "${channel.id}" }) {
           id
           name
-          deleted_at
-          deleted_by
+          deletedAt
+          deletedBy
         }
       }
     `
@@ -329,8 +329,8 @@ describe('ChannelResolver (e2e)', () => {
 
       expect(response.status).toBe(200)
       expect(response.body.data.markChannelAsDeleted).toBeTruthy()
-      expect(response.body.data.markChannelAsDeleted.deleted_at).toBeTruthy()
-      expect(response.body.data.markChannelAsDeleted.deleted_by).toBeTruthy()
+      expect(response.body.data.markChannelAsDeleted.deletedAt).toBeTruthy()
+      expect(response.body.data.markChannelAsDeleted.deletedBy).toBeTruthy()
 
       const findManyResponse = await request(app.getHttpServer())
         .post('/protected')

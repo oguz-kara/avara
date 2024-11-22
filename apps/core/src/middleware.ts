@@ -32,10 +32,10 @@ export class RestContextMiddleware implements NestMiddleware {
     // @ts-expect-error Property 'context' does not exist on type 'Request'.
     req.context = new RequestContext({
       channel,
-      channel_id: channel.id,
-      channel_code: channel.code,
-      language_code: languageCode ? languageCode : defaultLanguage,
-      currency_code: currencyCode ? currencyCode : defaultCurrency,
+      channelId: channel.id,
+      channelCode: channel.code,
+      languageCode: languageCode ? languageCode : defaultLanguage,
+      currencyCode: currencyCode ? currencyCode : defaultCurrency,
     })
 
     next()

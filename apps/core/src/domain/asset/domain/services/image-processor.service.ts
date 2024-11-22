@@ -8,19 +8,19 @@ export class ImageProcessor {
   constructor(private readonly configService: ConfigService) {}
 
   async getBufferMetadata(fileBuffer: Buffer): Promise<{
-    mime_type: string
+    mimeType: string
     width: number
     height: number
-    file_size: number
+    fileSize: number
   }> {
     const imageFormat = this.configService.get<string>('asset.imageExtension')
     const metadata = await sharp(fileBuffer).metadata()
 
     return {
-      mime_type: imageFormat ? imageFormat : metadata.format,
+      mimeType: imageFormat ? imageFormat : metadata.format,
       width: metadata.width,
       height: metadata.height,
-      file_size: fileBuffer.length,
+      fileSize: fileBuffer.length,
     }
   }
 

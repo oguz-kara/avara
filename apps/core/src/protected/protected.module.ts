@@ -17,6 +17,7 @@ import { AssetControllers, AssetProviders } from '../domain/asset'
 import { RestContextMiddleware } from '../middleware'
 import { GqlExceptionFilter } from '@avara/shared/exception-filter/gql-exception-filter'
 import { FacetProviders } from '../domain/facet'
+import { CatalogProviders } from '../domain/catalog'
 
 @Module({
   imports: [
@@ -74,6 +75,7 @@ import { FacetProviders } from '../domain/facet'
     ...ChannelProviders,
     ...AssetProviders,
     ...FacetProviders,
+    ...CatalogProviders,
     {
       provide: APP_GUARD,
       useClass: PermissionsGuard,
@@ -92,6 +94,7 @@ import { FacetProviders } from '../domain/facet'
     ...ChannelProviders,
     ...FacetProviders,
     ...AssetProviders,
+    ...CatalogProviders,
   ],
 })
 export class ProtectedModule {

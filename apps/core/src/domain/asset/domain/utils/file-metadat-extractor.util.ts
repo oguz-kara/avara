@@ -5,14 +5,14 @@ export class FileMetadataExtractor {
     fileBuffer: Buffer,
     fileName: string,
   ): {
-    mime_type: string
-    file_size: number
+    mimeType: string
+    fileSize: number
   } {
     const mimeType = mime.lookup(fileName) || 'application/octet-stream'
 
     return {
-      mime_type: mimeType,
-      file_size: fileBuffer.length,
+      mimeType: mimeType,
+      fileSize: fileBuffer.length,
     }
   }
 }

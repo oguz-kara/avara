@@ -11,7 +11,7 @@ export class Permission {
 
   @Field({ nullable: true })
   @IsString()
-  specific_scope_id?: string
+  specificScopeId?: string
 
   @Field()
   @IsString()
@@ -31,20 +31,20 @@ export class Permission {
 
   @Field({ nullable: true })
   @IsString()
-  created_by?: string
+  createdBy?: string
 
   @Field({ nullable: true })
   @IsString()
-  updated_by?: string
+  updatedBy?: string
 
   @Field({ nullable: true })
-  created_at: Date
+  createdAt: Date
 
   @Field({ nullable: true })
-  updated_at: Date
+  updatedAt: Date
 
   @Field({ nullable: true })
-  deleted_at: Date
+  deletedAt: Date
 
   isTypeOf(value: any) {
     return value instanceof Permission

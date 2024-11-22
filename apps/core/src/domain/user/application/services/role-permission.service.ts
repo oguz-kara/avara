@@ -24,11 +24,11 @@ export class RolePermissionService {
     input: CreateRolePermissionDto,
   ) {
     const rolePermissionRepo = this.repositories.get(ctx, 'RolePermission')
-    const { is_active, permission_id, role_id } = input
+    const { isActive, permissionId, roleId } = input
 
     const rolePermission = await rolePermissionRepo.findRolePermission(
-      role_id,
-      permission_id,
+      roleId,
+      permissionId,
     )
 
     if (rolePermission)
@@ -36,9 +36,9 @@ export class RolePermissionService {
 
     const newRolePermission = new RolePermission({
       id: undefined,
-      is_active,
-      permission_id,
-      role_id,
+      isActive,
+      permissionId,
+      roleId,
     })
 
     await rolePermissionRepo.saveResourceToChannel(newRolePermission)

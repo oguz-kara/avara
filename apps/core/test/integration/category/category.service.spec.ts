@@ -44,19 +44,19 @@ describe('CategoryService (Integration)', () => {
       id: undefined,
       name: 'Default',
       code: 'default',
-      currency_code: 'USD',
-      default_language_code: 'en',
-      is_default: true,
+      currencyCode: 'USD',
+      defaultLanguageCode: 'en',
+      isDefault: true,
     })
 
     await channelRepository.save(channel)
 
     ctx = new RequestContext({
       channel,
-      channel_code: channel.code,
-      channel_id: channel.id,
-      currency_code: channel.currency_code,
-      language_code: channel.default_language_code,
+      channelCode: channel.code,
+      channelId: channel.id,
+      currencyCode: channel.currencyCode,
+      languageCode: channel.defaultLanguageCode,
     })
   })
 
@@ -72,10 +72,10 @@ describe('CategoryService (Integration)', () => {
     it('should create a new product category successfully', async () => {
       const input: CreateCategoryDto = {
         name: 'Electronics',
-        category_type: CategoryType.PRODUCT,
-        parent_category_id: null,
+        categoryType: CategoryType.PRODUCT,
+        parentCategoryId: null,
         content: '<p>Content</p>',
-        content_type: 'MD',
+        contentType: 'MD',
       }
 
       const result = await service.createCategory(ctx, input)
@@ -84,7 +84,7 @@ describe('CategoryService (Integration)', () => {
 
       const categoryFromDb = await repo.findByNameAndType(
         result.name,
-        result.category_type,
+        result.categoryType,
       )
       expect(categoryFromDb).toBeDefined()
       expect(categoryFromDb?.name).toBe('Electronics')
@@ -93,19 +93,19 @@ describe('CategoryService (Integration)', () => {
     it('should throw a ConflictException if category already exists', async () => {
       const input: CreateCategoryDto = {
         name: 'Electronics',
-        category_type: CategoryType.PRODUCT,
-        parent_category_id: null,
+        categoryType: CategoryType.PRODUCT,
+        parentCategoryId: null,
         content: '<p>Content</p>',
-        content_type: 'MD',
+        contentType: 'MD',
       }
 
       await db.category.create({
         data: {
           name: input.name,
-          category_type: input.category_type,
-          parent_category_id: input.parent_category_id,
+          categoryType: input.categoryType,
+          parentCategoryId: input.parentCategoryId,
           content: input.content,
-          content_type: 'MD',
+          contentType: 'MD',
         },
       })
 
@@ -120,10 +120,10 @@ describe('CategoryService (Integration)', () => {
       const category = await db.category.create({
         data: {
           name: 'Electronics',
-          category_type: CategoryType.PRODUCT,
-          parent_category_id: null,
+          categoryType: CategoryType.PRODUCT,
+          parentCategoryId: null,
           content: '<p>Content</p>',
-          content_type: 'MD',
+          contentType: 'MD',
         },
       })
 
@@ -143,10 +143,10 @@ describe('CategoryService (Integration)', () => {
       const category = await db.category.create({
         data: {
           name: 'Electronics',
-          category_type: CategoryType.PRODUCT,
-          parent_category_id: null,
+          categoryType: CategoryType.PRODUCT,
+          parentCategoryId: null,
           content: '<p>Content</p>',
-          content_type: 'MD',
+          contentType: 'MD',
         },
       })
 

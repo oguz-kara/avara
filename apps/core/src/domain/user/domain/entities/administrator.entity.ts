@@ -11,106 +11,106 @@ interface AdministratorProps {
 
   user: User
 
-  created_at?: Date
-  created_by?: string
-  updated_at?: Date
-  updated_by?: string
-  deleted_at?: Date
-  deleted_by?: string
+  createdAt?: Date
+  createdBy?: string
+  updatedAt?: Date
+  updatedBy?: string
+  deletedAt?: Date
+  deletedBy?: string
 }
 
 export class Administrator
   extends CoreEntity
   implements TrackableEntity, SoftDeletableEntity
 {
-  protected _id: ID | undefined
-  private _email: string
-  private _user: User
-  protected _created_at: Date
-  private _created_by: string
-  protected _updated_at: Date
-  private _updated_by: string
-  private _deleted_at: Date | undefined = undefined
-  private _deleted_by: string | undefined = undefined
+  protected Id: ID | undefined
+  private Email: string
+  private User: User
+  protected CreatedAt: Date
+  private CreatedBy: string
+  protected UpdatedAt: Date
+  private UpdatedBy: string
+  private DeletedAt: Date | undefined = undefined
+  private DeletedBy: string | undefined = undefined
 
   constructor({
     id = undefined,
     email,
     user,
-    created_at,
-    created_by,
-    updated_at,
-    updated_by,
-    deleted_at,
-    deleted_by,
+    createdAt,
+    createdBy,
+    updatedAt,
+    updatedBy,
+    deletedAt,
+    deletedBy,
   }: AdministratorProps) {
     super()
-    this._id = id
-    this._email = email
-    this._user = user
-    this._created_at = created_at
-    this._created_by = created_by
-    this._updated_at = updated_at
-    this._updated_by = updated_by
-    this._deleted_at = deleted_at
-    this._deleted_by = deleted_by
+    this.Id = id
+    this.Email = email
+    this.User = user
+    this.CreatedAt = createdAt
+    this.CreatedBy = createdBy
+    this.UpdatedAt = updatedAt
+    this.UpdatedBy = updatedBy
+    this.DeletedAt = deletedAt
+    this.DeletedBy = deletedBy
   }
 
   get id(): ID | undefined {
-    return this._id
+    return this.Id
   }
 
   get email(): string {
-    return this._email
+    return this.Email
   }
 
   get user(): User {
-    return this._user
+    return this.User
   }
 
-  get created_at(): Date {
-    return this._created_at
+  get createdAt(): Date {
+    return this.CreatedAt
   }
 
-  get created_by(): string {
-    return this._created_by
+  get createdBy(): string {
+    return this.CreatedBy
   }
 
-  get updated_at(): Date {
-    return this._updated_at
+  get updatedAt(): Date {
+    return this.UpdatedAt
   }
 
-  get updated_by(): string {
-    return this._updated_by
+  get updatedBy(): string {
+    return this.UpdatedBy
   }
 
-  get deleted_at(): Date | undefined {
-    return this._deleted_at
+  get deletedAt(): Date | undefined {
+    return this.DeletedAt
   }
 
-  get deleted_by(): string | undefined {
-    return this._deleted_by
+  get deletedBy(): string | undefined {
+    return this.DeletedBy
   }
 
-  public softDelete(deleted_by: string): void {
-    if (this._deleted_at) throw new Error('Role already soft removed!')
+  public softDelete(deletedBy: string): void {
+    if (this.DeletedAt) throw new Error('Role already soft removed!')
 
-    this._deleted_at = new Date()
-    this._deleted_by = deleted_by
+    this.DeletedAt = new Date()
+    this.DeletedBy = deletedBy
   }
 
   public recover(): void {
-    if (!this._deleted_at) throw new Error('Role already recovered!')
+    if (!this.DeletedAt) throw new Error('Role already recovered!')
 
-    this._deleted_at = undefined
-    this._deleted_by = undefined
+    this.DeletedAt = undefined
+    this.DeletedBy = undefined
   }
 
   public assignId(id: string): void {
-    this._id = id
+    this.Id = id
   }
 
   set email(email: string) {
-    this._email = email
+    this.Email = email
   }
 }

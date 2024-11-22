@@ -51,10 +51,10 @@ describe('UserResolver (e2e)', () => {
 
       const createUserMutation = `
       mutation {
-          createUser(input: { email: "hasankara@gmail.com", password: "hasankara123", role_id: "${role.id}", email_verified: true, is_active: ACTIVE }) {
+          createUser(input: { email: "hasankara@gmail.com", password: "hasankara123", roleId: "${role.id}", emailVerified: true, isActive: ACTIVE }) {
               id
               email
-              role_id 
+              roleId 
           }
       }
   `
@@ -73,9 +73,9 @@ describe('UserResolver (e2e)', () => {
 
       expect(savedUser).toBeTruthy()
       expect(savedUser.email).toBe('hasankara@gmail.com')
-      expect(savedUser.role_id).toBe(role.id)
-      expect(savedUser.email_verified).toBe(true)
-      expect(savedUser.is_active).toBe(UserActiveStatus.ACTIVE)
+      expect(savedUser.roleId).toBe(role.id)
+      expect(savedUser.emailVerified).toBe(true)
+      expect(savedUser.isActive).toBe(UserActiveStatus.ACTIVE)
     })
 
     it('should throw Conflict error if user already exists', async () => {
@@ -94,10 +94,10 @@ describe('UserResolver (e2e)', () => {
 
       const createUserMutation = `
       mutation {
-          createUser(input: { email: "hasan@gmail.com", password: "hasankara123", role_id: "${role.id}", email_verified: true, is_active: ACTIVE }) {
+          createUser(input: { email: "hasan@gmail.com", password: "hasankara123", roleId: "${role.id}", emailVerified: true, isActive: ACTIVE }) {
               id
               email
-              role_id 
+              roleId 
           }
       }
   `
@@ -105,10 +105,10 @@ describe('UserResolver (e2e)', () => {
       await dbService.user.create({
         data: {
           email: 'hasan@gmail.com',
-          password_hash: 'test123123123',
-          is_active: UserActiveStatus.ACTIVE,
-          email_verified: true,
-          role_id: role.id,
+          passwordHash: 'test123123123',
+          isActive: UserActiveStatus.ACTIVE,
+          emailVerified: true,
+          roleId: role.id,
         },
       })
 
@@ -126,10 +126,10 @@ describe('UserResolver (e2e)', () => {
     it('should throw NotFound error if role not exists', async () => {
       const createUserMutation = `
         mutation {
-            createUser(input: { email: "hasan@gmail.com", password: "hasankara123", role_id: "non-existin-role-id", email_verified: true, is_active: ACTIVE }) {
+            createUser(input: { email: "hasan@gmail.com", password: "hasankara123", roleId: "non-existin-role-id", emailVerified: true, isActive: ACTIVE }) {
                 id
                 email
-                role_id 
+                roleId 
             }
         }
     `

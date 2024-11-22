@@ -9,35 +9,35 @@ export class UserType {
   id: string
 
   @Field(() => ID)
-  role_id: string
+  roleId: string
 
   @Field(() => String)
   email: string
 
   @Field(() => String)
-  is_active: UserActiveStatus
+  isActive: UserActiveStatus
 
   @Field(() => Boolean)
-  email_verified: boolean
+  emailVerified: boolean
 
   @Field(() => Date)
-  created_at: Date
+  createdAt: Date
 
   @Field(() => Date)
-  updated_at: Date
+  updatedAt: Date
 
   @Field(() => Date, { nullable: true })
   @IsOptional()
-  deleted_at: Date
+  deletedAt: Date
 
   @Field(() => String)
-  created_by: string
+  createdBy: string
 
   @Field(() => String, { nullable: true })
-  updated_by: string
+  updatedBy: string
 
   @Field(() => String, { nullable: true })
-  deleted_by: string
+  deletedBy: string
 
   static isTypeOf(value: any) {
     return value instanceof UserType
@@ -53,10 +53,10 @@ export class CreateUserResponse {
   email: string
 
   @Field(() => String)
-  is_active: UserActiveStatus
+  isActive: UserActiveStatus
 
   @Field(() => String)
-  email_verified: boolean
+  emailVerified: boolean
 }
 
 // Define the paginated response for roles

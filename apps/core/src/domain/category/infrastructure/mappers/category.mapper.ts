@@ -10,36 +10,36 @@ export class CategoryMapper implements Mapper<Category, CategoryPersistence> {
   toDomain(entity: CategoryPersistence): Category {
     return new Category({
       id: entity.id,
-      parent_category_id: entity.parent_category_id,
-      meta_field_id: entity.meta_field_id,
+      parentCategoryId: entity.parentCategoryId,
+      metaFieldId: entity.metaFieldId,
       name: entity.name,
-      category_type: entity.category_type as CategoryType,
+      categoryType: entity.categoryType as CategoryType,
       content: entity.content,
-      content_type: entity.content,
-      updated_by: entity.updated_by,
-      created_by: entity.created_by,
-      deleted_by: entity.deleted_by,
-      deleted_at: entity.deleted_at,
-      created_at: entity.created_at,
-      updated_at: entity.updated_at,
+      contentType: entity.content,
+      updatedBy: entity.updatedBy,
+      createdBy: entity.createdBy,
+      deletedBy: entity.deletedBy,
+      deletedAt: entity.deletedAt,
+      createdAt: entity.createdAt,
+      updatedAt: entity.updatedAt,
     })
   }
 
   toPersistence(entity: Category): CategoryPersistence {
     return {
       id: entity.id,
-      parent_category_id: entity.parent_category_id,
-      meta_field_id: entity.meta_field_id,
+      parentCategoryId: entity.parentCategoryId,
+      metaFieldId: entity.metaFieldId,
       name: entity.name,
-      category_type: entity.category_type,
+      categoryType: entity.categoryType,
       content: entity.content,
-      content_type: entity.content_type as ContentType,
-      updated_by: entity.updated_by,
-      created_by: entity.created_by,
-      deleted_by: entity.deleted_by,
-      deleted_at: entity.deleted_at,
-      created_at: entity.created_at,
-      updated_at: entity.updated_at,
+      contentType: entity.contentType as ContentType,
+      updatedBy: entity.updatedBy,
+      createdBy: entity.createdBy,
+      deletedBy: entity.deletedBy,
+      deletedAt: entity.deletedAt,
+      createdAt: entity.createdAt,
+      updatedAt: entity.updatedAt,
     }
   }
 }

@@ -57,7 +57,7 @@ export class RoleRepository
     persistenceContext?: PersistenceContext,
   ): Promise<Role | null> {
     const role = await this.getClient(persistenceContext.tx).role.findUnique({
-      where: { id, channels: { some: { id: this.ctx.channel_id } } },
+      where: { id, channels: { some: { id: this.ctx.channelId } } },
       include: {
         channels: true,
       },
@@ -94,7 +94,7 @@ export class RoleRepository
       where: {
         channels: {
           some: {
-            id: this.ctx.channel_id,
+            id: this.ctx.channelId,
           },
         },
       },
@@ -178,11 +178,11 @@ export class RoleRepository
         ...persistenceRole,
         ...(permissions &&
           permissions.length > 0 && {
-            role_permissions: {
+            rolePermissions: {
               deleteMany: {},
               createMany: {
                 data: permissions.map((permission) => ({
-                  permission_id: permission.id,
+                  permissionId: permission.id,
                 })),
               },
             },

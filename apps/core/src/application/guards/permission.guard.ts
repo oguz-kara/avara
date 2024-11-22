@@ -25,7 +25,7 @@ export class PermissionsGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     let token: string | undefined = undefined
-    let payload: { user_id: string } | undefined = undefined
+    let payload: { userId: string } | undefined = undefined
     const authType = this.authStorageService.getStrategy('default')
     const isAuthActive = this.configService.get(
       'authentication.authorizationEnabled',
@@ -58,8 +58,8 @@ export class PermissionsGuard implements CanActivate {
 
     try {
       payload = this.jwtService.verify(token, {
-        secret: this.configService.get('JWT_SECRET'),
-      }) as { user_id: string }
+        secret: this.configService.get('JWTsECRET'),
+      }) as { userId: string }
     } catch (error) {
       this.handleJWTErrorByName(error.name)
     }
@@ -71,7 +71,7 @@ export class PermissionsGuard implements CanActivate {
 
     const isAuthorized = this.authService.isAuthorizedToPerformAction(
       ctx,
-      payload.user_id,
+      payload.userId,
       requiredPermissions,
       operator,
     )

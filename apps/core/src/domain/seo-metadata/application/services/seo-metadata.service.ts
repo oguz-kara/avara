@@ -22,14 +22,14 @@ export class SeoMetadataService {
       description: input.description,
       keywords: input.keywords,
       version: input.version,
-      canonical_url: input.canonical_url,
-      og_description: input.og_description,
+      canonicalUrl: input.canonicalUrl,
+      ogDescription: input.ogDescription,
       hreflang: input.hreflang,
-      og_image: input.og_image,
-      og_title: input.og_title,
-      page_type: input.page_type,
+      ogImage: input.ogImage,
+      ogTitle: input.ogTitle,
+      pageType: input.pageType,
       robots: input.robots,
-      schema_markup: input.schema_markup,
+      schemaMarkup: input.schemaMarkup,
     })
 
     await seoMetadataRepo.saveResourceToChannel(seoMetadata)

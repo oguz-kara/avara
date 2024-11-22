@@ -88,19 +88,19 @@ describe('RolePermissionService (Integration)', () => {
       id: undefined,
       name: 'Default',
       code: 'default',
-      currency_code: 'USD',
-      default_language_code: 'en',
-      is_default: true,
+      currencyCode: 'USD',
+      defaultLanguageCode: 'en',
+      isDefault: true,
     })
 
     await channelRepository.save(channel)
 
     ctx = new RequestContext({
       channel,
-      channel_code: channel.code,
-      channel_id: channel.id,
-      currency_code: channel.currency_code,
-      language_code: channel.default_language_code,
+      channelCode: channel.code,
+      channelId: channel.id,
+      currencyCode: channel.currencyCode,
+      languageCode: channel.defaultLanguageCode,
     })
   })
 
@@ -133,9 +133,9 @@ describe('RolePermissionService (Integration)', () => {
       })
 
       const input: CreateRolePermissionDto = {
-        role_id: role.id,
-        permission_id: permission.id,
-        is_active: true,
+        roleId: role.id,
+        permissionId: permission.id,
+        isActive: true,
       }
 
       const result = await rolePermissionService.createRolePermission(
@@ -153,12 +153,12 @@ describe('RolePermissionService (Integration)', () => {
       expect(rolePermission.channels).toHaveLength(1)
       expect(rolePermission.channels[0].name).toBe(ctx.channel.name)
       expect(result).toBeTruthy()
-      expect(result.role_id).toBe(input.role_id)
-      expect(result.permission_id).toBe(input.permission_id)
+      expect(result.roleId).toBe(input.roleId)
+      expect(result.permissionId).toBe(input.permissionId)
 
       expect(rolePermission).toBeTruthy()
-      expect(rolePermission?.role_id).toBe(input.role_id)
-      expect(rolePermission?.permission_id).toBe(input.permission_id)
+      expect(rolePermission?.roleId).toBe(input.roleId)
+      expect(rolePermission?.permissionId).toBe(input.permissionId)
     })
 
     it('should throw ConflictException if role permission already exists', async () => {
@@ -169,9 +169,9 @@ describe('RolePermissionService (Integration)', () => {
         data: { action: 'READ', resource: 'USER', scope: 'GLOBAL' },
       })
       const input: CreateRolePermissionDto = {
-        role_id: role.id,
-        permission_id: permission.id,
-        is_active: true,
+        roleId: role.id,
+        permissionId: permission.id,
+        isActive: true,
       }
 
       await rolePermissionService.createRolePermission(ctx, input)
@@ -201,9 +201,9 @@ describe('RolePermissionService (Integration)', () => {
       const rolePermission = await rolePermissionService.createRolePermission(
         ctx,
         {
-          role_id: role.id,
-          permission_id: permission.id,
-          is_active: true,
+          roleId: role.id,
+          permissionId: permission.id,
+          isActive: true,
         },
       )
 
@@ -214,8 +214,8 @@ describe('RolePermissionService (Integration)', () => {
 
       expect(result).toBeTruthy()
       expect(result.id).toBe(rolePermission.id)
-      expect(result.role_id).toBe(rolePermission.role_id)
-      expect(result.permission_id).toBe(rolePermission.permission_id)
+      expect(result.roleId).toBe(rolePermission.roleId)
+      expect(result.permissionId).toBe(rolePermission.permissionId)
     })
 
     it('should return null if role permission not found for a channel', async () => {
@@ -235,17 +235,17 @@ describe('RolePermissionService (Integration)', () => {
 
       const rolePermission = await dbService.rolePermission.create({
         data: {
-          role_id: role.id,
-          permission_id: permission.id,
+          roleId: role.id,
+          permissionId: permission.id,
         },
       })
 
       const noChannelCtx = new RequestContext({
         channel: null,
-        channel_code: 'fake-channel',
-        channel_id: 'fake-channel-id',
-        currency_code: 'USD',
-        language_code: 'en',
+        channelCode: 'fake-channel',
+        channelId: 'fake-channel-id',
+        currencyCode: 'USD',
+        languageCode: 'en',
       })
 
       const result = await rolePermissionService.findById(
@@ -301,14 +301,14 @@ describe('RolePermissionService (Integration)', () => {
 
       await Promise.all([
         rolePermissionService.createRolePermission(ctx, {
-          role_id: roles[0].id,
-          permission_id: permissions[0].id,
-          is_active: true,
+          roleId: roles[0].id,
+          permissionId: permissions[0].id,
+          isActive: true,
         }),
         rolePermissionService.createRolePermission(ctx, {
-          role_id: roles[1].id,
-          permission_id: permissions[1].id,
-          is_active: true,
+          roleId: roles[1].id,
+          permissionId: permissions[1].id,
+          isActive: true,
         }),
       ])
 

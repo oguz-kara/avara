@@ -25,7 +25,7 @@ export class FacetService {
     persistenceContext?: PersistenceContext,
   ): Promise<Facet | null> {
     const facet = await this.db.facet.findUnique({
-      where: { id, channels: { some: { id: ctx.channel_id } } },
+      where: { id, channels: { some: { id: ctx.channelId } } },
       include: persistenceContext?.relations ?? undefined,
     })
 
@@ -41,7 +41,7 @@ export class FacetService {
       this.paginationUtils.validateAndGetPaginationLimit(params)
 
     const facets = await this.db.facet.findMany({
-      where: { channels: { some: { id: ctx.channel_id } } },
+      where: { channels: { some: { id: ctx.channelId } } },
       take: limit,
       skip: position,
       include: persistenceContext?.relations ?? undefined,
@@ -64,18 +64,20 @@ export class FacetService {
     facet: CreateFacetDto,
   ): Promise<Facet> {
     const createdFacet = await this.db.facet.create({
-      data: { ...facet, channels: { connect: { id: ctx.channel_id } } },
+      data: { ...facet, channels: { connect: { id: ctx.channelId } } },
     })
 
     return createdFacet
   }
 
-  async editFacet(ctx: RequestContext, facet: EditFacetDto): Promise<Facet> {
-    const { id, ...rest } = facet
-
+  async editFacet(
+    ctx: RequestContext,
+    id: ID,
+    facet: EditFacetDto,
+  ): Promise<Facet> {
     const updatedFacet = await this.db.facet.update({
-      where: { id, channels: { some: { id: ctx.channel_id } } },
-      data: rest,
+      where: { id, channels: { some: { id: ctx.channelId } } },
+      data: facet,
     })
 
     return updatedFacet
@@ -83,7 +85,7 @@ export class FacetService {
 
   async deleteFacet(ctx: RequestContext, id: ID): Promise<Facet> {
     const deletedFacet = await this.db.facet.delete({
-      where: { id, channels: { some: { id: ctx.channel_id } } },
+      where: { id, channels: { some: { id: ctx.channelId } } },
     })
 
     return deletedFacet

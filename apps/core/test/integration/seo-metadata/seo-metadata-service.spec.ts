@@ -1,7 +1,6 @@
 import { RequestContext } from '@avara/core/application/context/request-context'
 import { CategoryMapper } from '@avara/core/domain/category/infrastructure/mappers/category.mapper'
 import { CategoryRepository } from '@avara/core/domain/category/infrastructure/repositories/category.repository'
-import { Channel } from '@avara/core/domain/channel/domain/entities/channel.entity'
 import { ChannelMapper } from '@avara/core/domain/channel/infrastructure/mappers/channel.mapper'
 import { ChannelRepository } from '@avara/core/domain/channel/infrastructure/repositories/channel.repository'
 import { CreateSeoMetadataDto } from '@avara/core/domain/seo-metadata/api/graphql/dto/seo-metadata.dto'
@@ -26,26 +25,26 @@ import { NotFoundException } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { CoreRepositories } from '@avara/core/application/core-repositories'
+import { getDefaultChannel } from '../helpers/save-and-get-default-channel'
 
 describe('SeoMetadataService (Integration)', () => {
   let seoMetadataService: SeoMetadataService
   let dbService: DbService
-  let channelRepository: ChannelRepository
   let ctx: RequestContext
 
   const input: CreateSeoMetadataDto = {
     title: 'Sample Title',
     description: 'Sample Description',
     keywords: 'sample, keywords',
-    canonical_url: 'https://example.com',
+    canonicalUrl: 'https://example.com',
     robots: 'index, follow',
-    og_title: 'Sample OG Title',
-    og_description: 'Sample OG Description',
-    og_image: 'https://example.com/og-image.jpg',
+    ogTitle: 'Sample OG Title',
+    ogDescription: 'Sample OG Description',
+    ogImage: 'https://example.com/og-image.jpg',
     version: 1,
     hreflang: 'en',
-    page_type: 'website',
-    schema_markup: 'website',
+    pageType: 'website',
+    schemaMarkup: 'website',
   }
 
   beforeAll(async () => {
@@ -83,7 +82,6 @@ describe('SeoMetadataService (Integration)', () => {
 
     dbService = module.get<DbService>(DbService)
     seoMetadataService = module.get<SeoMetadataService>(SeoMetadataService)
-    channelRepository = module.get<ChannelRepository>(ChannelRepository)
 
     await dbService.$transaction([
       dbService.seoMetadata.deleteMany(),
@@ -93,24 +91,7 @@ describe('SeoMetadataService (Integration)', () => {
       dbService.channel.deleteMany(),
     ])
 
-    const channel = new Channel({
-      id: undefined,
-      name: 'Default',
-      code: 'default',
-      currency_code: 'USD',
-      default_language_code: 'en',
-      is_default: true,
-    })
-
-    await channelRepository.save(channel)
-
-    ctx = new RequestContext({
-      channel,
-      channel_code: channel.code,
-      channel_id: channel.id,
-      currency_code: channel.currency_code,
-      language_code: channel.default_language_code,
-    })
+    ctx = await getDefaultChannel(dbService)
   })
 
   beforeEach(async () => {
@@ -146,21 +127,21 @@ describe('SeoMetadataService (Integration)', () => {
       })
 
       expect(seoMetadata.channels).toHaveLength(1)
-      expect(seoMetadata.channels[0].id).toBe(ctx.channel_id)
+      expect(seoMetadata.channels[0].id).toBe(ctx.channelId)
 
       expect(result).toBeTruthy()
       expect(result.title).toBe(input.title)
       expect(result.description).toBe(input.description)
       expect(result.keywords).toBe(input.keywords)
-      expect(result.canonical_url).toBe(input.canonical_url)
+      expect(result.canonicalUrl).toBe(input.canonicalUrl)
       expect(result.robots).toBe(input.robots)
-      expect(result.og_title).toBe(input.og_title)
-      expect(result.og_description).toBe(input.og_description)
-      expect(result.og_image).toBe(input.og_image)
+      expect(result.ogTitle).toBe(input.ogTitle)
+      expect(result.ogDescription).toBe(input.ogDescription)
+      expect(result.ogImage).toBe(input.ogImage)
       expect(result.version).toBe(input.version)
       expect(result.hreflang).toBe(input.hreflang)
-      expect(result.page_type).toBe(input.page_type)
-      expect(result.schema_markup).toBe(input.schema_markup)
+      expect(result.pageType).toBe(input.pageType)
+      expect(result.schemaMarkup).toBe(input.schemaMarkup)
     })
 
     it('should throw an error if title is invalid', async () => {
@@ -180,15 +161,15 @@ describe('SeoMetadataService (Integration)', () => {
         title: 'Updated Title',
         description: 'Updated Description',
         keywords: 'updated, keywords',
-        canonical_url: 'https://example.com/updated',
+        canonicalUrl: 'https://example.com/updated',
         robots: 'noindex, nofollow',
-        og_title: 'Updated OG Title',
-        og_description: 'Updated OG Description',
-        og_image: 'https://example.com/updated-og-image.jpg',
+        ogTitle: 'Updated OG Title',
+        ogDescription: 'Updated OG Description',
+        ogImage: 'https://example.com/updated-og-image.jpg',
         version: 2,
         hreflang: 'es',
-        page_type: 'article',
-        schema_markup: 'article',
+        pageType: 'article',
+        schemaMarkup: 'article',
       }
 
       const result = await seoMetadataService.updateOne(
@@ -201,15 +182,15 @@ describe('SeoMetadataService (Integration)', () => {
       expect(result.title).toBe(updatedInput.title)
       expect(result.description).toBe(updatedInput.description)
       expect(result.keywords).toBe(updatedInput.keywords)
-      expect(result.canonical_url).toBe(updatedInput.canonical_url)
+      expect(result.canonicalUrl).toBe(updatedInput.canonicalUrl)
       expect(result.robots).toBe(updatedInput.robots)
-      expect(result.og_title).toBe(updatedInput.og_title)
-      expect(result.og_description).toBe(updatedInput.og_description)
-      expect(result.og_image).toBe(updatedInput.og_image)
+      expect(result.ogTitle).toBe(updatedInput.ogTitle)
+      expect(result.ogDescription).toBe(updatedInput.ogDescription)
+      expect(result.ogImage).toBe(updatedInput.ogImage)
       expect(result.version).toBe(updatedInput.version)
       expect(result.hreflang).toBe(updatedInput.hreflang)
-      expect(result.page_type).toBe(updatedInput.page_type)
-      expect(result.schema_markup).toBe(updatedInput.schema_markup)
+      expect(result.pageType).toBe(updatedInput.pageType)
+      expect(result.schemaMarkup).toBe(updatedInput.schemaMarkup)
     })
 
     it('should throw an error if update title is invalid', async () => {
@@ -219,15 +200,15 @@ describe('SeoMetadataService (Integration)', () => {
         title: '',
         description: 'Updated Description',
         keywords: 'updated, keywords',
-        canonical_url: 'https://example.com/updated',
+        canonicalUrl: 'https://example.com/updated',
         robots: 'noindex, nofollow',
-        og_title: 'Updated OG Title',
-        og_description: 'Updated OG Description',
-        og_image: 'https://example.com/updated-og-image.jpg',
+        ogTitle: 'Updated OG Title',
+        ogDescription: 'Updated OG Description',
+        ogImage: 'https://example.com/updated-og-image.jpg',
         version: 2,
         hreflang: 'es',
-        page_type: 'article',
-        schema_markup: 'article',
+        pageType: 'article',
+        schemaMarkup: 'article',
       }
 
       await expect(
@@ -246,15 +227,15 @@ describe('SeoMetadataService (Integration)', () => {
       expect(result?.title).toBe(input.title)
       expect(result?.description).toBe(input.description)
       expect(result?.keywords).toBe(input.keywords)
-      expect(result?.canonical_url).toBe(input.canonical_url)
+      expect(result?.canonicalUrl).toBe(input.canonicalUrl)
       expect(result?.robots).toBe(input.robots)
-      expect(result?.og_title).toBe(input.og_title)
-      expect(result?.og_description).toBe(input.og_description)
-      expect(result?.og_image).toBe(input.og_image)
+      expect(result?.ogTitle).toBe(input.ogTitle)
+      expect(result?.ogDescription).toBe(input.ogDescription)
+      expect(result?.ogImage).toBe(input.ogImage)
       expect(result?.version).toBe(input.version)
       expect(result?.hreflang).toBe(input.hreflang)
-      expect(result?.page_type).toBe(input.page_type)
-      expect(result?.schema_markup).toBe(input.schema_markup)
+      expect(result?.pageType).toBe(input.pageType)
+      expect(result?.schemaMarkup).toBe(input.schemaMarkup)
     })
 
     it('should return null if no metadata exists with given id', async () => {

@@ -107,7 +107,7 @@ export class ChannelRepository
     const client = this.getClient(persistenceContext?.tx)
     const result = await client.channel.findFirst({
       where: {
-        is_default: true,
+        isDefault: true,
       },
     })
 
@@ -123,7 +123,7 @@ export class ChannelRepository
     const client = this.getClient(persistenceContext?.tx)
     const result = await client.channel.findMany({
       where: {
-        deleted_at: null,
+        deletedAt: null,
       },
     })
 

@@ -24,7 +24,7 @@ export class FacetValueService {
     id: ID,
   ): Promise<FacetValue | null> {
     return await this.db.facetValue.findUnique({
-      where: { id, channels: { some: { id: ctx.channel_id } } },
+      where: { id, channels: { some: { id: ctx.channelId } } },
     })
   }
 
@@ -37,7 +37,7 @@ export class FacetValueService {
       this.paginationUtils.validateAndGetPaginationLimit(params)
 
     const facetValues = await this.db.facetValue.findMany({
-      where: { channels: { some: { id: ctx.channel_id } } },
+      where: { channels: { some: { id: ctx.channelId } } },
       take: limit,
       skip: position,
       include: persistenceContext?.relations || undefined,
@@ -59,16 +59,16 @@ export class FacetValueService {
     ctx: RequestContext,
     createFacetValueInput: CreateFacetValueDto,
   ): Promise<FacetValue> {
-    const { facet_id, ...facetValue } = createFacetValueInput
+    const { facetId, ...facetValue } = createFacetValueInput
 
     return await this.db.facetValue.create({
       data: {
         ...facetValue,
         facet: {
-          connect: { id: facet_id },
+          connect: { id: facetId },
         },
         channels: {
-          connect: { id: ctx.channel_id },
+          connect: { id: ctx.channelId },
         },
       },
     })
@@ -89,15 +89,15 @@ export class FacetValueService {
     ctx: RequestContext,
     updateFacetValueInput: EditFacetValueDto,
   ): Promise<FacetValue> {
-    const { id, facet_id, ...facetValue } = updateFacetValueInput
+    const { id, facetId, ...facetValue } = updateFacetValueInput
 
     return await this.db.facetValue.update({
-      where: { id, channels: { some: { id: ctx.channel_id } } },
+      where: { id, channels: { some: { id: ctx.channelId } } },
       data: {
         ...facetValue,
-        ...(facet_id && {
+        ...(facetId && {
           facet: {
-            connect: { id: facet_id },
+            connect: { id: facetId },
           },
         }),
       },
@@ -106,14 +106,14 @@ export class FacetValueService {
 
   async deleteFacetValue(ctx: RequestContext, id: ID): Promise<FacetValue> {
     return await this.db.facetValue.delete({
-      where: { id, channels: { some: { id: ctx.channel_id } } },
+      where: { id, channels: { some: { id: ctx.channelId } } },
     })
   }
 
   async softDeleteFacetValue(ctx: RequestContext, id: ID): Promise<FacetValue> {
     return await this.db.facetValue.update({
-      where: { id, channels: { some: { id: ctx.channel_id } } },
-      data: { deleted_at: new Date(), deleted_by: 'system' },
+      where: { id, channels: { some: { id: ctx.channelId } } },
+      data: { deletedAt: new Date(), deletedBy: 'system' },
     })
   }
 }

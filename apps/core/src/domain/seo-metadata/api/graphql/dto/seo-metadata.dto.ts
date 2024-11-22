@@ -23,22 +23,22 @@ export class CreateSeoMetadataDto {
   @Field({ nullable: true })
   @IsString()
   @IsOptional()
-  canonical_url?: string
+  canonicalUrl?: string
 
   @Field({ nullable: true })
   @IsString()
   @IsOptional()
-  og_title?: string
+  ogTitle?: string
 
   @Field({ nullable: true })
   @IsString()
   @IsOptional()
-  og_description?: string
+  ogDescription?: string
 
   @Field({ nullable: true })
   @IsString()
   @IsOptional()
-  og_image?: string
+  ogImage?: string
 
   @Field({ nullable: true })
   @IsString()
@@ -48,7 +48,7 @@ export class CreateSeoMetadataDto {
   @Field(() => String, { nullable: true })
   @IsString()
   @IsOptional()
-  schema_markup?: JsonValue
+  schemaMarkup?: JsonValue
 
   @Field({ nullable: true })
   @IsString()
@@ -58,7 +58,7 @@ export class CreateSeoMetadataDto {
   @Field({ nullable: true })
   @IsString()
   @IsOptional()
-  page_type?: string
+  pageType?: string
 }
 
 @InputType()

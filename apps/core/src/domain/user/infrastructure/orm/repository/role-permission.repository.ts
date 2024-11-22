@@ -51,7 +51,7 @@ export class RolePermissionRepository
     const rolePermission = await this.getClient(
       persistenceContext?.tx,
     ).rolePermission.findUnique({
-      where: { id, channels: { some: { id: this.ctx.channel_id } } },
+      where: { id, channels: { some: { id: this.ctx.channelId } } },
       include: { role: true, permission: true },
     })
 
@@ -61,13 +61,13 @@ export class RolePermissionRepository
   }
 
   async findByRoleId(
-    role_id: string,
+    roleId: string,
     persistenceContext?: PersistenceContext,
   ): Promise<RolePermission[]> {
     const rolePermissions = await this.getClient(
       persistenceContext?.tx,
     ).rolePermission.findMany({
-      where: { role_id, channels: { some: { id: this.ctx.channel_id } } },
+      where: { roleId, channels: { some: { id: this.ctx.channelId } } },
       include: { permission: true, role: true },
     })
 
@@ -89,7 +89,7 @@ export class RolePermissionRepository
     const rolePermissions = await this.getClient(
       persistenceContext?.tx,
     ).rolePermission.findMany({
-      where: { channels: { some: { id: this.ctx.channel_id } } },
+      where: { channels: { some: { id: this.ctx.channelId } } },
       take: limit,
       skip: position,
       include: {
@@ -119,7 +119,7 @@ export class RolePermissionRepository
     ).rolePermission.findFirst({
       where: {
         id: resource.id,
-        channels: { some: { id: this.ctx.channel_id } },
+        channels: { some: { id: this.ctx.channelId } },
       },
     })
 
@@ -129,7 +129,7 @@ export class RolePermissionRepository
     await this.getClient(persistenceContext?.tx).rolePermission.delete({
       where: {
         id: resource.id,
-        channels: { some: { id: this.ctx.channel_id } },
+        channels: { some: { id: this.ctx.channelId } },
       },
       include: {
         role: true,
@@ -142,20 +142,20 @@ export class RolePermissionRepository
     rolePermission: RolePermission,
     persistenceContext?: PersistenceContext,
   ): Promise<void> {
-    const { role_id, permission_id, ...rest } =
+    const { roleId, permissionId, ...rest } =
       this.rolePermissionMapper.toPersistence(rolePermission)
 
     if (rolePermission.id) {
       await this.getClient(persistenceContext?.tx).rolePermission.update({
         where: {
           id: rolePermission.id,
-          channels: { some: { id: this.ctx.channel_id } },
+          channels: { some: { id: this.ctx.channelId } },
         },
         data: {
           ...rest,
-          role: { connect: { id: role_id } },
-          permission: { connect: { id: permission_id } },
-          channels: { connect: { id: this.ctx.channel_id } },
+          role: { connect: { id: roleId } },
+          permission: { connect: { id: permissionId } },
+          channels: { connect: { id: this.ctx.channelId } },
         },
       })
     } else {
@@ -164,9 +164,9 @@ export class RolePermissionRepository
       ).rolePermission.create({
         data: {
           ...rest,
-          role: { connect: { id: role_id } },
-          permission: { connect: { id: permission_id } },
-          channels: { connect: { id: this.ctx.channel_id } },
+          role: { connect: { id: roleId } },
+          permission: { connect: { id: permissionId } },
+          channels: { connect: { id: this.ctx.channelId } },
         },
       })
 
@@ -180,15 +180,15 @@ export class RolePermissionRepository
   }
 
   async removePermissionsByRoleId(
-    role_id: string,
+    roleId: string,
     permissionIds: string[],
     persistenceContext?: PersistenceContext,
   ) {
     await this.getClient(persistenceContext?.tx).rolePermission.deleteMany({
       where: {
-        role_id,
-        permission_id: { in: permissionIds },
-        channels: { some: { id: this.ctx.channel_id } },
+        roleId,
+        permissionId: { in: permissionIds },
+        channels: { some: { id: this.ctx.channelId } },
       },
     })
 
@@ -196,14 +196,14 @@ export class RolePermissionRepository
   }
 
   async addByRoleIdAndPermissionIds(
-    role_id: string,
+    roleId: string,
     permissionIds: string[],
     persistenceContext?: PersistenceContext,
   ) {
-    const data = permissionIds.map((permission_id) => ({
-      role_id,
-      permission_id,
-      channels: { connect: { id: this.ctx.channel_id } },
+    const data = permissionIds.map((permissionId) => ({
+      roleId,
+      permissionId,
+      channels: { connect: { id: this.ctx.channelId } },
     }))
 
     return this.getClient(persistenceContext?.tx).rolePermission.createMany({
@@ -212,17 +212,17 @@ export class RolePermissionRepository
   }
 
   async findRolePermission(
-    role_id: string,
-    permission_id: string,
+    roleId: string,
+    permissionId: string,
     persistenceContext?: PersistenceContext,
   ): Promise<RolePermission | null> {
     const rp = await this.getClient(
       persistenceContext?.tx,
     ).rolePermission.findFirst({
       where: {
-        role_id,
-        permission_id,
-        channels: { some: { id: this.ctx.channel_id } },
+        roleId,
+        permissionId,
+        channels: { some: { id: this.ctx.channelId } },
       },
     })
 

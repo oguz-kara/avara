@@ -76,9 +76,7 @@ export class UserService {
 
     if (!user) throw new ConflictException('User not found!')
 
-    const permissions = await permissionRepo.getPermissionsByRoleId(
-      user.role_id,
-    )
+    const permissions = await permissionRepo.getPermissionsByRoleId(user.roleId)
 
     return permissions.map((permission) => permission.name) as Permission[]
   }
@@ -91,17 +89,17 @@ export class UserService {
 
     if (existedUser) throw new ConflictException('User already exists!')
 
-    const role = await roleRepo.findOneInChannel(user.role_id)
+    const role = await roleRepo.findOneInChannel(user.roleId)
 
     if (!role) throw new NotFoundException('User role not found to assign!')
 
     const createdUser = new User({
       id: undefined,
       email: user.email,
-      password_hash: user.password,
-      email_verified: user.email_verified,
-      role_id: user.role_id,
-      is_active: user.is_active,
+      passwordHash: user.password,
+      emailVerified: user.emailVerified,
+      roleId: user.roleId,
+      isActive: user.isActive,
     })
 
     await userRepo.save(createdUser)

@@ -10,30 +10,30 @@ export class RolePermissionMapper
   toPersistence(rolePermission: RolePermission): RolePermissionPersistence {
     return {
       id: rolePermission.id,
-      role_id: rolePermission.role_id,
-      permission_id: rolePermission.permission_id,
-      is_active: rolePermission.is_active,
-      created_at: rolePermission.created_at,
-      created_by: rolePermission.created_by,
-      updated_at: rolePermission.updated_at,
-      deleted_at: rolePermission.deleted_at,
-      updated_by: rolePermission.updated_by,
-      deleted_by: rolePermission.deleted_by,
+      roleId: rolePermission.roleId,
+      permissionId: rolePermission.permissionId,
+      isActive: rolePermission.isActive,
+      createdAt: rolePermission.createdAt,
+      createdBy: rolePermission.createdBy,
+      updatedAt: rolePermission.updatedAt,
+      deletedAt: rolePermission.deletedAt,
+      updatedBy: rolePermission.updatedBy,
+      deletedBy: rolePermission.deletedBy,
     }
   }
 
   toDomain(raw: RolePermissionPersistence): RolePermission {
     return new RolePermission({
       id: raw.id,
-      role_id: raw.role_id,
-      is_active: raw.is_active,
-      permission_id: raw.permission_id,
-      created_at: raw.created_at,
-      updated_at: raw.updated_at,
-      deleted_at: raw.deleted_at,
-      created_by: raw.created_by,
-      updated_by: raw.updated_by,
-      deleted_by: raw.deleted_by,
+      roleId: raw.roleId,
+      isActive: raw.isActive,
+      permissionId: raw.permissionId,
+      createdAt: raw.createdAt,
+      updatedAt: raw.updatedAt,
+      deletedAt: raw.deletedAt,
+      createdBy: raw.createdBy,
+      updatedBy: raw.updatedBy,
+      deletedBy: raw.deletedBy,
     })
   }
 }

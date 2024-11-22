@@ -36,7 +36,7 @@ export class AuthService {
     const user = await userRepo.findByEmail(email)
     if (
       user &&
-      (await this.pwService.validatePassword(password, user.password_hash))
+      (await this.pwService.validatePassword(password, user.passwordHash))
     ) {
       return user
     }
@@ -45,7 +45,7 @@ export class AuthService {
 
   async createUserAccount(
     ctx: RequestContext,
-    { email, password, role_id, is_active }: RegisterUserDto,
+    { email, password, roleId, isActive }: RegisterUserDto,
   ): Promise<CreateUserAccountSuccess> {
     const userRepo = this.repositories.get(ctx, 'User')
     const roleRepo = this.repositories.get(ctx, 'Role')
@@ -54,15 +54,15 @@ export class AuthService {
       throw new ConflictException(`User with email ${email} already exists.`)
     }
 
-    const role = await roleRepo.findOneInChannel(role_id)
-    if (!role) throw new NotFoundException(`Role with ID ${role_id} not found.`)
+    const role = await roleRepo.findOneInChannel(roleId)
+    if (!role) throw new NotFoundException(`Role with ID ${roleId} not found.`)
 
     const passwordHash = await this.pwService.hashPassword(password)
     const newUser = new User({
-      password_hash: passwordHash,
+      passwordHash: passwordHash,
       email,
-      role_id,
-      is_active,
+      roleId,
+      isActive,
     })
     await userRepo.save(newUser)
 
@@ -81,9 +81,9 @@ export class AuthService {
   }
 
   signToken(userId: string, email: string): string {
-    const payload = { user_id: userId, email }
+    const payload = { userId: userId, email }
     return this.jwtService.sign(payload, {
-      secret: this.configService.get('JWT_SECRET'),
+      secret: this.configService.get('JWTsECRET'),
       expiresIn: this.configService.get('authentication.jwt.expiresIn'),
     })
   }
@@ -99,9 +99,7 @@ export class AuthService {
     const user = await userRepo.findById(userId)
     if (!user) throw new ConflictException('User not found!')
 
-    const permissions = await permissionRepo.getPermissionsByRoleId(
-      user.role_id,
-    )
+    const permissions = await permissionRepo.getPermissionsByRoleId(user.roleId)
     const permissionNames = permissions.map(
       (permission) => permission.name,
     ) as Permission[]

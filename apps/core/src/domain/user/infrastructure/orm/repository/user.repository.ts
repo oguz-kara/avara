@@ -91,7 +91,7 @@ export class UserRepository
     persistenceContext?: PersistenceContext,
   ): Promise<User | null> {
     const role = await this.getClient(persistenceContext?.tx).user.findFirst({
-      where: { AND: [{ id }, { deleted_at: null }] },
+      where: { AND: [{ id }, { deletedAt: null }] },
     })
 
     if (!role) return null
@@ -100,7 +100,7 @@ export class UserRepository
       persistenceContext?.tx,
     ).user.update({
       where: { id },
-      data: { deleted_at: new Date() },
+      data: { deletedAt: new Date() },
     })
 
     return this.userMapper.toDomain(removedUser)
@@ -117,14 +117,14 @@ export class UserRepository
         data: persistenceUser,
       })
     } else {
-      const { role_id, ...rest } = persistenceUser
+      const { roleId, ...rest } = persistenceUser
 
       const newUser = await this.getClient(persistenceContext?.tx).user.create({
         data: {
           ...rest,
           role: {
             connect: {
-              id: role_id,
+              id: roleId,
             },
           },
         },

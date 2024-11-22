@@ -45,15 +45,15 @@ export class CreateUserDto {
 
   @Field()
   @IsString()
-  role_id: string
+  roleId: string
 
   @Field()
   @IsBoolean()
-  email_verified: boolean
+  emailVerified: boolean
 
   @Field(() => UserActiveStatus)
   @IsEnum(UserActiveStatus)
-  is_active: UserActiveStatus
+  isActive: UserActiveStatus
 }
 
 @ArgsType()
@@ -71,13 +71,13 @@ export class CreateUserResponse {
 
   @Field()
   @IsString()
-  role_id: string
+  roleId: string
 
   @Field()
   @IsBoolean()
-  email_verified: boolean
+  emailVerified: boolean
 
   @Field(() => UserActiveStatus)
   @IsEnum(UserActiveStatus)
-  is_active: UserActiveStatus
+  isActive: UserActiveStatus
 }

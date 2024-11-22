@@ -58,7 +58,7 @@ export class PermissionRepository
     const permission = await this.getClient(
       persistenceContext?.tx,
     ).permission.findUnique({
-      where: { id, channels: { some: { id: this.ctx.channel_id } } },
+      where: { id, channels: { some: { id: this.ctx.channelId } } },
     })
 
     if (!permission) return null
@@ -74,8 +74,8 @@ export class PermissionRepository
       persistenceContext?.tx,
     ).rolePermission.findMany({
       where: {
-        role_id: roleId,
-        channels: { some: { id: this.ctx.channel_id } },
+        roleId: roleId,
+        channels: { some: { id: this.ctx.channelId } },
       },
       select: {
         permission: true,
@@ -106,7 +106,7 @@ export class PermissionRepository
         resource: resource as ResourceType,
         channels: {
           some: {
-            id: this.ctx.channel_id,
+            id: this.ctx.channelId,
           },
         },
       },
@@ -140,7 +140,7 @@ export class PermissionRepository
           {
             channels: {
               some: {
-                id: this.ctx.channel_id,
+                id: this.ctx.channelId,
               },
             },
           },
@@ -171,7 +171,7 @@ export class PermissionRepository
     const permission = await this.getClient(
       persistenceContext?.tx,
     ).permission.findFirst({
-      where: { id, channels: { some: { id: this.ctx.channel_id } } },
+      where: { id, channels: { some: { id: this.ctx.channelId } } },
     })
 
     if (!permission) throw new ConflictException('Permission not found!')
@@ -192,7 +192,7 @@ export class PermissionRepository
       await this.getClient(persistenceContext?.tx).permission.update({
         where: {
           id: permission.id,
-          channels: { some: { id: this.ctx.channel_id } },
+          channels: { some: { id: this.ctx.channelId } },
         },
         data: {
           ...persistencePermission,
@@ -201,7 +201,7 @@ export class PermissionRepository
           action: persistencePermission.action as ActionType,
           channels: {
             connect: {
-              id: this.ctx.channel_id,
+              id: this.ctx.channelId,
             },
           },
         },
@@ -217,7 +217,7 @@ export class PermissionRepository
           action: persistencePermission.action as ActionType,
           channels: {
             connect: {
-              id: this.ctx.channel_id,
+              id: this.ctx.channelId,
             },
           },
         },

@@ -58,7 +58,7 @@ export class CategoryRepository
           id: entity.id,
           channels: {
             some: {
-              id: this.ctx.channel_id,
+              id: this.ctx.channelId,
             },
           },
         },
@@ -66,7 +66,7 @@ export class CategoryRepository
           ...persistence,
           channels: {
             connect: {
-              id: this.ctx.channel_id,
+              id: this.ctx.channelId,
             },
           },
         },
@@ -84,7 +84,7 @@ export class CategoryRepository
           ...persistence,
           channels: {
             connect: {
-              id: this.ctx.channel_id,
+              id: this.ctx.channelId,
             },
           },
         },
@@ -109,7 +109,7 @@ export class CategoryRepository
         id: category.id,
         channels: {
           some: {
-            id: this.ctx.channel_id,
+            id: this.ctx.channelId,
           },
         },
       },
@@ -126,7 +126,7 @@ export class CategoryRepository
         id,
         channels: {
           some: {
-            id: this.ctx.channel_id,
+            id: this.ctx.channelId,
           },
         },
       },
@@ -146,7 +146,7 @@ export class CategoryRepository
       where: {
         channels: {
           some: {
-            id: this.ctx.channel_id,
+            id: this.ctx.channelId,
           },
         },
       },
@@ -175,12 +175,12 @@ export class CategoryRepository
             name,
           },
           {
-            category_type: type as CategoryType,
+            categoryType: type as CategoryType,
           },
           {
             channels: {
               some: {
-                id: this.ctx.channel_id,
+                id: this.ctx.channelId,
               },
             },
           },
@@ -202,12 +202,12 @@ export class CategoryRepository
       where: {
         AND: [
           {
-            category_type: params.type,
+            categoryType: params.type,
           },
           {
             channels: {
               some: {
-                id: this.ctx.channel_id,
+                id: this.ctx.channelId,
               },
             },
           },

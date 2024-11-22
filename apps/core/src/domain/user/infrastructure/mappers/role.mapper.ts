@@ -26,12 +26,12 @@ export class RoleMapper implements Mapper<Role, RolePersistence> {
       name: entity.name,
       permissions: permissions,
       channels: channels,
-      updated_by: entity.updated_by,
-      created_by: entity.created_by,
-      deleted_by: entity.deleted_by,
-      deleted_at: entity.deleted_at,
-      created_at: entity.created_at,
-      updated_at: entity.updated_at,
+      updatedBy: entity.updatedBy,
+      createdBy: entity.createdBy,
+      deletedBy: entity.deletedBy,
+      deletedAt: entity.deletedAt,
+      createdAt: entity.createdAt,
+      updatedAt: entity.updatedAt,
     })
   }
 
@@ -50,12 +50,12 @@ export class RoleMapper implements Mapper<Role, RolePersistence> {
       name: entity.name,
       permissions: permissions,
       channels: channels,
-      created_at: entity.created_at,
-      updated_at: entity.updated_at,
-      created_by: entity.created_by,
-      updated_by: entity.updated_by,
-      deleted_at: entity.deleted_at,
-      deleted_by: entity.deleted_by,
+      createdAt: entity.createdAt,
+      updatedAt: entity.updatedAt,
+      createdBy: entity.createdBy,
+      updatedBy: entity.updatedBy,
+      deletedAt: entity.deletedAt,
+      deletedBy: entity.deletedBy,
     }
   }
 }

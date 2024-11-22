@@ -58,11 +58,11 @@ describe('LocalStorageStrategy - Integration Tests', () => {
 
   it('should save a txt file correctly', async () => {
     const asset = await Asset.create({
-      file_size: 0,
+      fileSize: 0,
       name: 'test-file.txt',
       type: AssetType.DOCUMENT,
-      mime_type: 'text/plain',
-      original_name: 'test-file.txt',
+      mimeType: 'text/plain',
+      originalName: 'test-file.txt',
       source: '',
     })
 
@@ -77,11 +77,11 @@ describe('LocalStorageStrategy - Integration Tests', () => {
 
   it.only('should throw error if invalid base path is provided', async () => {
     const asset = await Asset.create({
-      file_size: 0,
+      fileSize: 0,
       name: 'test-file.txt',
       type: AssetType.DOCUMENT,
-      mime_type: 'text/plain',
-      original_name: 'test-file.txt',
+      mimeType: 'text/plain',
+      originalName: 'test-file.txt',
       source: '',
     })
 

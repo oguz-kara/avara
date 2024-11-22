@@ -90,19 +90,19 @@ describe('RoleService (Integration)', () => {
       id: undefined,
       name: 'Default',
       code: 'default',
-      currency_code: 'USD',
-      default_language_code: 'en',
-      is_default: true,
+      currencyCode: 'USD',
+      defaultLanguageCode: 'en',
+      isDefault: true,
     })
 
     await channelRepository.save(channel)
 
     ctx = new RequestContext({
       channel,
-      channel_code: channel.code,
-      channel_id: channel.id,
-      currency_code: channel.currency_code,
-      language_code: channel.default_language_code,
+      channelCode: channel.code,
+      channelId: channel.id,
+      currencyCode: channel.currencyCode,
+      languageCode: channel.defaultLanguageCode,
     })
   })
 
@@ -147,12 +147,12 @@ describe('RoleService (Integration)', () => {
 
   describe('renameRoleById', () => {
     it('should rename role by id', async () => {
-      const createRoleInput: CreateRoleDto = { name: 'Old_Admin' }
+      const createRoleInput: CreateRoleDto = { name: 'Oldadmin' }
       const role = await roleService.createRole(ctx, createRoleInput)
 
       const renameRoleInput: RenameRoleDto = {
         id: role.id,
-        name: 'Renamed_Admin',
+        name: 'Renamedadmin',
       }
 
       const renamedRole = await roleService.renameRoleById(
@@ -161,16 +161,16 @@ describe('RoleService (Integration)', () => {
         renameRoleInput.name,
       )
 
-      expect(renamedRole.name).toBe('Renamed_Admin')
+      expect(renamedRole.name).toBe('Renamedadmin')
 
       const savedRole = await roleService.findById(ctx, role.id)
 
       expect(savedRole).toBeTruthy()
-      expect(savedRole?.name).toBe('Renamed_Admin')
+      expect(savedRole?.name).toBe('Renamedadmin')
     })
 
     it('should throw ConflictException if role by provided name already exists', async () => {
-      const input: CreateRoleDto = { name: 'ALREADY_EXISTS_ROLE' }
+      const input: CreateRoleDto = { name: 'ALREADYeXISTSrOLE' }
       await roleService.createRole(ctx, input)
 
       await expect(roleService.createRole(ctx, input)).rejects.toThrow(
@@ -192,10 +192,7 @@ describe('RoleService (Integration)', () => {
     })
 
     it('should return null if role by provided name not exists', async () => {
-      const findRoleByIdResult = await roleService.findById(
-        ctx,
-        'NOT_EXISTS_ID',
-      )
+      const findRoleByIdResult = await roleService.findById(ctx, 'NOTeXISTSiD')
 
       expect(findRoleByIdResult).toBeNull()
     })
@@ -214,10 +211,7 @@ describe('RoleService (Integration)', () => {
     })
 
     it('should return null if role by provided name not exists', async () => {
-      const findRoleByIdResult = await roleService.findById(
-        ctx,
-        'NOT_EXISTS_ID',
-      )
+      const findRoleByIdResult = await roleService.findById(ctx, 'NOTeXISTSiD')
 
       expect(findRoleByIdResult).toBeNull()
     })

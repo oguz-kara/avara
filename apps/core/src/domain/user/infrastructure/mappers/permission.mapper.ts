@@ -14,12 +14,12 @@ export class PermissionMapper
       resource: entity.resource as ResourceType,
       action: entity.action as ActionType,
       scope: entity.scope as ScopeType,
-      created_by: entity.created_by,
-      updated_by: entity.updated_by,
-      created_at: entity.created_at,
-      updated_at: entity.updated_at,
-      deleted_at: entity.deleted_at,
-      specific_scope_id: entity.specific_scope_id,
+      createdBy: entity.createdBy,
+      updatedBy: entity.updatedBy,
+      createdAt: entity.createdAt,
+      updatedAt: entity.updatedAt,
+      deletedAt: entity.deletedAt,
+      specificScopeId: entity.specificScopeId,
     })
   }
 
@@ -29,13 +29,13 @@ export class PermissionMapper
       resource: entity.resource,
       action: entity.action,
       scope: entity.scope,
-      created_by: entity.created_by,
-      created_at: entity.created_at,
-      updated_at: entity.updated_at,
-      updated_by: entity.updated_by,
-      deleted_at: entity.deleted_at,
-      deleted_by: entity.deleted_by,
-      specific_scope_id: entity.specific_scope_id,
+      createdBy: entity.createdBy,
+      createdAt: entity.createdAt,
+      updatedAt: entity.updatedAt,
+      updatedBy: entity.updatedBy,
+      deletedAt: entity.deletedAt,
+      deletedBy: entity.deletedBy,
+      specificScopeId: entity.specificScopeId,
     }
   }
 }

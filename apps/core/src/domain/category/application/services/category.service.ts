@@ -24,7 +24,7 @@ export class CategoryService {
 
     const existedCategory = await repo.findByNameAndType(
       input.name,
-      input.category_type,
+      input.categoryType,
     )
 
     if (existedCategory)
@@ -32,12 +32,12 @@ export class CategoryService {
 
     const category = new Category({
       id: undefined,
-      parent_category_id: input.parent_category_id,
-      category_type: input.category_type,
-      meta_field_id: input.meta_field_id,
+      parentCategoryId: input.parentCategoryId,
+      categoryType: input.categoryType,
+      metaFieldId: input.metaFieldId,
       name: input.name,
       content: input.content,
-      content_type: input.content_type,
+      contentType: input.contentType,
     })
 
     await repo.saveResourceToChannel(category)

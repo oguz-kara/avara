@@ -16,13 +16,13 @@ export interface PermissionProps {
   resource: ResourceType
   action: ActionType
   scope: ScopeType
-  created_by?: string
-  updated_by?: string
-  created_at?: Date
-  updated_at?: Date
-  deleted_at?: Date
-  deleted_by?: string
-  specific_scope_id?: string
+  createdBy?: string
+  updatedBy?: string
+  createdAt?: Date
+  updatedAt?: Date
+  deletedAt?: Date
+  deletedBy?: string
+  specificScopeId?: string
 }
 
 export class Permission
@@ -32,37 +32,37 @@ export class Permission
   private _resource: ResourceType
   private _action: ActionType
   private _scope: ScopeType
-  private _created_by: string = 'system'
-  private _updated_by: string = 'system'
-  private _deleted_at: Date | undefined
-  private _deleted_by: string | undefined
-  private _specific_scope_id: string
+  private _createdBy: string = 'system'
+  private _updatedBy: string = 'system'
+  private _deletedAt: Date | undefined
+  private _deletedBy: string | undefined
+  private _specificScopeId: string
 
   constructor({
     id,
     resource,
     action,
     scope,
-    created_by = 'system',
-    updated_by = 'system',
-    created_at = new Date(),
-    updated_at = new Date(),
-    deleted_at = undefined,
-    deleted_by = undefined,
-    specific_scope_id = null,
+    createdBy = 'system',
+    updatedBy = 'system',
+    createdAt = new Date(),
+    updatedAt = new Date(),
+    deletedAt = undefined,
+    deletedBy = undefined,
+    specificScopeId = null,
   }: PermissionProps) {
     super()
     this._id = id
     this._resource = resource
     this._action = action
     this._scope = scope
-    this._created_at = created_at
-    this._created_by = created_by
-    this._updated_at = updated_at
-    this._updated_by = updated_by
-    this._deleted_at = deleted_at
-    this._deleted_by = deleted_by
-    this._specific_scope_id = specific_scope_id
+    this._createdAt = createdAt
+    this._createdBy = createdBy
+    this._updatedAt = updatedAt
+    this._updatedBy = updatedBy
+    this._deletedAt = deletedAt
+    this._deletedBy = deletedBy
+    this._specificScopeId = specificScopeId
   }
 
   get resource(): ResourceType {
@@ -74,20 +74,20 @@ export class Permission
   get scope(): ScopeType {
     return this._scope
   }
-  get created_by(): string {
-    return this._created_by
+  get createdBy(): string {
+    return this._createdBy
   }
-  get updated_by(): string {
-    return this._updated_by
+  get updatedBy(): string {
+    return this._updatedBy
   }
-  get deleted_at(): Date | undefined {
-    return this._deleted_at
+  get deletedAt(): Date | undefined {
+    return this._deletedAt
   }
-  get deleted_by(): string | undefined {
-    return this._deleted_by
+  get deletedBy(): string | undefined {
+    return this._deletedBy
   }
-  get specific_scope_id(): string {
-    return this._specific_scope_id
+  get specificScopeId(): string {
+    return this._specificScopeId
   }
 
   get name(): PermissionString {
@@ -102,17 +102,17 @@ export class Permission
   }
 
   public assignSpecificScopeId(id: string): void {
-    if (id === this._specific_scope_id) return
-    this._specific_scope_id = id
+    if (id === this._specificScopeId) return
+    this._specificScopeId = id
   }
 
   public softDelete(): void {
-    if (this._deleted_at) throw new Error('Permission already soft removed!')
+    if (this._deletedAt) throw new Error('Permission already soft removed!')
 
-    this._deleted_at = new Date()
+    this._deletedAt = new Date()
   }
 
   public recover(): void {
-    this._deleted_at = undefined
+    this._deletedAt = undefined
   }
 }

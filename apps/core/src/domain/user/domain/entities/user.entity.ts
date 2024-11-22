@@ -6,16 +6,16 @@ import { TrackableEntity } from '@avara/shared/domain/trackable-entity.interface
 interface UserProps {
   id?: string
   email: string
-  password_hash: string
-  email_verified?: boolean
-  role_id: string
-  is_active?: UserActiveStatus
-  created_at?: Date
-  created_by?: string
-  updated_at?: Date
-  updated_by?: string
-  deleted_at?: Date
-  deleted_by?: string
+  passwordHash: string
+  emailVerified?: boolean
+  roleId: string
+  isActive?: UserActiveStatus
+  createdAt?: Date
+  createdBy?: string
+  updatedAt?: Date
+  updatedBy?: string
+  deletedAt?: Date
+  deletedBy?: string
 }
 
 export class User
@@ -24,44 +24,44 @@ export class User
 {
   _id: string | undefined
   private _email: string
-  private _password_hash: string
-  private _email_verified: boolean
-  private _is_active: UserActiveStatus
-  private _role_id: string
-  protected _created_at: Date
-  private _created_by: string
-  protected _updated_at: Date
-  private _updated_by: string
-  private _deleted_at: Date | undefined = undefined
-  private _deleted_by: string | undefined = undefined
+  private _passwordHash: string
+  private _emailVerified: boolean
+  private _isActive: UserActiveStatus
+  private _roleId: string
+  protected _createdAt: Date
+  private _createdBy: string
+  protected _updatedAt: Date
+  private _updatedBy: string
+  private _deletedAt: Date | undefined = undefined
+  private _deletedBy: string | undefined = undefined
 
   constructor({
     id = undefined,
     email,
-    password_hash,
-    email_verified = false,
-    role_id,
-    is_active = UserActiveStatus.INACTIVE,
-    created_at = new Date(),
-    created_by = 'system',
-    updated_at = new Date(),
-    updated_by = 'system',
-    deleted_at = undefined,
-    deleted_by = undefined,
+    passwordHash,
+    emailVerified = false,
+    roleId,
+    isActive = UserActiveStatus.INACTIVE,
+    createdAt = new Date(),
+    createdBy = 'system',
+    updatedAt = new Date(),
+    updatedBy = 'system',
+    deletedAt = undefined,
+    deletedBy = undefined,
   }: UserProps) {
     super()
     this._id = id
     this._email = email
-    this._password_hash = password_hash
-    this._email_verified = email_verified
-    this._is_active = is_active
-    this._role_id = role_id
-    this._created_at = created_at
-    this._updated_at = updated_at
-    this._deleted_at = deleted_at
-    this._created_by = created_by
-    this._updated_by = updated_by
-    this._deleted_by = deleted_by
+    this._passwordHash = passwordHash
+    this._emailVerified = emailVerified
+    this._isActive = isActive
+    this._roleId = roleId
+    this._createdAt = createdAt
+    this._updatedAt = updatedAt
+    this._deletedAt = deletedAt
+    this._createdBy = createdBy
+    this._updatedBy = updatedBy
+    this._deletedBy = deletedBy
   }
 
   get id(): string {
@@ -72,54 +72,54 @@ export class User
     return this._email
   }
 
-  get password_hash(): string {
-    return this._password_hash
+  get passwordHash(): string {
+    return this._passwordHash
   }
 
-  get role_id(): string {
-    return this._role_id
+  get roleId(): string {
+    return this._roleId
   }
 
-  get is_active(): string {
-    return this._is_active
+  get isActive(): string {
+    return this._isActive
   }
 
-  get email_verified(): boolean {
-    return this._email_verified
+  get emailVerified(): boolean {
+    return this._emailVerified
   }
 
-  get created_at(): Date {
-    return new Date(this._created_at)
+  get createdAt(): Date {
+    return new Date(this._createdAt)
   }
 
-  get updated_at(): Date {
-    return new Date(this._updated_at)
+  get updatedAt(): Date {
+    return new Date(this._updatedAt)
   }
 
-  get deleted_at(): Date | undefined {
-    return this._deleted_at ? new Date(this._deleted_at) : undefined
+  get deletedAt(): Date | undefined {
+    return this._deletedAt ? new Date(this._deletedAt) : undefined
   }
 
-  get deleted_by(): string {
-    return this._deleted_by
+  get deletedBy(): string {
+    return this._deletedBy
   }
 
-  get created_by(): string {
-    return this._created_by
+  get createdBy(): string {
+    return this._createdBy
   }
 
-  get updated_by(): string {
-    return this._updated_by
+  get updatedBy(): string {
+    return this._updatedBy
   }
 
   public softDelete(): void {
-    if (this._deleted_at) throw new Error('Role already soft removed!')
+    if (this._deletedAt) throw new Error('Role already soft removed!')
 
-    this._deleted_at = new Date()
+    this._deletedAt = new Date()
   }
 
   public recover(): void {
-    this._deleted_at = undefined
+    this._deletedAt = undefined
   }
 
   public assignId(id: string): void {
@@ -127,22 +127,22 @@ export class User
   }
 
   public changeEmail(newEmail: string): void {
-    if (this._email_verified) {
+    if (this._emailVerified) {
       throw new Error('Cannot change email after verification.')
     }
     if (!this.validateEmail(newEmail)) {
       throw new Error('Invalid email format.')
     }
     this._email = newEmail
-    this._updated_at = new Date()
+    this._updatedAt = new Date()
   }
 
   public changePassword(newPasswordHash: string) {
-    this._password_hash = newPasswordHash
+    this._passwordHash = newPasswordHash
   }
 
   public setRole(newRoleId: string) {
-    this._role_id = newRoleId
+    this._roleId = newRoleId
   }
 
   private validateEmail(email: string): boolean {

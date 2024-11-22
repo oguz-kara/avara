@@ -35,11 +35,11 @@ export class ChannelService {
       id: undefined,
       name: input.name,
       code: input.code,
-      currency_code: input.currency_code || defaultCurrency,
-      default_language_code: input.default_language_code || defaultLanguage,
-      is_default: input.is_default,
-      created_by: 'system',
-      updated_by: 'system',
+      currencyCode: input.currencyCode || defaultCurrency,
+      defaultLanguageCode: input.defaultLanguageCode || defaultLanguage,
+      isDefault: input.isDefault,
+      createdBy: 'system',
+      updatedBy: 'system',
     })
 
     await this.repo.save(channel)
@@ -95,9 +95,9 @@ export class ChannelService {
       channel = await this.createChannel({
         code: 'default',
         name: 'Default Channel',
-        is_default: true,
-        default_language_code: defaultLanguage,
-        currency_code: defaultCurrencyCode,
+        isDefault: true,
+        defaultLanguageCode: defaultLanguage,
+        currencyCode: defaultCurrencyCode,
       })
 
     return channel

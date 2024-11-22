@@ -14,16 +14,16 @@ export class UserMapper implements Mapper<User, UserPersistence> {
     return new User({
       id: entity.id,
       email: entity.email,
-      password_hash: entity.password_hash,
-      email_verified: entity.email_verified,
-      role_id: entity.role_id,
-      is_active: this.mapActiveStatusToDomain(entity.is_active),
-      created_at: entity.created_at,
-      created_by: entity.created_by,
-      updated_at: entity.updated_at,
-      updated_by: entity.updated_by,
-      deleted_at: entity.deleted_at,
-      deleted_by: entity.deleted_by,
+      passwordHash: entity.passwordHash,
+      emailVerified: entity.emailVerified,
+      roleId: entity.roleId,
+      isActive: this.mapActiveStatusToDomain(entity.isActive),
+      createdAt: entity.createdAt,
+      createdBy: entity.createdBy,
+      updatedAt: entity.updatedAt,
+      updatedBy: entity.updatedBy,
+      deletedAt: entity.deletedAt,
+      deletedBy: entity.deletedBy,
     })
   }
 
@@ -31,18 +31,18 @@ export class UserMapper implements Mapper<User, UserPersistence> {
     return {
       id: entity.id,
       email: entity.email,
-      password_hash: entity.password_hash,
-      role_id: entity.role_id,
-      email_verified: entity.email_verified,
-      is_active: this.mapActiveStatusToPersistence(
-        entity.is_active as UserActiveStatus,
+      passwordHash: entity.passwordHash,
+      roleId: entity.roleId,
+      emailVerified: entity.emailVerified,
+      isActive: this.mapActiveStatusToPersistence(
+        entity.isActive as UserActiveStatus,
       ),
-      created_at: entity.created_at,
-      created_by: entity.created_by,
-      updated_at: entity.updated_at,
-      updated_by: entity.updated_by,
-      deleted_at: entity.deleted_at,
-      deleted_by: entity.deleted_by,
+      createdAt: entity.createdAt,
+      createdBy: entity.createdBy,
+      updatedAt: entity.updatedAt,
+      updatedBy: entity.updatedBy,
+      deletedAt: entity.deletedAt,
+      deletedBy: entity.deletedBy,
     }
   }
 

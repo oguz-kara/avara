@@ -5,18 +5,18 @@ import { CategoryType } from '../../application/enums/category.enum'
 
 interface CategoryProps {
   id?: string
-  parent_category_id?: string
-  meta_field_id?: string
-  category_type: CategoryType
+  parentCategoryId?: string
+  metaFieldId?: string
+  categoryType: CategoryType
   name: string
   content: string
-  content_type: string
-  created_at?: Date
-  created_by?: string
-  updated_at?: Date
-  updated_by?: string
-  deleted_at?: Date
-  deleted_by?: string
+  contentType: string
+  createdAt?: Date
+  createdBy?: string
+  updatedAt?: Date
+  updatedBy?: string
+  deletedAt?: Date
+  deletedBy?: string
 }
 
 export class Category
@@ -24,60 +24,60 @@ export class Category
   implements TrackableEntity, SoftDeletableEntity
 {
   _id: string | undefined
-  private _parent_category_id: string
-  private _meta_field_id: string
-  private _category_type: CategoryType
+  private _parentCategoryId: string
+  private _metaFieldId: string
+  private _categoryType: CategoryType
   private _name: string
   private _content: string
-  private _content_type: string
-  protected _created_at: Date
-  private _created_by: string
-  protected _updated_at: Date
-  private _updated_by: string
-  private _deleted_at: Date | undefined = undefined
-  private _deleted_by: string | undefined = undefined
+  private _contentType: string
+  protected _createdAt: Date
+  private _createdBy: string
+  protected _updatedAt: Date
+  private _updatedBy: string
+  private _deletedAt: Date | undefined = undefined
+  private _deletedBy: string | undefined = undefined
 
   constructor({
     id = undefined,
-    parent_category_id,
-    meta_field_id,
-    category_type,
+    parentCategoryId,
+    metaFieldId,
+    categoryType,
     name,
     content,
-    content_type,
-    created_at = new Date(),
-    created_by = 'system',
-    updated_at = new Date(),
-    updated_by = 'system',
-    deleted_at = undefined,
-    deleted_by = undefined,
+    contentType,
+    createdAt = new Date(),
+    createdBy = 'system',
+    updatedAt = new Date(),
+    updatedBy = 'system',
+    deletedAt = undefined,
+    deletedBy = undefined,
   }: CategoryProps) {
     super()
     this._id = id
-    this._category_type = category_type
-    this._parent_category_id = parent_category_id
-    this._meta_field_id = meta_field_id
+    this._categoryType = categoryType
+    this._parentCategoryId = parentCategoryId
+    this._metaFieldId = metaFieldId
     this._name = name
-    this._content_type = content_type
+    this._contentType = contentType
     this._content = content
-    this._created_at = created_at
-    this._updated_at = updated_at
-    this._deleted_at = deleted_at
-    this._created_by = created_by
-    this._updated_by = updated_by
-    this._deleted_by = deleted_by
+    this._createdAt = createdAt
+    this._updatedAt = updatedAt
+    this._deletedAt = deletedAt
+    this._createdBy = createdBy
+    this._updatedBy = updatedBy
+    this._deletedBy = deletedBy
   }
 
   get id(): string {
     return this._id
   }
 
-  get parent_category_id(): string {
-    return this._parent_category_id
+  get parentCategoryId(): string {
+    return this._parentCategoryId
   }
 
-  get meta_field_id(): string {
-    return this._meta_field_id
+  get metaFieldId(): string {
+    return this._metaFieldId
   }
 
   get name(): string {
@@ -88,46 +88,46 @@ export class Category
     return this._content
   }
 
-  get content_type(): string {
-    return this._content_type
+  get contentType(): string {
+    return this._contentType
   }
 
-  get category_type(): CategoryType {
-    return this._category_type
+  get categoryType(): CategoryType {
+    return this._categoryType
   }
 
-  get created_at(): Date {
-    return new Date(this._created_at)
+  get createdAt(): Date {
+    return new Date(this._createdAt)
   }
 
-  get updated_at(): Date {
-    return new Date(this._updated_at)
+  get updatedAt(): Date {
+    return new Date(this._updatedAt)
   }
 
-  get deleted_at(): Date | undefined {
-    return this._deleted_at ? new Date(this._deleted_at) : undefined
+  get deletedAt(): Date | undefined {
+    return this._deletedAt ? new Date(this._deletedAt) : undefined
   }
 
-  get deleted_by(): string {
-    return this._deleted_by
+  get deletedBy(): string {
+    return this._deletedBy
   }
 
-  get created_by(): string {
-    return this._created_by
+  get createdBy(): string {
+    return this._createdBy
   }
 
-  get updated_by(): string {
-    return this._updated_by
+  get updatedBy(): string {
+    return this._updatedBy
   }
 
   public softDelete(): void {
-    if (this._deleted_at) throw new Error('Role already soft removed!')
+    if (this._deletedAt) throw new Error('Role already soft removed!')
 
-    this._deleted_at = new Date()
+    this._deletedAt = new Date()
   }
 
   public recover(): void {
-    this._deleted_at = undefined
+    this._deletedAt = undefined
   }
 
   public assignId(id: string): void {
@@ -135,7 +135,7 @@ export class Category
   }
 
   public deleteProductCategory() {
-    this._deleted_at = new Date()
+    this._deletedAt = new Date()
   }
 
   public renameProductCategory(name: string) {

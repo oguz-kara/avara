@@ -94,14 +94,14 @@ export class FacetRepository extends ContextSaver {
 
   async softDelete(
     id: string,
-    data: { deleted_by: string } = { deleted_by: 'system' },
+    data: { deletedBy: string } = { deletedBy: 'system' },
     persistenceContext?: PersistenceContext,
   ): Promise<Facet> {
     return await this.getClient(persistenceContext?.tx).facet.update({
       where: {
         id,
       },
-      data: { deleted_at: new Date(), deleted_by: data.deleted_by },
+      data: { deletedAt: new Date(), deletedBy: data.deletedBy },
     })
   }
 

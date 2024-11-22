@@ -11,7 +11,7 @@ import { IsString, IsEnum } from 'class-validator'
 export class CreatePermissionDto {
   @Field({ nullable: true })
   @IsString()
-  specific_scope_id?: string
+  specificScopeId?: string
 
   @Field(() => ActionType)
   @IsEnum(ActionType)
@@ -30,7 +30,7 @@ export class CreatePermissionDto {
 export class UpdatePermissionDto {
   @Field({ nullable: true })
   @IsString()
-  specific_scope_id?: string
+  specificScopeId?: string
 
   @Field(() => ActionType, { nullable: true })
   @IsEnum(ActionType)

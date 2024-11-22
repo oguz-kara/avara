@@ -45,28 +45,28 @@ describe('SeoMetadataResolver (e2e)', () => {
         description: "test", 
         keywords: "test", 
         version: 1, 
-        canonical_url: "test", 
-        og_title: "test", 
-        og_description: "test", 
-        og_image: "test", 
+        canonicalUrl: "test", 
+        ogTitle: "test", 
+        ogDescription: "test", 
+        ogImage: "test", 
         robots: "test", 
-        schema_markup: "test", 
+        schemaMarkup: "test", 
         hreflang: "test", 
-        page_type: "test"
+        pageType: "test"
         }) {
         id
         title
         description
         keywords
         version
-        canonical_url
-        og_title
-        og_description
-        og_image
+        canonicalUrl
+        ogTitle
+        ogDescription
+        ogImage
         robots
-        schema_markup
+        schemaMarkup
         hreflang
-        page_type
+        pageType
         }
       }
     `
@@ -80,14 +80,14 @@ describe('SeoMetadataResolver (e2e)', () => {
       expect(data.description).toBe('test')
       expect(data.keywords).toBe('test')
       expect(data.version).toBe(1)
-      expect(data.canonical_url).toBe('test')
-      expect(data.og_title).toBe('test')
-      expect(data.og_description).toBe('test')
-      expect(data.og_image).toBe('test')
+      expect(data.canonicalUrl).toBe('test')
+      expect(data.ogTitle).toBe('test')
+      expect(data.ogDescription).toBe('test')
+      expect(data.ogImage).toBe('test')
       expect(data.robots).toBe('test')
-      expect(data.schema_markup).toBe('test')
+      expect(data.schemaMarkup).toBe('test')
       expect(data.hreflang).toBe('test')
-      expect(data.page_type).toBe('test')
+      expect(data.pageType).toBe('test')
     })
   })
 
@@ -99,14 +99,14 @@ describe('SeoMetadataResolver (e2e)', () => {
           description: 'test',
           keywords: 'test',
           version: 1,
-          canonical_url: 'test',
-          og_title: 'test',
-          og_description: 'test',
-          og_image: 'test',
+          canonicalUrl: 'test',
+          ogTitle: 'test',
+          ogDescription: 'test',
+          ogImage: 'test',
           robots: 'test',
-          schema_markup: 'test',
+          schemaMarkup: 'test',
           hreflang: 'test',
-          page_type: 'test',
+          pageType: 'test',
           channels: {
             connect: {
               code: 'default',
@@ -122,28 +122,28 @@ describe('SeoMetadataResolver (e2e)', () => {
           description: "test updated", 
           keywords: "test updated", 
           version: 2, 
-          canonical_url: "test updated", 
-          og_title: "test updated", 
-          og_description: "test updated", 
-          og_image: "test updated", 
+          canonicalUrl: "test updated", 
+          ogTitle: "test updated", 
+          ogDescription: "test updated", 
+          ogImage: "test updated", 
           robots: "test updated", 
-          schema_markup: "test updated", 
+          schemaMarkup: "test updated", 
           hreflang: "test updated", 
-          page_type: "test updated"
+          pageType: "test updated"
           }) {
           id
           title
           description
           keywords
           version
-          canonical_url
-          og_title
-          og_description
-          og_image
+          canonicalUrl
+          ogTitle
+          ogDescription
+          ogImage
           robots
-          schema_markup
+          schemaMarkup
           hreflang
-          page_type
+          pageType
           }
         }
       `
@@ -157,14 +157,14 @@ describe('SeoMetadataResolver (e2e)', () => {
       expect(data.description).toBe('test updated')
       expect(data.keywords).toBe('test updated')
       expect(data.version).toBe(2)
-      expect(data.canonical_url).toBe('test updated')
-      expect(data.og_title).toBe('test updated')
-      expect(data.og_description).toBe('test updated')
-      expect(data.og_image).toBe('test updated')
+      expect(data.canonicalUrl).toBe('test updated')
+      expect(data.ogTitle).toBe('test updated')
+      expect(data.ogDescription).toBe('test updated')
+      expect(data.ogImage).toBe('test updated')
       expect(data.robots).toBe('test updated')
-      expect(data.schema_markup).toBe('test updated')
+      expect(data.schemaMarkup).toBe('test updated')
       expect(data.hreflang).toBe('test updated')
-      expect(data.page_type).toBe('test updated')
+      expect(data.pageType).toBe('test updated')
     })
     it('should return not found message if no metadata exists to update', async () => {
       const graphql = `
@@ -178,16 +178,16 @@ describe('SeoMetadataResolver (e2e)', () => {
             description
             keywords
             version
-            canonical_url
-            og_title
-            og_description
-            og_image
+            canonicalUrl
+            ogTitle
+            ogDescription
+            ogImage
             robots
-            schema_markup
+            schemaMarkup
             hreflang
-            page_type
-            created_at
-            updated_at
+            pageType
+            createdAt
+            updatedAt
         }
       }
      `
@@ -207,14 +207,14 @@ describe('SeoMetadataResolver (e2e)', () => {
           description: 'test',
           keywords: 'test',
           version: 1,
-          canonical_url: 'test',
-          og_title: 'test',
-          og_description: 'test',
-          og_image: 'test',
+          canonicalUrl: 'test',
+          ogTitle: 'test',
+          ogDescription: 'test',
+          ogImage: 'test',
           robots: 'test',
-          schema_markup: 'test',
+          schemaMarkup: 'test',
           hreflang: 'test',
-          page_type: 'test',
+          pageType: 'test',
           channels: {
             connect: {
               code: 'default',
@@ -234,16 +234,16 @@ describe('SeoMetadataResolver (e2e)', () => {
               description
               keywords
               version
-              canonical_url
-              og_title
-              og_description
-              og_image
+              canonicalUrl
+              ogTitle
+              ogDescription
+              ogImage
               robots
-              schema_markup
+              schemaMarkup
               hreflang
-              page_type
-              created_at
-              updated_at
+              pageType
+              createdAt
+              updatedAt
           }
         }
        `
@@ -266,14 +266,14 @@ describe('SeoMetadataResolver (e2e)', () => {
           description: 'test',
           keywords: 'test',
           version: 1,
-          canonical_url: 'test',
-          og_title: 'test',
-          og_description: 'test',
-          og_image: 'test',
+          canonicalUrl: 'test',
+          ogTitle: 'test',
+          ogDescription: 'test',
+          ogImage: 'test',
           robots: 'test',
-          schema_markup: 'test',
+          schemaMarkup: 'test',
           hreflang: 'test',
-          page_type: 'test',
+          pageType: 'test',
           channels: {
             connect: {
               code: 'default',
@@ -290,16 +290,16 @@ describe('SeoMetadataResolver (e2e)', () => {
                 description
                 keywords
                 version
-                canonical_url
-                og_title
-                og_description
-                og_image
+                canonicalUrl
+                ogTitle
+                ogDescription
+                ogImage
                 robots
-                schema_markup
+                schemaMarkup
                 hreflang
-                page_type
-                created_at
-                updated_at
+                pageType
+                createdAt
+                updatedAt
             }
         }
       `
@@ -314,14 +314,14 @@ describe('SeoMetadataResolver (e2e)', () => {
       expect(data.description).toBe('test')
       expect(data.keywords).toBe('test')
       expect(data.version).toBe(1)
-      expect(data.canonical_url).toBe('test')
-      expect(data.og_title).toBe('test')
-      expect(data.og_description).toBe('test')
-      expect(data.og_image).toBe('test')
+      expect(data.canonicalUrl).toBe('test')
+      expect(data.ogTitle).toBe('test')
+      expect(data.ogDescription).toBe('test')
+      expect(data.ogImage).toBe('test')
       expect(data.robots).toBe('test')
-      expect(data.schema_markup).toBe('test')
+      expect(data.schemaMarkup).toBe('test')
       expect(data.hreflang).toBe('test')
-      expect(data.page_type).toBe('test')
+      expect(data.pageType).toBe('test')
     })
     it('should return not found message if seo metadata not exists to delete', async () => {
       const graphql = `
@@ -332,16 +332,16 @@ describe('SeoMetadataResolver (e2e)', () => {
                 description
                 keywords
                 version
-                canonical_url
-                og_title
-                og_description
-                og_image
+                canonicalUrl
+                ogTitle
+                ogDescription
+                ogImage
                 robots
-                schema_markup
+                schemaMarkup
                 hreflang
-                page_type
-                created_at
-                updated_at
+                pageType
+                createdAt
+                updatedAt
             }
         }
       `
@@ -380,16 +380,16 @@ describe('SeoMetadataResolver (e2e)', () => {
                 description
                 keywords
                 version
-                canonical_url
-                og_title
-                og_description
-                og_image
+                canonicalUrl
+                ogTitle
+                ogDescription
+                ogImage
                 robots
-                schema_markup
+                schemaMarkup
                 hreflang
-                page_type
-                created_at
-                updated_at
+                pageType
+                createdAt
+                updatedAt
             }
         }
     `
@@ -404,12 +404,12 @@ describe('SeoMetadataResolver (e2e)', () => {
       expect(data.description).toBe('test')
       expect(data.keywords).toBe('test')
       expect(data.version).toBe(1)
-      expect(data.canonical_url).toBeNull()
-      expect(data.og_title).toBeNull()
-      expect(data.og_description).toBeNull()
-      expect(data.og_image).toBeNull()
+      expect(data.canonicalUrl).toBeNull()
+      expect(data.ogTitle).toBeNull()
+      expect(data.ogDescription).toBeNull()
+      expect(data.ogImage).toBeNull()
       expect(data.robots).toBeNull()
-      expect(data.schema_markup).toBeNull()
+      expect(data.schemaMarkup).toBeNull()
       expect(data.hreflang).toBeNull()
     })
     it('should return seo null if no record exists', async () => {
@@ -421,16 +421,16 @@ describe('SeoMetadataResolver (e2e)', () => {
                 description
                 keywords
                 version
-                canonical_url
-                og_title
-                og_description
-                og_image
+                canonicalUrl
+                ogTitle
+                ogDescription
+                ogImage
                 robots
-                schema_markup
+                schemaMarkup
                 hreflang
-                page_type
-                created_at
-                updated_at
+                pageType
+                createdAt
+                updatedAt
             }
         }
         `
@@ -484,16 +484,16 @@ describe('SeoMetadataResolver (e2e)', () => {
                     description
                     keywords
                     version
-                    canonical_url
-                    og_title
-                    og_description
-                    og_image
+                    canonicalUrl
+                    ogTitle
+                    ogDescription
+                    ogImage
                     robots
-                    schema_markup
+                    schemaMarkup
                     hreflang
-                    page_type
-                    created_at
-                    updated_at
+                    pageType
+                    createdAt
+                    updatedAt
                 }
             }
         }
@@ -510,24 +510,24 @@ describe('SeoMetadataResolver (e2e)', () => {
       expect(data.items[0].description).toBe('test')
       expect(data.items[0].keywords).toBe('test')
       expect(data.items[0].version).toBe(1)
-      expect(data.items[0].canonical_url).toBeNull()
-      expect(data.items[0].og_title).toBeNull()
-      expect(data.items[0].og_description).toBeNull()
-      expect(data.items[0].og_image).toBeNull()
+      expect(data.items[0].canonicalUrl).toBeNull()
+      expect(data.items[0].ogTitle).toBeNull()
+      expect(data.items[0].ogDescription).toBeNull()
+      expect(data.items[0].ogImage).toBeNull()
       expect(data.items[0].robots).toBeNull()
-      expect(data.items[0].schema_markup).toBeNull()
+      expect(data.items[0].schemaMarkup).toBeNull()
       expect(data.items[0].hreflang).toBeNull()
 
       expect(data.items[1].title).toBe('test 2')
       expect(data.items[1].description).toBe('test 2')
       expect(data.items[1].keywords).toBe('test 2')
       expect(data.items[1].version).toBe(2)
-      expect(data.items[1].canonical_url).toBeNull()
-      expect(data.items[1].og_title).toBeNull()
-      expect(data.items[1].og_description).toBeNull()
-      expect(data.items[1].og_image).toBeNull()
+      expect(data.items[1].canonicalUrl).toBeNull()
+      expect(data.items[1].ogTitle).toBeNull()
+      expect(data.items[1].ogDescription).toBeNull()
+      expect(data.items[1].ogImage).toBeNull()
       expect(data.items[1].robots).toBeNull()
-      expect(data.items[1].schema_markup).toBeNull()
+      expect(data.items[1].schemaMarkup).toBeNull()
       expect(data.items[1].hreflang).toBeNull()
     })
 
@@ -570,16 +570,16 @@ describe('SeoMetadataResolver (e2e)', () => {
                         description
                         keywords
                         version
-                        canonical_url
-                        og_title
-                        og_description
-                        og_image
+                        canonicalUrl
+                        ogTitle
+                        ogDescription
+                        ogImage
                         robots
-                        schema_markup
+                        schemaMarkup
                         hreflang
-                        page_type
-                        created_at
-                        updated_at
+                        pageType
+                        createdAt
+                        updatedAt
                     }
                     pagination {
                         total

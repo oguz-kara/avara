@@ -6,7 +6,7 @@ import { IsString, MaxLength, MinLength } from 'class-validator'
 export class CreateFacetValueDto {
   @Field()
   @IsString()
-  facet_id: string
+  facetId: string
 
   @Field()
   @IsString()

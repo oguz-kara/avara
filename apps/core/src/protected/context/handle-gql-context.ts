@@ -23,10 +23,10 @@ export const getGqlContextHandler = (
 
     const requestContext = new RequestContext({
       channel,
-      channel_id: channel.id,
-      channel_code: channel.code,
-      language_code: languageCode ? languageCode : defaultLanguage,
-      currency_code: currencyCode ? currencyCode : defaultCurrency,
+      channelId: channel.id,
+      channelCode: channel.code,
+      languageCode: languageCode ? languageCode : defaultLanguage,
+      currencyCode: currencyCode ? currencyCode : defaultCurrency,
     })
 
     return {

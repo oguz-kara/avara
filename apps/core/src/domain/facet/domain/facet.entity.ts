@@ -20,12 +20,12 @@ export interface FacetProps {
   code: string
   values?: FacetValue[]
   channels?: Channel[]
-  created_at?: Date
-  updated_at?: Date
-  deleted_at?: Date
-  updated_by?: string
-  created_by?: string
-  deleted_by?: string
+  createdAt?: Date
+  updatedAt?: Date
+  deletedAt?: Date
+  updatedBy?: string
+  createdBy?: string
+  deletedBy?: string
 }
 
 export class Facet
@@ -35,60 +35,60 @@ export class Facet
   @IsString()
   @MaxLength(60)
   @MinLength(2)
-  private _name: string
+  private Name: string
 
   @IsString()
   @MaxLength(60)
   @MinLength(2)
-  private _code: string
+  private Code: string
 
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => FacetValue)
-  protected _facet_values: FacetValue[]
+  protected FacetValues: FacetValue[]
 
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => Channel)
-  protected _channels: Channel[]
+  protected Channels: Channel[]
 
   @IsOptional()
   @IsString()
   @MaxLength(255)
   @MinLength(1)
-  private _created_by: string
+  private CreatedBy: string
 
   @IsOptional()
   @IsString()
   @MaxLength(255)
   @MinLength(1)
-  private _updated_by: string
+  private UpdatedBy: string
 
   @IsOptional()
   @IsDate()
-  private _deleted_at: Date
+  private DeletedAt: Date
 
   @IsOptional()
   @IsString()
   @MaxLength(255)
   @MinLength(1)
-  private _deleted_by: string
+  private DeletedBy: string
 
   private constructor(props: FacetProps) {
     super()
     this._id = props.id
-    this._name = props.name
-    this._code = props.code
-    this._facet_values = props.values ?? []
-    this._channels = props.channels ?? []
-    this._created_by = props.created_by
-    this._updated_by = props.updated_by
-    this._deleted_by = props.deleted_by
-    this._deleted_at = props.deleted_at
-    this._created_at = props.created_at ?? new Date()
-    this._updated_at = props.updated_at
+    this.Name = props.name
+    this.Code = props.code
+    this.FacetValues = props.values ?? []
+    this.Channels = props.channels ?? []
+    this.CreatedBy = props.createdBy
+    this.UpdatedBy = props.updatedBy
+    this.DeletedBy = props.deletedBy
+    this.DeletedAt = props.deletedAt
+    this._createdAt = props.createdAt ?? new Date()
+    this._updatedAt = props.updatedAt
   }
 
   static create(args: FacetProps): Facet {
@@ -98,63 +98,63 @@ export class Facet
   }
 
   updateDetails(name: string, code: string): void {
-    this._name = name
-    this._code = code
-    this._updated_at = new Date()
+    this.Name = name
+    this.Code = code
+    this._updatedAt = new Date()
     this.validateSync('Facet')
   }
 
   addValue(value: FacetValue): void {
-    this._facet_values.push(value)
+    this.FacetValues.push(value)
   }
 
   addValueList(values: FacetValue[]): void {
-    this._facet_values.push(...values)
+    this.FacetValues.push(...values)
   }
 
   removeValue(value: FacetValue): void {
-    this._facet_values = this._facet_values.filter((v) => v !== value)
+    this.FacetValues = this.FacetValues.filter((v) => v !== value)
   }
 
   get name(): string {
-    return this._name
+    return this.Name
   }
 
   get code(): string {
-    return this._code
+    return this.Code
   }
 
-  get facet_values(): FacetValue[] {
-    return this._facet_values
+  get facetValues(): FacetValue[] {
+    return this.FacetValues
   }
 
   get channels(): Channel[] {
-    return this._channels
+    return this.Channels
   }
 
-  get created_by(): string {
-    return this._created_by
+  get createdBy(): string {
+    return this.CreatedBy
   }
 
-  get updated_by(): string {
-    return this._updated_by
+  get updatedBy(): string {
+    return this.UpdatedBy
   }
 
-  get deleted_at(): Date {
-    return this._deleted_at
+  get deletedAt(): Date {
+    return this.DeletedAt
   }
 
-  get deleted_by(): string {
-    return this._deleted_by
+  get deletedBy(): string {
+    return this.DeletedBy
   }
 
-  softDelete(deleted_by: string): void {
-    this._deleted_at = new Date()
-    this._deleted_by = deleted_by
+  softDelete(deletedBy: string): void {
+    this.DeletedAt = new Date()
+    this.DeletedBy = deletedBy
   }
 
   recover(): void {
-    this._deleted_at = undefined
-    this._deleted_by = undefined
+    this.DeletedAt = undefined
+    this.DeletedBy = undefined
   }
 }
